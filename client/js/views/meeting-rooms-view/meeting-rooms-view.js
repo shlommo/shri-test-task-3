@@ -21,6 +21,7 @@ class MeetingRoomsView extends AbstractView {
     this.minute = this.date.getMinutes();
     this.dayMin = 8;
     this.dayMax = 22;
+    this.MINUTE = 60 * 1000;
     this.dayTotal = this.dayMax - this.dayMin + 1;
     this.initialAppDate = new Date();
     this.initialAppDay = getDateValue(this.initialAppDate).day;
@@ -67,16 +68,61 @@ class MeetingRoomsView extends AbstractView {
     this.minute = date.getMinutes();
   }
 
+  changeFreeTime() {
+    const freeTimeSlotArr = document.querySelectorAll('.time-slot--empty');
+    let startTime, endTime, duration, width, left, startDate;
+
+    if (freeTimeSlotArr !== undefined) {
+      for (let freeTimeSlot of Array.from(freeTimeSlotArr)) {
+        startTime = +freeTimeSlot.getAttribute('data-start-time');
+        endTime = +freeTimeSlot.getAttribute('data-end-time');
+        startDate = getDateValue(new Date(startTime)).minute;
+        duration = Math.floor((endTime - startTime) / this.MINUTE);
+        left = +getComputedStyle(freeTimeSlot).left.slice(0, -2);
+
+        if (duration < 2) {
+          freeTimeSlot.parentNode.removeChild(freeTimeSlot);
+        }
+
+        if (getDateValue(this.date).minute > startDate) {
+          width = (duration - 1) * this.minuteStep;
+          left += this.minuteStep;
+
+          freeTimeSlot.setAttribute('data-start-time', startTime + this.MINUTE);
+          freeTimeSlot.style.cssText = `left: ${left}px; width: ${width}px`;
+        }
+      }
+    }
+  }
+
+  responsiveTimeSlot() {
+    const timeSlotArr = document.querySelectorAll('.time-slot');
+    let startTime, endTime, duration, width, left, startDate;
+
+    if (timeSlotArr !== undefined) {
+      for (let timeSlot of Array.from(timeSlotArr)) {
+        startTime = +timeSlot.getAttribute('data-start-time');
+        endTime = +timeSlot.getAttribute('data-end-time');
+        startDate = getDateValue(new Date(startTime)).minute;
+        duration = Math.floor((endTime - startTime) / this.MINUTE);
+
+        left = ((startDate - this.dayStart) / this.MINUTE) * this.minuteStep;
+        width = duration * this.minuteStep;
+
+        timeSlot.style.cssText = `left: ${left}px; width: ${width}px`;
+      }
+    }
+  }
+
   renderClockLine() {
     const timeNowEl = this.element.querySelector('.diagram__time--now');
     const dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
     const timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
     const dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
-    const minuteInSec = 60 * 1000;
     const now = this.date.valueOf();
     const date = new Date(now);
-    const dayStart = date.setHours(8, 0, 0);
-    const currentMinute = (now - dayStart) / minuteInSec;
+    this.dayStart = date.setHours(8, 0, 0);
+    const currentMinute = (now - this.dayStart) / this.MINUTE;
     this.minuteStep = dayElWidth / (this.dayTotal * 60);
     const minute = this.minute < 10 ? `0${this.minute}` : this.minute;
 
@@ -111,12 +157,13 @@ class MeetingRoomsView extends AbstractView {
       this.updateTime(this.date);
     }
 
+    this.changeFreeTime();
     this.renderClockLine();
 
     // Clear all timeouts
     while (globalTimeout--) {
       window.clearTimeout(globalTimeout);
-    };
+    }
 
     globalTimeout = setTimeout(() => {
       this.clock(true);
@@ -219,6 +266,7 @@ class MeetingRoomsView extends AbstractView {
 
     const windowResizeHandler = () => {
       this.renderClockLine();
+      this.responsiveTimeSlot();
     };
 
     window.addEventListener('resize', debounce(windowResizeHandler, 66));

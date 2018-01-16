@@ -332,6 +332,7 @@
 	    _this.minute = _this.date.getMinutes();
 	    _this.dayMin = 8;
 	    _this.dayMax = 22;
+	    _this.MINUTE = 60 * 1000;
 	    _this.dayTotal = _this.dayMax - _this.dayMin + 1;
 	    _this.initialAppDate = new Date();
 	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day;
@@ -385,41 +386,41 @@
 	      this.minute = date.getMinutes();
 	    }
 	  }, {
-	    key: 'renderClockLine',
-	    value: function renderClockLine() {
-	      var timeNowEl = this.element.querySelector('.diagram__time--now');
-	      var dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
-	      var timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
-	      var dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
-	      var minuteInSec = 60 * 1000;
-	      var now = this.date.valueOf();
-	      var date = new Date(now);
-	      var dayStart = date.setHours(8, 0, 0);
-	      var currentMinute = (now - dayStart) / minuteInSec;
-	      this.minuteStep = dayElWidth / (this.dayTotal * 60);
-	      var minute = this.minute < 10 ? '0' + this.minute : this.minute;
+	    key: 'changeFreeTime',
+	    value: function changeFreeTime() {
+	      var freeTimeSlotArr = document.querySelectorAll('.time-slot--empty');
+	      var startTime = void 0,
+	          endTime = void 0,
+	          duration = void 0,
+	          width = void 0,
+	          left = void 0,
+	          startDate = void 0;
 	
-	      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
-	        timeNowEl.classList.add('show');
-	
-	        timeNowEl.style.left = currentMinute * this.minuteStep + 'px';
-	        timeNowEl.innerHTML = this.hour + ':' + minute;
-	
-	        if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
-	          timeNowEl.style.opacity = 0;
-	        }
-	
+	      if (freeTimeSlotArr !== undefined) {
 	        var _iteratorNormalCompletion = true;
 	        var _didIteratorError = false;
 	        var _iteratorError = undefined;
 	
 	        try {
-	          for (var _iterator = Array.from(timelineCellArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	            var timelineCell = _step.value;
+	          for (var _iterator = Array.from(freeTimeSlotArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var freeTimeSlot = _step.value;
 	
-	            var timelineCellValue = timelineCell.getAttribute('data-time');
-	            if (timelineCellValue <= this.date.getHours()) {
-	              timelineCell.classList.add('past');
+	            startTime = +freeTimeSlot.getAttribute('data-start-time');
+	            endTime = +freeTimeSlot.getAttribute('data-end-time');
+	            startDate = (0, _helpers.getDateValue)(new Date(startTime)).minute;
+	            duration = Math.floor((endTime - startTime) / this.MINUTE);
+	            left = +getComputedStyle(freeTimeSlot).left.slice(0, -2);
+	
+	            if (duration < 2) {
+	              freeTimeSlot.parentNode.removeChild(freeTimeSlot);
+	            }
+	
+	            if ((0, _helpers.getDateValue)(this.date).minute > startDate) {
+	              width = (duration - 1) * this.minuteStep;
+	              left += this.minuteStep;
+	
+	              freeTimeSlot.setAttribute('data-start-time', startTime + this.MINUTE);
+	              freeTimeSlot.style.cssText = 'left: ' + left + 'px; width: ' + width + 'px';
 	            }
 	          }
 	        } catch (err) {
@@ -436,16 +437,37 @@
 	            }
 	          }
 	        }
-	      } else if (this.IS_PAST) {
+	      }
+	    }
+	  }, {
+	    key: 'responsiveTimeSlot',
+	    value: function responsiveTimeSlot() {
+	      var timeSlotArr = document.querySelectorAll('.time-slot');
+	      var startTime = void 0,
+	          endTime = void 0,
+	          duration = void 0,
+	          width = void 0,
+	          left = void 0,
+	          startDate = void 0;
+	
+	      if (timeSlotArr !== undefined) {
 	        var _iteratorNormalCompletion2 = true;
 	        var _didIteratorError2 = false;
 	        var _iteratorError2 = undefined;
 	
 	        try {
-	          for (var _iterator2 = Array.from(timelineCellArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	            var _timelineCell = _step2.value;
+	          for (var _iterator2 = Array.from(timeSlotArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	            var timeSlot = _step2.value;
 	
-	            _timelineCell.classList.add('past');
+	            startTime = +timeSlot.getAttribute('data-start-time');
+	            endTime = +timeSlot.getAttribute('data-end-time');
+	            startDate = (0, _helpers.getDateValue)(new Date(startTime)).minute;
+	            duration = Math.floor((endTime - startTime) / this.MINUTE);
+	
+	            left = (startDate - this.dayStart) / this.MINUTE * this.minuteStep;
+	            width = duration * this.minuteStep;
+	
+	            timeSlot.style.cssText = 'left: ' + left + 'px; width: ' + width + 'px';
 	          }
 	        } catch (err) {
 	          _didIteratorError2 = true;
@@ -464,6 +486,84 @@
 	      }
 	    }
 	  }, {
+	    key: 'renderClockLine',
+	    value: function renderClockLine() {
+	      var timeNowEl = this.element.querySelector('.diagram__time--now');
+	      var dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
+	      var timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
+	      var dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
+	      var now = this.date.valueOf();
+	      var date = new Date(now);
+	      this.dayStart = date.setHours(8, 0, 0);
+	      var currentMinute = (now - this.dayStart) / this.MINUTE;
+	      this.minuteStep = dayElWidth / (this.dayTotal * 60);
+	      var minute = this.minute < 10 ? '0' + this.minute : this.minute;
+	
+	      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
+	        timeNowEl.classList.add('show');
+	
+	        timeNowEl.style.left = currentMinute * this.minuteStep + 'px';
+	        timeNowEl.innerHTML = this.hour + ':' + minute;
+	
+	        if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
+	          timeNowEl.style.opacity = 0;
+	        }
+	
+	        var _iteratorNormalCompletion3 = true;
+	        var _didIteratorError3 = false;
+	        var _iteratorError3 = undefined;
+	
+	        try {
+	          for (var _iterator3 = Array.from(timelineCellArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	            var timelineCell = _step3.value;
+	
+	            var timelineCellValue = timelineCell.getAttribute('data-time');
+	            if (timelineCellValue <= this.date.getHours()) {
+	              timelineCell.classList.add('past');
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError3 = true;
+	          _iteratorError3 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	              _iterator3.return();
+	            }
+	          } finally {
+	            if (_didIteratorError3) {
+	              throw _iteratorError3;
+	            }
+	          }
+	        }
+	      } else if (this.IS_PAST) {
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
+	
+	        try {
+	          for (var _iterator4 = Array.from(timelineCellArr)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	            var _timelineCell = _step4.value;
+	
+	            _timelineCell.classList.add('past');
+	          }
+	        } catch (err) {
+	          _didIteratorError4 = true;
+	          _iteratorError4 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	              _iterator4.return();
+	            }
+	          } finally {
+	            if (_didIteratorError4) {
+	              throw _iteratorError4;
+	            }
+	          }
+	        }
+	      }
+	    }
+	  }, {
 	    key: 'clock',
 	    value: function clock(isNewDate) {
 	      var _this2 = this;
@@ -474,12 +574,13 @@
 	        this.updateTime(this.date);
 	      }
 	
+	      this.changeFreeTime();
 	      this.renderClockLine();
 	
 	      // Clear all timeouts
 	      while (globalTimeout--) {
 	        window.clearTimeout(globalTimeout);
-	      };
+	      }
 	
 	      globalTimeout = setTimeout(function () {
 	        _this2.clock(true);
@@ -504,84 +605,18 @@
 	      var roomList = '';
 	      var diagramDayTemp = '<div class="diagram__day"></div>';
 	
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
-	
-	      try {
-	        for (var _iterator3 = this.rooms[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var room = _step3.value;
-	
-	          if (room.floor === floor) {
-	            var roomMarkup = this.getRoomMarkup(room.title, room.capacity);
-	            roomList += '<div class="diagram__room" data-room-id="' + room.id + '">\n                        ' + this.diagramRowMarkup(roomMarkup, diagramDayTemp) + '\n                      </div>';
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
-	          }
-	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
-	          }
-	        }
-	      }
-	
-	      return roomList;
-	    }
-	  }, {
-	    key: 'getFloorListMarkup',
-	    value: function getFloorListMarkup() {
-	      var floors = [];
-	
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
-	
-	      try {
-	        for (var _iterator4 = this.rooms[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	          var room = _step4.value;
-	
-	          if (floors.indexOf(room.floor) === -1) {
-	            floors.push(room.floor);
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError4 = true;
-	        _iteratorError4 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-	            _iterator4.return();
-	          }
-	        } finally {
-	          if (_didIteratorError4) {
-	            throw _iteratorError4;
-	          }
-	        }
-	      }
-	
-	      floors.sort(function (a, b) {
-	        if (a > b) return 1;
-	        if (a < b) return -1;
-	      });
-	
-	      var floorList = '';
-	
 	      var _iteratorNormalCompletion5 = true;
 	      var _didIteratorError5 = false;
 	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator5 = floors[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var floor = _step5.value;
+	        for (var _iterator5 = this.rooms[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var room = _step5.value;
 	
-	          floorList += '<div class="diagram__floor" data-floor="' + floor + '">\n                      <div class="diagram__floor-title">\n                            ' + this.diagramRowMarkup(floor + ' \u044D\u0442\u0430\u0436') + '\n                      </div>\n                      ' + this.getRoomList(floor) + '\n                    </div>';
+	          if (room.floor === floor) {
+	            var roomMarkup = this.getRoomMarkup(room.title, room.capacity);
+	            roomList += '<div class="diagram__room" data-room-id="' + room.id + '">\n                        ' + this.diagramRowMarkup(roomMarkup, diagramDayTemp) + '\n                      </div>';
+	          }
 	        }
 	      } catch (err) {
 	        _didIteratorError5 = true;
@@ -594,6 +629,72 @@
 	        } finally {
 	          if (_didIteratorError5) {
 	            throw _iteratorError5;
+	          }
+	        }
+	      }
+	
+	      return roomList;
+	    }
+	  }, {
+	    key: 'getFloorListMarkup',
+	    value: function getFloorListMarkup() {
+	      var floors = [];
+	
+	      var _iteratorNormalCompletion6 = true;
+	      var _didIteratorError6 = false;
+	      var _iteratorError6 = undefined;
+	
+	      try {
+	        for (var _iterator6 = this.rooms[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	          var room = _step6.value;
+	
+	          if (floors.indexOf(room.floor) === -1) {
+	            floors.push(room.floor);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError6 = true;
+	        _iteratorError6 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	            _iterator6.return();
+	          }
+	        } finally {
+	          if (_didIteratorError6) {
+	            throw _iteratorError6;
+	          }
+	        }
+	      }
+	
+	      floors.sort(function (a, b) {
+	        if (a > b) return 1;
+	        if (a < b) return -1;
+	      });
+	
+	      var floorList = '';
+	
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
+	
+	      try {
+	        for (var _iterator7 = floors[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var floor = _step7.value;
+	
+	          floorList += '<div class="diagram__floor" data-floor="' + floor + '">\n                      <div class="diagram__floor-title">\n                            ' + this.diagramRowMarkup(floor + ' \u044D\u0442\u0430\u0436') + '\n                      </div>\n                      ' + this.getRoomList(floor) + '\n                    </div>';
+	        }
+	      } catch (err) {
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
+	          }
+	        } finally {
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
 	          }
 	        }
 	      }
@@ -624,6 +725,7 @@
 	
 	      var windowResizeHandler = function windowResizeHandler() {
 	        _this3.renderClockLine();
+	        _this3.responsiveTimeSlot();
 	      };
 	
 	      window.addEventListener('resize', (0, _helpers.debounce)(windowResizeHandler, 66));
@@ -1386,9 +1488,9 @@
 	                for (var minute = eventStartMinuteFromDateStart; minute <= eventEndMinuteFromDateStart; minute++) {
 	                  var timeStampMinute = this.inputDayStart + minute * this.MINUTE;
 	                  if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
-	                    this.roomsWithBusyTime[roomId][timeStampMinute] = true;
+	                    this.roomsWithBusyTime[roomId][timeStampMinute] = event.id;
 	                  } else {
-	                    this.roomsWithBusyTime[roomId] = _defineProperty({}, timeStampMinute, true);
+	                    this.roomsWithBusyTime[roomId] = _defineProperty({}, timeStampMinute, event.id);
 	                  }
 	                }
 	              }

@@ -66,11 +66,11 @@ export default class RenderEvents {
           for (let minute = eventStartMinuteFromDateStart; minute <= eventEndMinuteFromDateStart; minute++) {
             let timeStampMinute = this.inputDayStart + minute * this.MINUTE;
             if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
-              this.roomsWithBusyTime[roomId][timeStampMinute] = true;
+              this.roomsWithBusyTime[roomId][timeStampMinute] = event.id;
 
             } else {
               this.roomsWithBusyTime[roomId] = {
-                [timeStampMinute]: true
+                [timeStampMinute]: event.id
               }
             }
           }
