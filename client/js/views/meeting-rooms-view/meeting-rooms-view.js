@@ -2,17 +2,17 @@ import AbstractView from './../abstract-view';
 import Application from './../../application';
 import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './renderCalendarWidget';
-import {debounce} from '../../tools/helpers';
+import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activateRoomName';
-import renderEvents from './renderEvents';
+import RenderEvents from './renderEvents';
 
+let globalTimeout;
 
 class MeetingRoomsView extends AbstractView {
 
   constructor(inputData) {
     super(inputData);
     this.rooms = inputData.rooms;
-    this.events = inputData.events;
     this.date = inputData.date || new Date();
     this.year = this.date.getFullYear();
     this.month = this.date.getMonth();
@@ -23,9 +23,11 @@ class MeetingRoomsView extends AbstractView {
     this.dayMax = 22;
     this.dayTotal = this.dayMax - this.dayMin + 1;
     this.initialAppDate = new Date();
-    this.initialAppDay = new Date(this.initialAppDate.getFullYear(), this.initialAppDate.getMonth(), this.initialAppDate.getDate()).valueOf();
-    this.dateValue = new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate()).valueOf();
+    this.initialAppDay = getDateValue(this.initialAppDate).day;
+    this.dateValue = getDateValue(this.date).day;
     this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE = this.dateValue === this.initialAppDay;
+    this.IS_PAST = this.dateValue < this.initialAppDay;
+    this.events = inputData.events[this.dateValue] || [];
   }
 
   diagramCellMarkup(cellMarkup, time) {
@@ -53,7 +55,7 @@ class MeetingRoomsView extends AbstractView {
     const diagramTimeMarkup = this.diagramTimeMarkup(false, true, true);
     let diagramDayMarkup = '';
     for (let time = this.dayMin; time <= this.dayMax; time++) {
-      diagramDayMarkup += this.diagramCellMarkup(this.diagramTimeMarkup(time))
+      diagramDayMarkup += this.diagramCellMarkup(this.diagramTimeMarkup(time), time);
     }
     return `<div class="diagram__day">${diagramTimeMarkup}${diagramDayMarkup}</div>`;
   }
@@ -65,37 +67,60 @@ class MeetingRoomsView extends AbstractView {
     this.minute = date.getMinutes();
   }
 
-  clock() {
-    this.updateTime();
+  renderClockLine() {
     const timeNowEl = this.element.querySelector('.diagram__time--now');
-    const dayEl = this.element.querySelector('.diagram__day');
-    const diagramTimeArr = this.element.querySelectorAll('.diagram__time');
+    const dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
+    const timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
     const dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
     const minuteInSec = 60 * 1000;
-    const date = new Date();
+    const now = this.date.valueOf();
+    const date = new Date(now);
     const dayStart = date.setHours(8, 0, 0);
-    const now = Date.now();
     const currentMinute = (now - dayStart) / minuteInSec;
-    const minuteStep = dayElWidth / (this.dayTotal * 60);
+    this.minuteStep = dayElWidth / (this.dayTotal * 60);
     const minute = this.minute < 10 ? `0${this.minute}` : this.minute;
 
-    timeNowEl.classList.add('show');
-    timeNowEl.style.left = `${currentMinute * minuteStep}px`;
-    timeNowEl.innerHTML = `${this.hour}:${minute}`;
-    if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
-      timeNowEl.style.opacity = 0;
-    }
+    if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
+      timeNowEl.classList.add('show');
 
-    for (let diagramTime of Array.from(diagramTimeArr)) {
-      const timeCellValue = +diagramTime.innerHTML;
-      if (timeCellValue <= this.date.getHours()) {
-        diagramTime.classList.add('diagram__time--passed');
+      timeNowEl.style.left = `${currentMinute * this.minuteStep}px`;
+      timeNowEl.innerHTML = `${this.hour}:${minute}`;
+
+      if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
+        timeNowEl.style.opacity = 0;
+      }
+
+      for (let timelineCell of Array.from(timelineCellArr)) {
+        const timelineCellValue = timelineCell.getAttribute('data-time');
+        if (timelineCellValue <= this.date.getHours()) {
+          timelineCell.classList.add('past');
+        }
       }
     }
+    else if (this.IS_PAST) {
+      for (let timelineCell of Array.from(timelineCellArr)) {
+        timelineCell.classList.add('past');
+      }
+    }
+  }
 
-    setInterval(() => {
-      this.clock();
-    }, minuteInSec);
+  clock(isNewDate) {
+    if (isNewDate) {
+      this.updateTime();
+    } else {
+      this.updateTime(this.date);
+    }
+
+    this.renderClockLine();
+
+    // Clear all timeouts
+    while (globalTimeout--) {
+      window.clearTimeout(globalTimeout);
+    };
+
+    globalTimeout = setTimeout(() => {
+      this.clock(true);
+    }, 60000);
   }
 
   diagramRowMarkup(_diagramSidebarMarkup, _diagramRowBodyMarkup, _rowClass) {
@@ -113,41 +138,15 @@ class MeetingRoomsView extends AbstractView {
             <div class="diagram__room-capacity">${capacity} человек</div>`;
   }
 
-  getRoomCellList(roomId) {
-    let cellList = '';
-    outer: for (let time = this.dayMin; time <= this.dayMax; time++) {
-      const cellHourValue = new Date(this.year, this.month, this.day, time).valueOf();
-      for (let event of this.events) {
-        const eventDateStart = new Date(event.dateStart);
-        const eventDateEnd = new Date(event.dateEnd);
-        const eventDateStartValue = new Date(eventDateStart.getFullYear(), eventDateStart.getMonth(), eventDateStart.getDate(), eventDateStart.getHours(), eventDateStart.getMinutes()).valueOf();
-        const eventDateEndValue = new Date(eventDateEnd.getFullYear(), eventDateEnd.getMonth(), eventDateEnd.getDate(), eventDateEnd.getHours(), eventDateEnd.getMinutes()).valueOf();
-
-        if (roomId === event.id) {
-          const eventStartDiff = (eventDateStartValue - cellHourValue) / 60000;
-          const eventEndDiff = (eventDateEndValue - cellHourValue) / 60000;
-          if (eventStartDiff >= 0 && eventStartDiff <= 60) { //Если дата и время события собвпадают с датай и временем ячейки
-            cellList += `<div class="diagram__cell" data-time="${time}" data-event-started="${eventStartDiff}"></div>`;
-            continue outer;
-          } else if (eventStartDiff <= 0 && eventEndDiff <= 60 && eventEndDiff > 0) { //Если событие началось до ячейки и продолжается в ней
-            cellList += `<div class="diagram__cell" data-time="${time}" data-event-ended="${eventEndDiff}"></div>`;
-            continue outer;
-          }
-        }
-      }
-      cellList += `<div class="diagram__cell" data-time="${time}"></div>`;
-    }
-    return cellList;
-  }
-
   getRoomList(floor) {
     let roomList = '';
+    const diagramDayTemp = '<div class="diagram__day"></div>'
 
     for (let room of this.rooms) {
       if (room.floor === floor) {
         const roomMarkup = this.getRoomMarkup(room.title, room.capacity);
         roomList += `<div class="diagram__room" data-room-id="${room.id}">
-                        ${this.diagramRowMarkup(roomMarkup, this.getRoomCellList(room.id))}
+                        ${this.diagramRowMarkup(roomMarkup, diagramDayTemp)}
                       </div>`;
       }
     }
@@ -219,23 +218,22 @@ class MeetingRoomsView extends AbstractView {
     });
 
     const windowResizeHandler = () => {
-      this.clock();
+      this.renderClockLine();
     };
 
     window.addEventListener('resize', debounce(windowResizeHandler, 66));
   }
 
   viewRendered() {
-    if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
-      this.clock();
-    }
-
-    renderEvents(this.events, this.date);
     openCalendar();
     activateRoomName();
-    console.log(this.events);
     const renderCalendarWidget = new RenderCalendarWidget(this.date);
     renderCalendarWidget.render();
+
+    this.clock();
+
+    const renderEvents = new RenderEvents(this.events, this.date, this.minuteStep);
+    renderEvents.render();
   }
 
 }

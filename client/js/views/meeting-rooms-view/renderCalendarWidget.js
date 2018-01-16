@@ -1,4 +1,4 @@
-import {getNodeFromMarkup, getDay} from './../../tools/helpers';
+import {getNodeFromMarkup, getDay, getDateValue} from './../../tools/helpers';
 
 export default class RenderCalendarWidget {
   constructor(date) {
@@ -109,9 +109,10 @@ export default class RenderCalendarWidget {
       const yearValue = this.date.getFullYear();
       const monthValue = day.getAttribute('data-shortcut');
       const dayValue = day.innerHTML;
-      const hourValue = this.date.getHours();
-      const minutesValue = this.date.getMinutes();
-      const secondsValue = this.date.getSeconds();
+      const now = new Date();
+      const hourValue = now.getHours();
+      const minutesValue = now.getMinutes();
+      const secondsValue = now.getSeconds();
 
       const dateChangeEvent = new CustomEvent("dateChange", {
         detail: {
@@ -132,9 +133,9 @@ export default class RenderCalendarWidget {
 
   render() {
     const now = new Date();
-    const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
+    const today = getDateValue(now).day;
     const inputDate = this.date;
-    const inputDateValue = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate()).valueOf();
+    const inputDateValue = getDateValue(inputDate).day;
     const day = this.date.getDate();
     const currentYear = this.date.getFullYear();
     const currentMonth = this.date.getMonth() + 1;

@@ -1,6 +1,7 @@
 import 'whatwg-fetch';
 import {query, mutation} from './queries';
-import { grapnhQlRequest } from './helpers'
+import grapnhQlRequest from './grapnhQlRequest';
+import {getDateValue} from './../tools/helpers';
 
 
 class ApiService {
@@ -29,7 +30,24 @@ class ApiService {
         return this.getEvents();
       })
       .then((res) => {
-        responseData.events = res.data.events;
+        /**
+         * @typedef {Object} EventsSortedByDate
+         * @property {Event[]} timestamp Встречи отсортированные по дате.
+         */
+        let eventsSortedByDate = {};
+        for (let event of res.data.events) {
+          const dateStart = new Date(event.dateStart);
+          const dateStartDay = getDateValue(dateStart).day;
+
+          if (!eventsSortedByDate.hasOwnProperty(dateStartDay)) {
+            eventsSortedByDate[dateStartDay] = [event];
+          } else {
+            eventsSortedByDate[dateStartDay].push(event)
+          }
+        }
+        responseData.events = eventsSortedByDate;
+
+        // console.log(eventsSortedByDate);
         return this.getUsers();
       })
       .then((res) => {

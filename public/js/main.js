@@ -313,6 +313,8 @@
 	
 	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 	
+	var globalTimeout = void 0;
+	
 	var MeetingRoomsView = function (_AbstractView) {
 	  _inherits(MeetingRoomsView, _AbstractView);
 	
@@ -322,7 +324,6 @@
 	    var _this = _possibleConstructorReturn(this, (MeetingRoomsView.__proto__ || Object.getPrototypeOf(MeetingRoomsView)).call(this, inputData));
 	
 	    _this.rooms = inputData.rooms;
-	    _this.events = inputData.events;
 	    _this.date = inputData.date || new Date();
 	    _this.year = _this.date.getFullYear();
 	    _this.month = _this.date.getMonth();
@@ -333,9 +334,11 @@
 	    _this.dayMax = 22;
 	    _this.dayTotal = _this.dayMax - _this.dayMin + 1;
 	    _this.initialAppDate = new Date();
-	    _this.initialAppDay = new Date(_this.initialAppDate.getFullYear(), _this.initialAppDate.getMonth(), _this.initialAppDate.getDate()).valueOf();
-	    _this.dateValue = new Date(_this.date.getFullYear(), _this.date.getMonth(), _this.date.getDate()).valueOf();
+	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day;
+	    _this.dateValue = (0, _helpers.getDateValue)(_this.date).day;
 	    _this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE = _this.dateValue === _this.initialAppDay;
+	    _this.IS_PAST = _this.dateValue < _this.initialAppDay;
+	    _this.events = inputData.events[_this.dateValue] || [];
 	    return _this;
 	  }
 	
@@ -369,7 +372,7 @@
 	      var diagramTimeMarkup = this.diagramTimeMarkup(false, true, true);
 	      var diagramDayMarkup = '';
 	      for (var time = this.dayMin; time <= this.dayMax; time++) {
-	        diagramDayMarkup += this.diagramCellMarkup(this.diagramTimeMarkup(time));
+	        diagramDayMarkup += this.diagramCellMarkup(this.diagramTimeMarkup(time), time);
 	      }
 	      return '<div class="diagram__day">' + diagramTimeMarkup + diagramDayMarkup + '</div>';
 	    }
@@ -382,107 +385,67 @@
 	      this.minute = date.getMinutes();
 	    }
 	  }, {
-	    key: 'clock',
-	    value: function clock() {
-	      var _this2 = this;
-	
-	      this.updateTime();
+	    key: 'renderClockLine',
+	    value: function renderClockLine() {
 	      var timeNowEl = this.element.querySelector('.diagram__time--now');
-	      var dayEl = this.element.querySelector('.diagram__day');
-	      var diagramTimeArr = this.element.querySelectorAll('.diagram__time');
+	      var dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
+	      var timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
 	      var dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
 	      var minuteInSec = 60 * 1000;
-	      var date = new Date();
+	      var now = this.date.valueOf();
+	      var date = new Date(now);
 	      var dayStart = date.setHours(8, 0, 0);
-	      var now = Date.now();
 	      var currentMinute = (now - dayStart) / minuteInSec;
-	      var minuteStep = dayElWidth / (this.dayTotal * 60);
+	      this.minuteStep = dayElWidth / (this.dayTotal * 60);
 	      var minute = this.minute < 10 ? '0' + this.minute : this.minute;
 	
-	      timeNowEl.classList.add('show');
-	      timeNowEl.style.left = currentMinute * minuteStep + 'px';
-	      timeNowEl.innerHTML = this.hour + ':' + minute;
-	      if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
-	        timeNowEl.style.opacity = 0;
-	      }
+	      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
+	        timeNowEl.classList.add('show');
 	
-	      var _iteratorNormalCompletion = true;
-	      var _didIteratorError = false;
-	      var _iteratorError = undefined;
+	        timeNowEl.style.left = currentMinute * this.minuteStep + 'px';
+	        timeNowEl.innerHTML = this.hour + ':' + minute;
 	
-	      try {
-	        for (var _iterator = Array.from(diagramTimeArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var diagramTime = _step.value;
-	
-	          var timeCellValue = +diagramTime.innerHTML;
-	          if (timeCellValue <= this.date.getHours()) {
-	            diagramTime.classList.add('diagram__time--passed');
-	          }
+	        if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
+	          timeNowEl.style.opacity = 0;
 	        }
-	      } catch (err) {
-	        _didIteratorError = true;
-	        _iteratorError = err;
-	      } finally {
+	
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
 	        try {
-	          if (!_iteratorNormalCompletion && _iterator.return) {
-	            _iterator.return();
+	          for (var _iterator = Array.from(timelineCellArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var timelineCell = _step.value;
+	
+	            var timelineCellValue = timelineCell.getAttribute('data-time');
+	            if (timelineCellValue <= this.date.getHours()) {
+	              timelineCell.classList.add('past');
+	            }
 	          }
+	        } catch (err) {
+	          _didIteratorError = true;
+	          _iteratorError = err;
 	        } finally {
-	          if (_didIteratorError) {
-	            throw _iteratorError;
+	          try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	              _iterator.return();
+	            }
+	          } finally {
+	            if (_didIteratorError) {
+	              throw _iteratorError;
+	            }
 	          }
 	        }
-	      }
-	
-	      setInterval(function () {
-	        _this2.clock();
-	      }, minuteInSec);
-	    }
-	  }, {
-	    key: 'diagramRowMarkup',
-	    value: function diagramRowMarkup(_diagramSidebarMarkup, _diagramRowBodyMarkup, _rowClass) {
-	      var rowClass = _rowClass || 'diagram__row';
-	      var diagramSidebarMarkup = _diagramSidebarMarkup || '';
-	      var diagramRowBodyMarkup = _diagramRowBodyMarkup || '';
-	      return '<div class="' + rowClass + '">\n              <div class="diagram__sidebar">' + diagramSidebarMarkup + '</div>\n              <div class="diagram__row-body">' + diagramRowBodyMarkup + '</div>\n            </div>';
-	    }
-	  }, {
-	    key: 'getRoomMarkup',
-	    value: function getRoomMarkup(name, capacity) {
-	      return '<div class="diagram__room-name">' + name + '</div>\n            <div class="diagram__room-capacity">' + capacity + ' \u0447\u0435\u043B\u043E\u0432\u0435\u043A</div>';
-	    }
-	  }, {
-	    key: 'getRoomCellList',
-	    value: function getRoomCellList(roomId) {
-	      var cellList = '';
-	      outer: for (var time = this.dayMin; time <= this.dayMax; time++) {
-	        var cellHourValue = new Date(this.year, this.month, this.day, time).valueOf();
+	      } else if (this.IS_PAST) {
 	        var _iteratorNormalCompletion2 = true;
 	        var _didIteratorError2 = false;
 	        var _iteratorError2 = undefined;
 	
 	        try {
-	          for (var _iterator2 = this.events[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	            var event = _step2.value;
+	          for (var _iterator2 = Array.from(timelineCellArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	            var _timelineCell = _step2.value;
 	
-	            var eventDateStart = new Date(event.dateStart);
-	            var eventDateEnd = new Date(event.dateEnd);
-	            var eventDateStartValue = new Date(eventDateStart.getFullYear(), eventDateStart.getMonth(), eventDateStart.getDate(), eventDateStart.getHours(), eventDateStart.getMinutes()).valueOf();
-	            var eventDateEndValue = new Date(eventDateEnd.getFullYear(), eventDateEnd.getMonth(), eventDateEnd.getDate(), eventDateEnd.getHours(), eventDateEnd.getMinutes()).valueOf();
-	
-	            if (roomId === event.id) {
-	              var eventStartDiff = (eventDateStartValue - cellHourValue) / 60000;
-	              var eventEndDiff = (eventDateEndValue - cellHourValue) / 60000;
-	              if (eventStartDiff >= 0 && eventStartDiff <= 60) {
-	                //Если дата и время события собвпадают с датай и временем ячейки
-	                cellList += '<div class="diagram__cell" data-time="' + time + '" data-event-started="' + eventStartDiff + '"></div>';
-	                continue outer;
-	              } else if (eventStartDiff <= 0 && eventEndDiff <= 60 && eventEndDiff > 0) {
-	                //Если событие началось до ячейки и продолжается в ней
-	                cellList += '<div class="diagram__cell" data-time="' + time + '" data-event-ended="' + eventEndDiff + '"></div>';
-	                continue outer;
-	              }
-	            }
+	            _timelineCell.classList.add('past');
 	          }
 	        } catch (err) {
 	          _didIteratorError2 = true;
@@ -498,15 +461,48 @@
 	            }
 	          }
 	        }
-	
-	        cellList += '<div class="diagram__cell" data-time="' + time + '"></div>';
 	      }
-	      return cellList;
+	    }
+	  }, {
+	    key: 'clock',
+	    value: function clock(isNewDate) {
+	      var _this2 = this;
+	
+	      if (isNewDate) {
+	        this.updateTime();
+	      } else {
+	        this.updateTime(this.date);
+	      }
+	
+	      this.renderClockLine();
+	
+	      // Clear all timeouts
+	      while (globalTimeout--) {
+	        window.clearTimeout(globalTimeout);
+	      };
+	
+	      globalTimeout = setTimeout(function () {
+	        _this2.clock(true);
+	      }, 60000);
+	    }
+	  }, {
+	    key: 'diagramRowMarkup',
+	    value: function diagramRowMarkup(_diagramSidebarMarkup, _diagramRowBodyMarkup, _rowClass) {
+	      var rowClass = _rowClass || 'diagram__row';
+	      var diagramSidebarMarkup = _diagramSidebarMarkup || '';
+	      var diagramRowBodyMarkup = _diagramRowBodyMarkup || '';
+	      return '<div class="' + rowClass + '">\n              <div class="diagram__sidebar">' + diagramSidebarMarkup + '</div>\n              <div class="diagram__row-body">' + diagramRowBodyMarkup + '</div>\n            </div>';
+	    }
+	  }, {
+	    key: 'getRoomMarkup',
+	    value: function getRoomMarkup(name, capacity) {
+	      return '<div class="diagram__room-name">' + name + '</div>\n            <div class="diagram__room-capacity">' + capacity + ' \u0447\u0435\u043B\u043E\u0432\u0435\u043A</div>';
 	    }
 	  }, {
 	    key: 'getRoomList',
 	    value: function getRoomList(floor) {
 	      var roomList = '';
+	      var diagramDayTemp = '<div class="diagram__day"></div>';
 	
 	      var _iteratorNormalCompletion3 = true;
 	      var _didIteratorError3 = false;
@@ -518,7 +514,7 @@
 	
 	          if (room.floor === floor) {
 	            var roomMarkup = this.getRoomMarkup(room.title, room.capacity);
-	            roomList += '<div class="diagram__room" data-room-id="' + room.id + '">\n                        ' + this.diagramRowMarkup(roomMarkup, this.getRoomCellList(room.id)) + '\n                      </div>';
+	            roomList += '<div class="diagram__room" data-room-id="' + room.id + '">\n                        ' + this.diagramRowMarkup(roomMarkup, diagramDayTemp) + '\n                      </div>';
 	          }
 	        }
 	      } catch (err) {
@@ -627,7 +623,7 @@
 	      });
 	
 	      var windowResizeHandler = function windowResizeHandler() {
-	        _this3.clock();
+	        _this3.renderClockLine();
 	      };
 	
 	      window.addEventListener('resize', (0, _helpers.debounce)(windowResizeHandler, 66));
@@ -635,16 +631,15 @@
 	  }, {
 	    key: 'viewRendered',
 	    value: function viewRendered() {
-	      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
-	        this.clock();
-	      }
-	
-	      (0, _renderEvents2.default)(this.events, this.date);
 	      (0, _calendar.openCalendar)();
 	      (0, _activateRoomName2.default)();
-	      console.log(this.events);
 	      var renderCalendarWidget = new _renderCalendarWidget2.default(this.date);
 	      renderCalendarWidget.render();
+	
+	      this.clock();
+	
+	      var renderEvents = new _renderEvents2.default(this.events, this.date, this.minuteStep);
+	      renderEvents.render();
 	    }
 	  }]);
 	
@@ -915,12 +910,30 @@
 	  };
 	};
 	
+	var getDateValue = function getDateValue(inputDate) {
+	  var date = inputDate || new Date();
+	  var year = new Date(date.getFullYear());
+	  var month = new Date(date.getFullYear(), date.getMonth());
+	  var day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+	  var hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
+	  var minute = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes());
+	
+	  return {
+	    year: year.valueOf(),
+	    month: month.valueOf(),
+	    day: day.valueOf(),
+	    hour: hour.valueOf(),
+	    minute: minute.valueOf()
+	  };
+	};
+	
 	exports.getCoords = getCoords;
 	exports.getNodeFromMarkup = getNodeFromMarkup;
 	exports.getDay = getDay;
 	exports.addListenerMulti = addListenerMulti;
 	exports.removeListenerMulti = removeListenerMulti;
 	exports.debounce = debounce;
+	exports.getDateValue = getDateValue;
 
 /***/ }),
 /* 12 */
@@ -1074,9 +1087,10 @@
 	          var yearValue = _this2.date.getFullYear();
 	          var monthValue = day.getAttribute('data-shortcut');
 	          var dayValue = day.innerHTML;
-	          var hourValue = _this2.date.getHours();
-	          var minutesValue = _this2.date.getMinutes();
-	          var secondsValue = _this2.date.getSeconds();
+	          var now = new Date();
+	          var hourValue = now.getHours();
+	          var minutesValue = now.getMinutes();
+	          var secondsValue = now.getSeconds();
 	
 	          var dateChangeEvent = new CustomEvent("dateChange", {
 	            detail: {
@@ -1115,9 +1129,9 @@
 	    key: 'render',
 	    value: function render() {
 	      var now = new Date();
-	      var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
+	      var today = (0, _helpers.getDateValue)(now).day;
 	      var inputDate = this.date;
-	      var inputDateValue = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate()).valueOf();
+	      var inputDateValue = (0, _helpers.getDateValue)(inputDate).day;
 	      var day = this.date.getDate();
 	      var currentYear = this.date.getFullYear();
 	      var currentMonth = this.date.getMonth() + 1;
@@ -1282,164 +1296,275 @@
 	  value: true
 	});
 	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
 	var _helpers = __webpack_require__(11);
 	
-	var getEventMarkup = function getEventMarkup(createEventId, isFilled, inputRoomId, _dateCreateEventFrom, _dateCreateEventTo) {
-	  var eventId = createEventId !== null ? 'data-event-id="' + createEventId + '"' : '';
-	  var roomId = inputRoomId !== undefined ? 'data-room-parent-id="' + inputRoomId + '"' : '';
-	  var dateCreateEventFrom = _dateCreateEventFrom !== undefined ? 'data-create-event-from="' + _dateCreateEventFrom + '"' : '';
-	  var dateCreateEventTo = _dateCreateEventTo !== undefined ? 'data-create-event-to="' + _dateCreateEventTo + '"' : '';
-	  var extraClass = isFilled ? 'time-slot--filled' : 'time-slot--empty';
-	  var extraAttr = isFilled ? 'data-event-edit-trigger' : 'data-event-new-trigger';
-	  return '<span class="time-slot ' + extraClass + '" ' + eventId + ' ' + extraAttr + ' ' + dateCreateEventFrom + ' ' + dateCreateEventTo + ' ' + roomId + '></span>';
-	};
+	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
-	var getEventNode = function getEventNode(createEventId, eventMarkupState, left, width, inputRoomId, dateCreateEventFrom, dateCreateEventTo) {
-	  var eventMarkup = getEventMarkup(createEventId, eventMarkupState, inputRoomId, dateCreateEventFrom, dateCreateEventTo);
-	  var eventNode = (0, _helpers.getNodeFromMarkup)(eventMarkup);
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
-	  eventNode.style.cssText = 'left: ' + left + 'px; \n            width: ' + width + 'px';
+	var RenderEvents = function () {
+	  function RenderEvents(inputEvents, inputDate, minuteStep) {
+	    _classCallCheck(this, RenderEvents);
 	
-	  return eventNode;
-	};
+	    this.roomArr = document.querySelectorAll('.diagram__room');
+	    this.MINUTE = 60 * 1000;
+	    this.HOUR = 60 * this.MINUTE;
+	    this.inputEvents = inputEvents;
+	    this.inputDate = inputDate;
+	    this.minuteStep = minuteStep;
+	    this.now = new Date();
+	    this.today = (0, _helpers.getDateValue)(this.now).day;
+	    this.inputDay = (0, _helpers.getDateValue)(this.inputDate).day;
+	    this.inputDayStart = this.inputDay + 8 * this.HOUR;
+	    this.inputDayEnd = this.inputDay + 23 * this.HOUR;
+	    this.roomsWithBusyTime = {};
+	    this.eventLeft;
+	    this.eventWidth;
+	  }
 	
-	exports.default = function (inputEvents, inputDate) {
-	  var eventContainerArr = document.querySelectorAll('.diagram__room .diagram__cell');
-	  var inputDateDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate()).valueOf();
-	  var now = new Date();
-	  var currentHour = now.getHours();
-	  var currentMinute = now.getMinutes();
-	  var today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
+	  _createClass(RenderEvents, [{
+	    key: 'getEventMarkup',
+	    value: function getEventMarkup(isFilled, inputEventId, start, end) {
+	      var extraClass = isFilled ? 'time-slot--filled' : 'time-slot--empty';
+	      var timeSlotType = isFilled ? 'data-event-edit-trigger' : 'data-event-new-trigger';
+	      var eventId = inputEventId !== null ? 'data-event-id="' + inputEventId + '"' : '';
+	      var startTime = start !== undefined ? 'data-start-time = "' + start + '"' : '';
+	      var endTime = end !== undefined ? 'data-end-time = "' + end + '"' : '';
 	
-	  var _iteratorNormalCompletion = true;
-	  var _didIteratorError = false;
-	  var _iteratorError = undefined;
-	
-	  try {
-	    for (var _iterator = Array.from(eventContainerArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	      var eventContainer = _step.value;
-	
-	      var MINUTE = 60 * 1000;
-	      var diagramRowBody = eventContainer.parentNode;
-	      var diagramRowBodyCoordsLeft = (0, _helpers.getCoords)(diagramRowBody).left;
-	      var containerTimeStart = +eventContainer.getAttribute('data-time');
-	      var containerEventTimeStart = +eventContainer.getAttribute('data-event-started');
-	      var containerEventTimeEnd = +eventContainer.getAttribute('data-event-ended');
-	      var containerWidth = getComputedStyle(eventContainer).width.slice(0, -2);
-	      var minuteLength = containerWidth / 60; //Длина минуты в пикселях
-	      var containerCoordsLeft = (0, _helpers.getCoords)(eventContainer).left;
-	      var insertValue = containerCoordsLeft - diagramRowBodyCoordsLeft;
-	      var containerRoomId = diagramRowBody.parentNode.parentNode.getAttribute('data-room-id');
-	      var leftMoovingValue = void 0;
-	      var eventWidth = void 0;
-	      var eventCreateDateTo = void 0; //Дата для создания события
-	      var eventCreateDateForm = void 0; //Дата для создания события
-	
-	      var _iteratorNormalCompletion2 = true;
-	      var _didIteratorError2 = false;
-	      var _iteratorError2 = undefined;
+	      return '<span class="time-slot ' + extraClass + '" \n              ' + eventId + '\n              ' + timeSlotType + ' \n              ' + startTime + ' \n              ' + endTime + '></span>';
+	    }
+	  }, {
+	    key: 'getTimeNode',
+	    value: function getTimeNode(isFilled, inputEventId, start, end, left, width) {
+	      var timeNode = (0, _helpers.getNodeFromMarkup)(this.getEventMarkup(isFilled, inputEventId, start, end));
+	      timeNode.style.cssText = 'left: ' + left + 'px; width: ' + width + 'px';
+	      return timeNode;
+	    }
+	  }, {
+	    key: 'renderPlannedEvent',
+	    value: function renderPlannedEvent() {
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
 	
 	      try {
-	        for (var _iterator2 = inputEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var event = _step2.value;
+	        for (var _iterator = this.inputEvents[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var event = _step.value;
 	
-	          var dateStart = new Date(event.dateStart);
-	          var dateEnd = new Date(event.dateEnd);
-	          var eventStartDay = new Date(dateStart.getFullYear(), dateStart.getMonth(), dateStart.getDate()).valueOf();
-	          var hourEventStart = dateStart.getHours();
-	          var minuteEventStart = dateStart.getMinutes();
-	          var eventRoomId = event.room.id;
-	          var eventDuration = (dateEnd.valueOf() - dateStart.valueOf()) / MINUTE; //Длительность события
+	          var eventDateStart = new Date(event.dateStart);
+	          var eventDateEnd = new Date(event.dateEnd);
+	          var eventDateStartValue = eventDateStart.valueOf();
+	          var eventDateEndValue = eventDateEnd.valueOf();
+	          var eventStartMinuteFromDateStart = Math.round((eventDateStartValue - this.inputDayStart) / this.MINUTE);
+	          var eventEndMinuteFromDateStart = Math.round((eventDateEndValue - this.inputDayStart) / this.MINUTE);
+	          var eventDuration = Math.round((eventDateEndValue - eventDateStartValue) / this.MINUTE);
 	
-	          var IS_THE_RIGHT_ROOM = containerRoomId === eventRoomId;
-	          var IS_THE_RIGHT_HOUR = hourEventStart === containerTimeStart;
+	          var _iteratorNormalCompletion2 = true;
+	          var _didIteratorError2 = false;
+	          var _iteratorError2 = undefined;
 	
-	          if (eventStartDay === inputDateDay) {
-	            //Если событие происходит в этот день
-	            if (IS_THE_RIGHT_ROOM && IS_THE_RIGHT_HOUR) {
-	              leftMoovingValue = insertValue + minuteLength * minuteEventStart;
-	              eventWidth = minuteLength * eventDuration;
-	              diagramRowBody.appendChild(getEventNode(event.id, true, leftMoovingValue, eventWidth));
+	          try {
+	            for (var _iterator2 = Array.from(this.roomArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	              var room = _step2.value;
+	
+	              var roomId = room.getAttribute('data-room-id');
+	              var timeContainer = room.querySelector('.diagram__day');
+	
+	              if (event.room.id === roomId) {
+	                //Событие происходит в нужной комнате
+	                var eventStartHour = Math.floor((eventDateStartValue - this.inputDay) / this.HOUR);
+	
+	                this.eventLeft = (eventDateStartValue - this.inputDayStart) * this.minuteStep / this.MINUTE;
+	                this.eventWidth = eventDuration * this.minuteStep;
+	
+	                var busyTimeNode = this.getTimeNode(true, event.id, eventDateStartValue, eventDateEndValue, this.eventLeft, this.eventWidth);
+	
+	                timeContainer.appendChild(busyTimeNode);
+	
+	                for (var minute = eventStartMinuteFromDateStart; minute <= eventEndMinuteFromDateStart; minute++) {
+	                  var timeStampMinute = this.inputDayStart + minute * this.MINUTE;
+	                  if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
+	                    this.roomsWithBusyTime[roomId][timeStampMinute] = true;
+	                  } else {
+	                    this.roomsWithBusyTime[roomId] = _defineProperty({}, timeStampMinute, true);
+	                  }
+	                }
+	              }
 	            }
-	          } else if (eventStartDay > inputDateDay) {//Если событие происходит в будущем
-	
-	          } else if (eventStartDay < inputDateDay) {//Если событие происходит в прошлом
-	
+	          } catch (err) {
+	            _didIteratorError2 = true;
+	            _iteratorError2 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                _iterator2.return();
+	              }
+	            } finally {
+	              if (_didIteratorError2) {
+	                throw _iteratorError2;
+	              }
+	            }
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError2 = true;
-	        _iteratorError2 = err;
+	        _didIteratorError = true;
+	        _iteratorError = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	            _iterator2.return();
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
 	          }
 	        } finally {
-	          if (_didIteratorError2) {
-	            throw _iteratorError2;
+	          if (_didIteratorError) {
+	            throw _iteratorError;
 	          }
 	        }
 	      }
+	    }
+	  }, {
+	    key: 'renderUnplannedEvents',
+	    value: function renderUnplannedEvents() {
+	      var IS_TODAY_EQUAL_TO_THE_INPUT_DAY = this.today === this.inputDay;
+	      var minutesFromHourStarted = 0;
 	
-	      if (today <= inputDateDay) {
-	        if (containerTimeStart === currentHour) {
-	          //Если время контейнера соответствует текущему времени
-	          eventWidth = minuteLength * (60 - currentMinute);
-	          leftMoovingValue = insertValue + minuteLength * currentMinute;
+	      var startMinute = (this.inputDayStart - this.inputDay) / this.MINUTE;
+	      var endMinute = (this.inputDayEnd - this.inputDay) / this.MINUTE;
 	
-	          if (containerEventTimeStart > 0) {
-	            //Если в контейнере есть время начала события
-	            eventWidth = (containerEventTimeStart - currentMinute) * minuteLength;
-	          } else if (containerEventTimeEnd > 0) {
-	            eventWidth = (60 - containerEventTimeEnd - (currentMinute - containerEventTimeEnd)) * minuteLength;
-	            leftMoovingValue = insertValue + containerEventTimeEnd * minuteLength;
-	            leftMoovingValue = insertValue + currentMinute * minuteLength;
+	      if (IS_TODAY_EQUAL_TO_THE_INPUT_DAY) {
+	        startMinute += ((0, _helpers.getDateValue)(this.now).minute - this.inputDayStart) / this.MINUTE;
+	        minutesFromHourStarted = this.now.getMinutes();
+	      }
+	
+	      if (this.today <= this.inputDay) {
+	        var _iteratorNormalCompletion3 = true;
+	        var _didIteratorError3 = false;
+	        var _iteratorError3 = undefined;
+	
+	        try {
+	          for (var _iterator3 = Array.from(this.roomArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	            var room = _step3.value;
+	
+	            var roomId = room.getAttribute('data-room-id');
+	            var timeContainer = room.querySelector('.diagram__day');
+	
+	            var roomArrWithFreeTime = [];
+	            var roomWithFreeTime = {};
+	            var hour = 60 - minutesFromHourStarted;
+	            var eventDuration = 0;
+	
+	            minuteLoop: for (var minute = startMinute; minute <= endMinute; minute++) {
+	              var timeStampMinute = this.inputDay + minute * this.MINUTE;
+	
+	              if (hour === 1) {
+	                hour = 60;
+	                roomWithFreeTime.end = timeStampMinute;
+	
+	                roomArrWithFreeTime.push(roomWithFreeTime);
+	                roomWithFreeTime = {};
+	                continue minuteLoop;
+	              }
+	
+	              if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
+	                if (this.roomsWithBusyTime[roomId].hasOwnProperty(timeStampMinute)) {
+	                  if (roomWithFreeTime.hasOwnProperty('start')) {
+	                    //Если свободное время уже было
+	                    roomWithFreeTime.end = timeStampMinute;
+	
+	                    roomArrWithFreeTime.push(roomWithFreeTime);
+	                    roomWithFreeTime = {};
+	                    continue minuteLoop;
+	                  }
+	
+	                  eventDuration++;
+	                  roomWithFreeTime = {};
+	                  continue minuteLoop;
+	                } else if (eventDuration > 0) {
+	                  if (hour - eventDuration > 0) {
+	                    hour = hour - eventDuration;
+	                  } else if (hour - eventDuration == 0) {
+	                    hour = 60;
+	                  } else if (hour - eventDuration < 0) {
+	                    hour = 60 - (eventDuration - hour - Math.floor((eventDuration - hour) / 60) * 60);
+	                  }
+	                  eventDuration = 0;
+	                }
+	              }
+	
+	              if (!roomWithFreeTime.hasOwnProperty('start')) {
+	                roomWithFreeTime.start = timeStampMinute - this.MINUTE;
+	              }
+	
+	              if (minute === endMinute) {
+	                roomWithFreeTime.end = timeStampMinute;
+	                roomArrWithFreeTime.push(roomWithFreeTime);
+	              }
+	
+	              hour--;
+	            }
+	
+	            var _iteratorNormalCompletion4 = true;
+	            var _didIteratorError4 = false;
+	            var _iteratorError4 = undefined;
+	
+	            try {
+	              for (var _iterator4 = roomArrWithFreeTime[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	                var freeTime = _step4.value;
+	
+	                var freeTimeStart = freeTime.start;
+	                var freeTimeDuration = (freeTime.end - freeTime.start) / this.MINUTE;
+	
+	                this.eventLeft = (freeTimeStart - this.inputDayStart) * this.minuteStep / this.MINUTE;
+	                this.eventWidth = freeTimeDuration * this.minuteStep;
+	
+	                var freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
+	
+	                timeContainer.appendChild(freeTimeNode);
+	              }
+	            } catch (err) {
+	              _didIteratorError4 = true;
+	              _iteratorError4 = err;
+	            } finally {
+	              try {
+	                if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	                  _iterator4.return();
+	                }
+	              } finally {
+	                if (_didIteratorError4) {
+	                  throw _iteratorError4;
+	                }
+	              }
+	            }
 	          }
-	
-	          eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart, currentMinute);
-	          diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
-	        } else if (containerTimeStart > currentHour) {
-	          leftMoovingValue = insertValue;
-	          eventWidth = containerWidth;
-	          eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
-	
-	          if (containerEventTimeEnd > 0) {
-	            //Если в контейнере есть время окончания события
-	            eventWidth = (60 - containerEventTimeEnd) * minuteLength;
-	            leftMoovingValue = insertValue + containerEventTimeEnd * minuteLength;
-	
-	            eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart, containerEventTimeEnd);
-	          } else if (containerEventTimeStart > 0) {
-	            eventWidth = containerEventTimeStart * minuteLength;
-	            leftMoovingValue = insertValue;
-	            eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
+	        } catch (err) {
+	          _didIteratorError3 = true;
+	          _iteratorError3 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	              _iterator3.return();
+	            }
+	          } finally {
+	            if (_didIteratorError3) {
+	              throw _iteratorError3;
+	            }
 	          }
-	
-	          diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
 	        }
-	        // } else if (today < inputDateDay) {
-	        //   leftMoovingValue = insertValue;
-	        //   eventWidth = containerWidth;
-	        //   eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
-	        //   diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
 	      }
 	    }
-	  } catch (err) {
-	    _didIteratorError = true;
-	    _iteratorError = err;
-	  } finally {
-	    try {
-	      if (!_iteratorNormalCompletion && _iterator.return) {
-	        _iterator.return();
-	      }
-	    } finally {
-	      if (_didIteratorError) {
-	        throw _iteratorError;
-	      }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      this.renderPlannedEvent();
+	      this.renderUnplannedEvents();
 	    }
-	  }
-	};
+	  }]);
+	
+	  return RenderEvents;
+	}();
+	
+	exports.default = RenderEvents;
 
 /***/ }),
 /* 15 */
@@ -1457,7 +1582,13 @@
 	
 	var _queries = __webpack_require__(17);
 	
-	var _helpers = __webpack_require__(20);
+	var _grapnhQlRequest = __webpack_require__(20);
+	
+	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
+	
+	var _helpers = __webpack_require__(11);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
@@ -1469,17 +1600,17 @@
 	  _createClass(ApiService, [{
 	    key: 'getRooms',
 	    value: function getRooms() {
-	      return (0, _helpers.grapnhQlRequest)(_queries.query.rooms);
+	      return (0, _grapnhQlRequest2.default)(_queries.query.rooms);
 	    }
 	  }, {
 	    key: 'getEvents',
 	    value: function getEvents() {
-	      return (0, _helpers.grapnhQlRequest)(_queries.query.events);
+	      return (0, _grapnhQlRequest2.default)(_queries.query.events);
 	    }
 	  }, {
 	    key: 'getUsers',
 	    value: function getUsers() {
-	      return (0, _helpers.grapnhQlRequest)(_queries.query.users);
+	      return (0, _grapnhQlRequest2.default)(_queries.query.users);
 	    }
 	  }, {
 	    key: 'getAll',
@@ -1494,7 +1625,46 @@
 	        responseData.rooms = res.data.rooms;
 	        return _this.getEvents();
 	      }).then(function (res) {
-	        responseData.events = res.data.events;
+	        /**
+	         * @typedef {Object} EventsSortedByDate
+	         * @property {Event[]} timestamp Встречи отсортированные по дате.
+	         */
+	        var eventsSortedByDate = {};
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	          for (var _iterator = res.data.events[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var event = _step.value;
+	
+	            var dateStart = new Date(event.dateStart);
+	            var dateStartDay = (0, _helpers.getDateValue)(dateStart).day;
+	
+	            if (!eventsSortedByDate.hasOwnProperty(dateStartDay)) {
+	              eventsSortedByDate[dateStartDay] = [event];
+	            } else {
+	              eventsSortedByDate[dateStartDay].push(event);
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError = true;
+	          _iteratorError = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	              _iterator.return();
+	            }
+	          } finally {
+	            if (_didIteratorError) {
+	              throw _iteratorError;
+	            }
+	          }
+	        }
+	
+	        responseData.events = eventsSortedByDate;
+	
+	        // console.log(eventsSortedByDate);
 	        return _this.getUsers();
 	      }).then(function (res) {
 	        responseData.users = res.data.users;
@@ -2037,7 +2207,7 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	var checkStatus = exports.checkStatus = function checkStatus(response) {
+	var checkStatus = function checkStatus(response) {
 	  if (response.status >= 200 && response.status < 300) {
 	    return response;
 	  } else {
@@ -2045,11 +2215,11 @@
 	  }
 	};
 	
-	var parseJSON = exports.parseJSON = function parseJSON(response) {
+	var parseJSON = function parseJSON(response) {
 	  return response.json();
 	};
 	
-	var grapnhQlRequest = exports.grapnhQlRequest = function grapnhQlRequest(request) {
+	exports.default = function (request) {
 	  return window.fetch('/graphql', {
 	    method: 'POST',
 	    headers: { 'Content-Type': 'application/json' },

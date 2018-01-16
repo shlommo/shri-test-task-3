@@ -1,4 +1,4 @@
-export const checkStatus = (response) => {
+const checkStatus = (response) => {
   if (response.status >= 200 && response.status < 300) {
     return response;
   } else {
@@ -6,9 +6,9 @@ export const checkStatus = (response) => {
   }
 };
 
-export const parseJSON = (response) => response.json();
+const parseJSON = (response) => response.json();
 
-export const grapnhQlRequest = (request) => {
+export default (request) => {
   return window.fetch('/graphql', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},

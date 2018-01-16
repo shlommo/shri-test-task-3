@@ -49,4 +49,21 @@ const debounce = (f, ms) =>{
   };
 };
 
-export {getCoords, getNodeFromMarkup, getDay, addListenerMulti, removeListenerMulti, debounce};
+const getDateValue = (inputDate) => {
+  const date = inputDate || new Date();
+  const year = new Date(date.getFullYear());
+  const month = new Date(date.getFullYear(), date.getMonth());
+  const day = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+  const hour = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours());
+  const minute = new Date(date.getFullYear(), date.getMonth(), date.getDate(), date.getHours(), date.getMinutes());
+
+  return {
+    year: year.valueOf(),
+    month: month.valueOf(),
+    day: day.valueOf(),
+    hour: hour.valueOf(),
+    minute: minute.valueOf()
+  }
+};
+
+export {getCoords, getNodeFromMarkup, getDay, addListenerMulti, removeListenerMulti, debounce, getDateValue};

@@ -1,113 +1,172 @@
-import {getCoords, getNodeFromMarkup} from './../../tools/helpers';
+import {getNodeFromMarkup, getDateValue} from './../../tools/helpers';
 
-const getEventMarkup = (createEventId, isFilled, inputRoomId, _dateCreateEventFrom, _dateCreateEventTo) => {
-  const eventId = (createEventId !== null) ? `data-event-id="${createEventId}"` : '';
-  const roomId = (inputRoomId !== undefined) ? `data-room-parent-id="${inputRoomId}"` : '';
-  const dateCreateEventFrom = (_dateCreateEventFrom !== undefined) ? `data-create-event-from="${_dateCreateEventFrom}"` : '';
-  const dateCreateEventTo = (_dateCreateEventTo !== undefined) ? `data-create-event-to="${_dateCreateEventTo}"` : '';
-  const extraClass = (isFilled) ? 'time-slot--filled' : 'time-slot--empty';
-  const extraAttr = (isFilled) ? 'data-event-edit-trigger' : 'data-event-new-trigger';
-  return `<span class="time-slot ${extraClass}" ${eventId} ${extraAttr} ${dateCreateEventFrom} ${dateCreateEventTo} ${roomId}></span>`
-};
+export default class RenderEvents {
 
-const getEventNode = (createEventId, eventMarkupState, left, width, inputRoomId, dateCreateEventFrom, dateCreateEventTo) => {
-  const eventMarkup = getEventMarkup(createEventId, eventMarkupState, inputRoomId, dateCreateEventFrom, dateCreateEventTo);
-  let eventNode = getNodeFromMarkup(eventMarkup);
+  constructor(inputEvents, inputDate, minuteStep) {
+    this.roomArr = document.querySelectorAll('.diagram__room');
+    this.MINUTE = 60 * 1000;
+    this.HOUR = 60 * this.MINUTE;
+    this.inputEvents = inputEvents;
+    this.inputDate = inputDate;
+    this.minuteStep = minuteStep;
+    this.now = new Date();
+    this.today = getDateValue(this.now).day;
+    this.inputDay = getDateValue(this.inputDate).day;
+    this.inputDayStart = this.inputDay + 8 * this.HOUR;
+    this.inputDayEnd = this.inputDay + 23 * this.HOUR;
+    this.roomsWithBusyTime = {};
+    this.eventLeft;
+    this.eventWidth;
+  }
 
-  eventNode.style.cssText = `left: ${left}px; 
-            width: ${width}px`;
+  getEventMarkup (isFilled, inputEventId, start, end) {
+    const extraClass = (isFilled) ? 'time-slot--filled' : 'time-slot--empty';
+    const timeSlotType = (isFilled) ? 'data-event-edit-trigger' : 'data-event-new-trigger';
+    const eventId = (inputEventId !== null) ? `data-event-id="${inputEventId}"` : '';
+    const startTime = (start !== undefined) ? `data-start-time = "${start}"` : '';
+    const endTime = (end !== undefined) ? `data-end-time = "${end}"` : '';
 
-  return eventNode;
-};
+    return `<span class="time-slot ${extraClass}" 
+              ${eventId}
+              ${timeSlotType} 
+              ${startTime} 
+              ${endTime}></span>`
+  };
 
-export default (inputEvents, inputDate) => {
-  const eventContainerArr = document.querySelectorAll('.diagram__room .diagram__cell');
-  const inputDateDay = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate()).valueOf();
-  const now = new Date();
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).valueOf();
+  getTimeNode(isFilled, inputEventId, start, end, left, width) {
+    const timeNode = getNodeFromMarkup(this.getEventMarkup(isFilled, inputEventId, start, end));
+    timeNode.style.cssText = `left: ${left}px; width: ${width}px`;
+    return timeNode;
+  }
 
-  for (let eventContainer of Array.from(eventContainerArr)) {
-    const MINUTE = 60 * 1000;
-    const diagramRowBody = eventContainer.parentNode;
-    const diagramRowBodyCoordsLeft = getCoords(diagramRowBody).left;
-    const containerTimeStart = +eventContainer.getAttribute('data-time');
-    const containerEventTimeStart = +eventContainer.getAttribute('data-event-started');
-    const containerEventTimeEnd = +eventContainer.getAttribute('data-event-ended');
-    const containerWidth = getComputedStyle(eventContainer).width.slice(0, -2);
-    const minuteLength = containerWidth / 60; //Длина минуты в пикселях
-    const containerCoordsLeft = getCoords(eventContainer).left;
-    const insertValue = containerCoordsLeft - diagramRowBodyCoordsLeft;
-    const containerRoomId = diagramRowBody.parentNode.parentNode.getAttribute('data-room-id');
-    let leftMoovingValue;
-    let eventWidth;
-    let eventCreateDateTo; //Дата для создания события
-    let eventCreateDateForm; //Дата для создания события
+  renderPlannedEvent() {
+    for (let event of this.inputEvents) {
+      const eventDateStart = new Date(event.dateStart);
+      const eventDateEnd = new Date(event.dateEnd);
+      const eventDateStartValue = eventDateStart.valueOf();
+      const eventDateEndValue = eventDateEnd.valueOf();
+      const eventStartMinuteFromDateStart = Math.round((eventDateStartValue - this.inputDayStart) / this.MINUTE);
+      const eventEndMinuteFromDateStart = Math.round((eventDateEndValue - this.inputDayStart) / this.MINUTE);
+      const eventDuration = Math.round((eventDateEndValue - eventDateStartValue) / this.MINUTE);
 
-    for (let event of inputEvents) {
-      const dateStart = new Date(event.dateStart);
-      const dateEnd = new Date(event.dateEnd);
-      const eventStartDay = new Date(dateStart.getFullYear(), dateStart.getMonth(), dateStart.getDate()).valueOf();
-      const hourEventStart = dateStart.getHours();
-      const minuteEventStart = dateStart.getMinutes();
-      const eventRoomId = event.room.id;
-      const eventDuration = (dateEnd.valueOf() - dateStart.valueOf()) / MINUTE; //Длительность события
+      for (let room of Array.from(this.roomArr)) {
+        const roomId = room.getAttribute('data-room-id');
+        const timeContainer = room.querySelector('.diagram__day');
 
-      const IS_THE_RIGHT_ROOM = containerRoomId === eventRoomId;
-      const IS_THE_RIGHT_HOUR = hourEventStart === containerTimeStart;
+        if (event.room.id === roomId) { //Событие происходит в нужной комнате
+          const eventStartHour = Math.floor((eventDateStartValue - this.inputDay)/ this.HOUR);
 
-      if (eventStartDay === inputDateDay) { //Если событие происходит в этот день
-        if (IS_THE_RIGHT_ROOM && IS_THE_RIGHT_HOUR) {
-          leftMoovingValue = insertValue + minuteLength * minuteEventStart;
-          eventWidth = minuteLength * eventDuration;
-          diagramRowBody.appendChild(getEventNode(event.id, true, leftMoovingValue, eventWidth));
+          this.eventLeft = ((eventDateStartValue - this.inputDayStart) * this.minuteStep) / this.MINUTE;
+          this.eventWidth = eventDuration * this.minuteStep;
+
+          let busyTimeNode = this.getTimeNode(true, event.id, eventDateStartValue, eventDateEndValue, this.eventLeft, this.eventWidth);
+
+          timeContainer.appendChild(busyTimeNode);
+
+          for (let minute = eventStartMinuteFromDateStart; minute <= eventEndMinuteFromDateStart; minute++) {
+            let timeStampMinute = this.inputDayStart + minute * this.MINUTE;
+            if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
+              this.roomsWithBusyTime[roomId][timeStampMinute] = true;
+
+            } else {
+              this.roomsWithBusyTime[roomId] = {
+                [timeStampMinute]: true
+              }
+            }
+          }
         }
-      } else if (eventStartDay > inputDateDay) { //Если событие происходит в будущем
-
-      } else if (eventStartDay < inputDateDay) { //Если событие происходит в прошлом
-
       }
-    }
-
-    if (today <= inputDateDay) {
-      if (containerTimeStart === currentHour) { //Если время контейнера соответствует текущему времени
-        eventWidth = minuteLength * (60 - currentMinute);
-        leftMoovingValue = insertValue + minuteLength * currentMinute;
-
-        if (containerEventTimeStart > 0) { //Если в контейнере есть время начала события
-          eventWidth = (containerEventTimeStart - currentMinute) * minuteLength;
-        } else if (containerEventTimeEnd > 0) {
-          eventWidth = (60 - containerEventTimeEnd - (currentMinute - containerEventTimeEnd)) * minuteLength;
-          leftMoovingValue = insertValue + (containerEventTimeEnd * minuteLength);
-          leftMoovingValue = insertValue + currentMinute * minuteLength;
-        }
-
-        eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart, currentMinute);
-        diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
-      } else if (containerTimeStart > currentHour) {
-        leftMoovingValue = insertValue;
-        eventWidth = containerWidth;
-        eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
-
-        if (containerEventTimeEnd > 0) { //Если в контейнере есть время окончания события
-          eventWidth =(60 - containerEventTimeEnd) * minuteLength;
-          leftMoovingValue = insertValue + ( containerEventTimeEnd * minuteLength);
-
-          eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart, containerEventTimeEnd);
-        } else if (containerEventTimeStart > 0) {
-          eventWidth =containerEventTimeStart * minuteLength;
-          leftMoovingValue = insertValue;
-          eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
-        }
-
-        diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
-      }
-    // } else if (today < inputDateDay) {
-    //   leftMoovingValue = insertValue;
-    //   eventWidth = containerWidth;
-    //   eventCreateDateTo = new Date(inputDate.getFullYear(), inputDate.getMonth(), inputDate.getDate(), containerTimeStart);
-    //   diagramRowBody.appendChild(getEventNode(null, false, leftMoovingValue, eventWidth, containerRoomId, eventCreateDateTo));
     }
   }
-};
+
+  renderUnplannedEvents() {
+    const IS_TODAY_EQUAL_TO_THE_INPUT_DAY = this.today === this.inputDay;
+    let minutesFromHourStarted = 0;
+
+    let startMinute = (this.inputDayStart - this.inputDay) / this.MINUTE;
+    let endMinute = (this.inputDayEnd - this.inputDay) / this.MINUTE;
+
+    if (IS_TODAY_EQUAL_TO_THE_INPUT_DAY) {
+      startMinute += (getDateValue(this.now).minute - this.inputDayStart) / this.MINUTE;
+      minutesFromHourStarted = this.now.getMinutes();
+    }
+
+    if (this.today <= this.inputDay) {
+      for (let room of Array.from(this.roomArr)) {
+        const roomId = room.getAttribute('data-room-id');
+        const timeContainer = room.querySelector('.diagram__day');
+
+        let roomArrWithFreeTime = [];
+        let roomWithFreeTime = {};
+        let hour = 60 - minutesFromHourStarted;
+        let eventDuration = 0;
+
+        minuteLoop: for (let minute = startMinute; minute <= endMinute; minute++) {
+          let timeStampMinute = this.inputDay + minute * this.MINUTE;
+
+          if (hour === 1) {
+            hour = 60;
+            roomWithFreeTime.end = timeStampMinute;
+
+            roomArrWithFreeTime.push(roomWithFreeTime);
+            roomWithFreeTime = {};
+            continue minuteLoop;
+          }
+
+          if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
+            if (this.roomsWithBusyTime[roomId].hasOwnProperty(timeStampMinute)) {
+              if (roomWithFreeTime.hasOwnProperty('start')) { //Если свободное время уже было
+                roomWithFreeTime.end = timeStampMinute;
+
+                roomArrWithFreeTime.push(roomWithFreeTime);
+                roomWithFreeTime = {};
+                continue minuteLoop;
+              }
+
+              eventDuration++;
+              roomWithFreeTime = {};
+              continue minuteLoop;
+            } else if(eventDuration > 0) {
+              if (hour - eventDuration > 0) {
+                hour = hour - eventDuration;
+              } else if (hour - eventDuration == 0) {
+                hour = 60;
+              } else if (hour - eventDuration < 0) {
+                hour = 60 - ((eventDuration - hour) - Math.floor((eventDuration - hour)/60)*60);
+              }
+              eventDuration = 0;
+            }
+          }
+
+          if (!roomWithFreeTime.hasOwnProperty('start')) {
+            roomWithFreeTime.start = timeStampMinute - this.MINUTE;
+          }
+
+          if (minute === endMinute) {
+            roomWithFreeTime.end = timeStampMinute;
+            roomArrWithFreeTime.push(roomWithFreeTime);
+          }
+
+          hour--;
+        }
+
+        for (let freeTime of roomArrWithFreeTime) {
+          let freeTimeStart = freeTime.start;
+          let freeTimeDuration = (freeTime.end - freeTime.start) / this.MINUTE;
+
+          this.eventLeft = ((freeTimeStart - this.inputDayStart) * this.minuteStep) / this.MINUTE;
+          this.eventWidth = freeTimeDuration * this.minuteStep;
+
+          let freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
+
+          timeContainer.appendChild(freeTimeNode);
+        }
+      }
+    }
+  }
+
+  render() {
+    this.renderPlannedEvent();
+    this.renderUnplannedEvents();
+  }
+}
