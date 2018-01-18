@@ -1,12 +1,12 @@
 import {getNodeFromMarkup, getDay, getDateValue} from './../../tools/helpers';
+import {monthNames} from './../../data/data'
 
 export default class RenderCalendarWidget {
   constructor(date) {
     this.date = date;
     this.calendarWidget = document.getElementById('calendarWidget');
     this.calendar = document.getElementById('calendar');
-    this._monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-    this._monthNamesShortcuts = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+    this.monthNamesShortcuts = monthNames.map((month) => {return month.toLowerCase().slice(0, 3)});
   }
 
   getMonth(year, month) {
@@ -43,7 +43,7 @@ export default class RenderCalendarWidget {
     }
 
     const monthView = `<div class="calendar-widget__month month">
-                          <div class="month__name" data-motnh="${currentMonth}">${this._monthNames[month]}</div>
+                          <div class="month__name" data-motnh="${currentMonth}">${monthNames[month]}</div>
                           <div class="month__week">
                               <div class="month__day">Пн</div>
                               <div class="month__day">Вт</div>
@@ -124,7 +124,7 @@ export default class RenderCalendarWidget {
       day.addEventListener('click', () => {
         this.calendarWidget.querySelector('.month__day.today').classList.remove('today');
         day.classList.add('today');
-        calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + this._monthNamesShortcuts[monthValue];
+        calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + this.monthNamesShortcuts[monthValue];
 
         document.dispatchEvent(dateChangeEvent);
       });
@@ -148,7 +148,7 @@ export default class RenderCalendarWidget {
     const dayTitle = (inputDateValue === today) ? '· Сегодня' : '';
 
     const calendarHeaderTitle = this.calendar.querySelector('.calendar__header-date-title');
-    calendarHeaderTitle.innerHTML = `${day} ${this._monthNamesShortcuts[currentMonth - 1]} ${dayTitle}`;
+    calendarHeaderTitle.innerHTML = `${day} ${this.monthNamesShortcuts[currentMonth - 1]} ${dayTitle}`;
 
     for (let i = 0; i <= 11; i++) {
       const monthView = this.getMonth(currentYear, i);

@@ -50,11 +50,11 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(15);
+	var _apiService = __webpack_require__(16);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(21);
+	var _createSvgSprite = __webpack_require__(22);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
@@ -222,6 +222,8 @@
 	  EVENT_EDIT: 'event-edit',
 	  ERROR: 'error'
 	};
+	
+	var monthNames = exports.monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
 
 /***/ }),
 /* 5 */
@@ -301,7 +303,11 @@
 	
 	var _activateRoomName2 = _interopRequireDefault(_activateRoomName);
 	
-	var _renderEvents = __webpack_require__(14);
+	var _renderTimeSlotInfo = __webpack_require__(14);
+	
+	var _renderTimeSlotInfo2 = _interopRequireDefault(_renderTimeSlotInfo);
+	
+	var _renderEvents = __webpack_require__(15);
 	
 	var _renderEvents2 = _interopRequireDefault(_renderEvents);
 	
@@ -324,6 +330,7 @@
 	    var _this = _possibleConstructorReturn(this, (MeetingRoomsView.__proto__ || Object.getPrototypeOf(MeetingRoomsView)).call(this, inputData));
 	
 	    _this.rooms = inputData.rooms;
+	    _this.users = inputData.users;
 	    _this.date = inputData.date || new Date();
 	    _this.year = _this.date.getFullYear();
 	    _this.month = _this.date.getMonth();
@@ -742,6 +749,8 @@
 	
 	      var renderEvents = new _renderEvents2.default(this.events, this.date, this.minuteStep);
 	      renderEvents.render();
+	
+	      (0, _renderTimeSlotInfo2.default)(this.events, this.rooms, this.users);
 	    }
 	  }]);
 	
@@ -1051,6 +1060,8 @@
 	
 	var _helpers = __webpack_require__(11);
 	
+	var _data = __webpack_require__(4);
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var RenderCalendarWidget = function () {
@@ -1060,8 +1071,9 @@
 	    this.date = date;
 	    this.calendarWidget = document.getElementById('calendarWidget');
 	    this.calendar = document.getElementById('calendar');
-	    this._monthNames = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
-	    this._monthNamesShortcuts = ['янв', 'фев', 'мар', 'апр', 'май', 'июн', 'июл', 'авг', 'сен', 'окт', 'ноя', 'дек'];
+	    this.monthNamesShortcuts = _data.monthNames.map(function (month) {
+	      return month.toLowerCase().slice(0, 3);
+	    });
 	  }
 	
 	  _createClass(RenderCalendarWidget, [{
@@ -1099,7 +1111,7 @@
 	        }
 	      }
 	
-	      var monthView = '<div class="calendar-widget__month month">\n                          <div class="month__name" data-motnh="' + currentMonth + '">' + this._monthNames[month] + '</div>\n                          <div class="month__week">\n                              <div class="month__day">\u041F\u043D</div>\n                              <div class="month__day">\u0412\u0442</div>\n                              <div class="month__day">\u0421\u0440</div>\n                              <div class="month__day">\u0427\u0442</div>\n                              <div class="month__day">\u041F\u0442</div>\n                              <div class="month__day">\u0421\u0431</div>\n                              <div class="month__day">\u0412\u0441</div>\n                          </div>\n  \n                          <div class="month__days">\n                              ' + daysView + '\n                          </div>\n                      </div>';
+	      var monthView = '<div class="calendar-widget__month month">\n                          <div class="month__name" data-motnh="' + currentMonth + '">' + _data.monthNames[month] + '</div>\n                          <div class="month__week">\n                              <div class="month__day">\u041F\u043D</div>\n                              <div class="month__day">\u0412\u0442</div>\n                              <div class="month__day">\u0421\u0440</div>\n                              <div class="month__day">\u0427\u0442</div>\n                              <div class="month__day">\u041F\u0442</div>\n                              <div class="month__day">\u0421\u0431</div>\n                              <div class="month__day">\u0412\u0441</div>\n                          </div>\n  \n                          <div class="month__days">\n                              ' + daysView + '\n                          </div>\n                      </div>';
 	
 	      return monthView;
 	    }
@@ -1203,7 +1215,7 @@
 	          day.addEventListener('click', function () {
 	            _this2.calendarWidget.querySelector('.month__day.today').classList.remove('today');
 	            day.classList.add('today');
-	            calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + _this2._monthNamesShortcuts[monthValue];
+	            calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + _this2.monthNamesShortcuts[monthValue];
 	
 	            document.dispatchEvent(dateChangeEvent);
 	          });
@@ -1245,7 +1257,7 @@
 	      var dayTitle = inputDateValue === today ? '· Сегодня' : '';
 	
 	      var calendarHeaderTitle = this.calendar.querySelector('.calendar__header-date-title');
-	      calendarHeaderTitle.innerHTML = day + ' ' + this._monthNamesShortcuts[currentMonth - 1] + ' ' + dayTitle;
+	      calendarHeaderTitle.innerHTML = day + ' ' + this.monthNamesShortcuts[currentMonth - 1] + ' ' + dayTitle;
 	
 	      for (var i = 0; i <= 11; i++) {
 	        var monthView = this.getMonth(currentYear, i);
@@ -1398,6 +1410,220 @@
 	  value: true
 	});
 	
+	var _helpers = __webpack_require__(11);
+	
+	var _data = __webpack_require__(4);
+	
+	var _hideOnClickOutside = __webpack_require__(10);
+	
+	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var getTimeSlotInfoTemplate = function getTimeSlotInfoTemplate(event, rooms, users) {
+	  var dateStart = new Date(event.dateStart);
+	  var dateEnd = new Date(event.dateEnd);
+	  var getMinutes = function getMinutes(date) {
+	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+	  };
+	  var inclineMonths = _data.monthNames.map(function (month) {
+	    var lastLetterCharCode = month.toLowerCase().charCodeAt(month.length - 1);
+	    var inclineMonth = void 0;
+	
+	    if (lastLetterCharCode === 1100 || lastLetterCharCode === 1081) {
+	      inclineMonth = month.slice(0, -1) + 'я';
+	    } else if (lastLetterCharCode === 1090) {
+	      inclineMonth = month + 'а';
+	    }
+	    return inclineMonth.toLowerCase();
+	  });
+	
+	  var roomName = void 0;
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    for (var _iterator = rooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var room = _step.value;
+	
+	      if (room.id === event.room.id) {
+	        roomName = room.title;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  var userLogin = void 0,
+	      userAvatarUrl = void 0;
+	
+	  var _iteratorNormalCompletion2 = true;
+	  var _didIteratorError2 = false;
+	  var _iteratorError2 = undefined;
+	
+	  try {
+	    for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	      var user = _step2.value;
+	
+	      if (user.id === event.users[0].id) {
+	        userLogin = user.login;
+	        userAvatarUrl = user.avatarUrl;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError2 = true;
+	    _iteratorError2 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	        _iterator2.return();
+	      }
+	    } finally {
+	      if (_didIteratorError2) {
+	        throw _iteratorError2;
+	      }
+	    }
+	  }
+	
+	  var members = void 0;
+	  var usersLength = event.users.length;
+	
+	  if (usersLength === 1) {
+	    members = '';
+	  } else if (usersLength === 2) {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A';
+	  } else if (usersLength > 2 && event.users.length < 5) {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u0430';
+	  } else {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432';
+	  }
+	
+	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
+	
+	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="event-edit.html" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
+	};
+	
+	exports.default = function (events, rooms, users) {
+	  var timeSlotArr = document.querySelectorAll('[data-event-edit-trigger]');
+	
+	  var _iteratorNormalCompletion3 = true;
+	  var _didIteratorError3 = false;
+	  var _iteratorError3 = undefined;
+	
+	  try {
+	    var _loop = function _loop() {
+	      var timeSlot = _step3.value;
+	
+	      timeSlot.addEventListener('click', function (event) {
+	        event.preventDefault();
+	
+	        var timeSlotComputedStyle = getComputedStyle(timeSlot);
+	        var timeSlotHeight = +timeSlotComputedStyle.height.slice(0, -2);
+	        var timeSlotWidth = +timeSlotComputedStyle.width.slice(0, -2);
+	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
+	        var timeSlotTop = timeSlotCoords.top;
+	        var timeSlotLeft = timeSlotCoords.left;
+	        var body = document.querySelector('body');
+	        var windowWidth = window.innerWidth;
+	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
+	        var timeSlotInfoTemplate = void 0;
+	        var timeSlotInfoNode = void 0;
+	
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
+	
+	        try {
+	          for (var _iterator4 = events[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	            var _event = _step4.value;
+	
+	            if (_event.id === timeSlotEventId) {
+	              timeSlotInfoTemplate = getTimeSlotInfoTemplate(_event, rooms, users);
+	              timeSlotInfoNode = (0, _helpers.getNodeFromMarkup)(timeSlotInfoTemplate);
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError4 = true;
+	          _iteratorError4 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	              _iterator4.return();
+	            }
+	          } finally {
+	            if (_didIteratorError4) {
+	              throw _iteratorError4;
+	            }
+	          }
+	        }
+	
+	        timeSlot.classList.add('focused');
+	        body.appendChild(timeSlotInfoNode);
+	
+	        setTimeout(function () {
+	          if (windowWidth < 1280) {
+	            var timeSlotInfoMarker = document.querySelector('.time-slot-info__marker');
+	            var timeSlotInfoMarkerWidth = +getComputedStyle(timeSlotInfoMarker).width.slice(0, -2);
+	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px;';
+	            timeSlotInfoMarker.style.left = timeSlotLeft + timeSlotWidth / 2 - timeSlotInfoMarkerWidth / 2 + 'px';
+	          } else {
+	            var timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
+	            var leftMoveValue = timeSlotLeft + timeSlotWidth / 2 - timeSlotNodeWidth / 2;
+	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px; left: ' + leftMoveValue + 'px';
+	          }
+	          timeSlotInfoNode.classList.add('showed');
+	        }, 100);
+	
+	        setTimeout(function () {
+	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
+	            body.removeChild(timeSlotInfoNode);
+	            timeSlot.classList.remove('focused');
+	          });
+	        }, 10);
+	      });
+	    };
+	
+	    for (var _iterator3 = Array.from(timeSlotArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	      _loop();
+	    }
+	  } catch (err) {
+	    _didIteratorError3 = true;
+	    _iteratorError3 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	        _iterator3.return();
+	      }
+	    } finally {
+	      if (_didIteratorError3) {
+	        throw _iteratorError3;
+	      }
+	    }
+	  }
+	};
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _helpers = __webpack_require__(11);
@@ -1476,8 +1702,6 @@
 	
 	              if (event.room.id === roomId) {
 	                //Событие происходит в нужной комнате
-	                var eventStartHour = Math.floor((eventDateStartValue - this.inputDay) / this.HOUR);
-	
 	                this.eventLeft = (eventDateStartValue - this.inputDayStart) * this.minuteStep / this.MINUTE;
 	                this.eventWidth = eventDuration * this.minuteStep;
 	
@@ -1561,7 +1785,7 @@
 	
 	              if (hour === 1) {
 	                hour = 60;
-	                roomWithFreeTime.end = timeStampMinute;
+	                roomWithFreeTime.end = timeStampMinute + this.MINUTE;
 	
 	                roomArrWithFreeTime.push(roomWithFreeTime);
 	                roomWithFreeTime = {};
@@ -1583,22 +1807,25 @@
 	                  roomWithFreeTime = {};
 	                  continue minuteLoop;
 	                } else if (eventDuration > 0) {
+	                  roomWithFreeTime.start = timeStampMinute - this.MINUTE;
+	
 	                  if (hour - eventDuration > 0) {
-	                    hour = hour - eventDuration;
+	                    hour = hour - eventDuration - 1;
 	                  } else if (hour - eventDuration == 0) {
 	                    hour = 60;
 	                  } else if (hour - eventDuration < 0) {
 	                    hour = 60 - (eventDuration - hour - Math.floor((eventDuration - hour) / 60) * 60);
 	                  }
+	
 	                  eventDuration = 0;
 	                }
 	              }
 	
 	              if (!roomWithFreeTime.hasOwnProperty('start')) {
-	                roomWithFreeTime.start = timeStampMinute - this.MINUTE;
+	                roomWithFreeTime.start = timeStampMinute;
 	              }
 	
-	              if (minute === endMinute) {
+	              if (minute === endMinute - 1) {
 	                roomWithFreeTime.end = timeStampMinute;
 	                roomArrWithFreeTime.push(roomWithFreeTime);
 	              }
@@ -1623,6 +1850,8 @@
 	                var freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
 	
 	                timeContainer.appendChild(freeTimeNode);
+	
+	                console.log(new Date(freeTime.start), new Date(freeTime.end));
 	              }
 	            } catch (err) {
 	              _didIteratorError4 = true;
@@ -1669,7 +1898,7 @@
 	exports.default = RenderEvents;
 
 /***/ }),
-/* 15 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1680,11 +1909,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(16);
+	__webpack_require__(17);
 	
-	var _queries = __webpack_require__(17);
+	var _queries = __webpack_require__(18);
 	
-	var _grapnhQlRequest = __webpack_require__(20);
+	var _grapnhQlRequest = __webpack_require__(21);
 	
 	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
 	
@@ -1783,7 +2012,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 16 */
+/* 17 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -2247,7 +2476,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 17 */
+/* 18 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2257,11 +2486,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(18);
+	var _query = __webpack_require__(19);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(19);
+	var _mutation = __webpack_require__(20);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -2271,7 +2500,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 18 */
+/* 19 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2286,7 +2515,7 @@
 	};
 
 /***/ }),
-/* 19 */
+/* 20 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2301,7 +2530,7 @@
 	};
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -2330,7 +2559,7 @@
 	};
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports) {
 
 	'use strict';

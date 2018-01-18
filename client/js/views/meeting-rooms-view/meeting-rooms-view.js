@@ -4,6 +4,7 @@ import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './renderCalendarWidget';
 import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activateRoomName';
+import renderTimeSlotInfo from './renderTimeSlotInfo';
 import RenderEvents from './renderEvents';
 
 let globalTimeout;
@@ -13,6 +14,7 @@ class MeetingRoomsView extends AbstractView {
   constructor(inputData) {
     super(inputData);
     this.rooms = inputData.rooms;
+    this.users = inputData.users;
     this.date = inputData.date || new Date();
     this.year = this.date.getFullYear();
     this.month = this.date.getMonth();
@@ -282,6 +284,8 @@ class MeetingRoomsView extends AbstractView {
 
     const renderEvents = new RenderEvents(this.events, this.date, this.minuteStep);
     renderEvents.render();
+
+    renderTimeSlotInfo(this.events, this.rooms, this.users);
   }
 
 }
