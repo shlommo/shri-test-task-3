@@ -5,6 +5,7 @@ import RenderCalendarWidget from './renderCalendarWidget';
 import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activateRoomName';
 import RenderEvents from './renderEvents';
+import router from './../../router';
 
 let globalTimeout;
 
@@ -261,7 +262,8 @@ class MeetingRoomsView extends AbstractView {
 
     eventNewTrigger.addEventListener('click', (e) => {
       e.preventDefault();
-      Application.showEventCreate();
+      // Application.showEventCreate();
+      router.navigate(`/event/create`);
     });
 
     const windowResizeHandler = () => {

@@ -1,6 +1,6 @@
-import {getNodeFromMarkup, getDateValue} from './../../tools/helpers';
+import {getNodeFromMarkup, getDateValue, parseObjToHash} from './../../tools/helpers';
 import renderTimeSlotInfo from './renderTimeSlotInfo';
-import Application from './../../application';
+import router from './../../router';
 
 export default class RenderEvents {
 
@@ -88,7 +88,7 @@ export default class RenderEvents {
     let startMinute = (this.inputDayStart - this.inputDay) / this.MINUTE;
     let endMinute = (this.inputDayEnd - this.inputDay) / this.MINUTE;
 
-    if (IS_TODAY_EQUAL_TO_THE_INPUT_DAY) {
+    if (IS_TODAY_EQUAL_TO_THE_INPUT_DAY && this.now.getHours() >= 8) {
       startMinute += (getDateValue(this.now).minute - this.inputDayStart) / this.MINUTE;
       minutesFromHourStarted = this.now.getMinutes();
     }
@@ -188,7 +188,7 @@ export default class RenderEvents {
           endTime: endTime
         };
 
-        Application.showEventCreate(eventCreateInputData);
+        router.navigate(`/event/${parseObjToHash(eventCreateInputData)}/create`);
       });
     }
   }

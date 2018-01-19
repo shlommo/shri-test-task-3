@@ -9,10 +9,10 @@ export default (isEdit) => {
             </i>
         </a>`;
   const eventFooter = (isEdit) ?
-    `button class="button button--gray">Отмена</button>
-    <button class="button button--blue button--disabled">Создать встречу</button>`
-    : `<button class="button button--gray" data-close>Отмена</button>
-      <button class="button button--gray">Удалить</button>`;
+    `<button class="button button--gray" data-close>Отмена</button>
+      <button class="button button--gray">Удалить</button>`
+    : `<button class="button button--gray">Отмена</button>
+    <button class="button button--blue button--disabled">Создать встречу</button>`;
 
   return `<div class="event-form${editClass}">
               <div class="event-form__header">${eventHeader}</div>

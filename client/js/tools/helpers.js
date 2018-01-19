@@ -1,4 +1,4 @@
-const getCoords = (elem) => {
+export const getCoords = (elem) => {
   const box = elem.getBoundingClientRect();
 
   return {
@@ -7,13 +7,13 @@ const getCoords = (elem) => {
   };
 };
 
-const getNodeFromMarkup = (markupTemplate) => {
+export const getNodeFromMarkup = (markupTemplate) => {
   const div = document.createElement('div');
   div.innerHTML = markupTemplate;
   return div.firstChild;
 };
 
-const getDay = (date) => { // получить номер дня недели, от 0(пн) до 6(вс)
+export const getDay = (date) => { // получить номер дня недели, от 0(пн) до 6(вс)
   let day = date.getDay();
   if (day === 0) {
     day = 7;
@@ -21,18 +21,18 @@ const getDay = (date) => { // получить номер дня недели, �
   return day - 1;
 };
 
-const addListenerMulti = (el, s, fn) => {
+export const addListenerMulti = (el, s, fn) => {
   s.split(' ').forEach((e) => {
     el.addEventListener(e, fn, false);
   });
 };
-const removeListenerMulti = (el, s, fn) => {
+export const removeListenerMulti = (el, s, fn) => {
   s.split(' ').forEach((e) => {
     el.removeEventListener(e, fn, false);
   });
 };
 
-const debounce = (f, ms) =>{
+export const debounce = (f, ms) =>{
   let timer = null;
 
   return function (...args) {
@@ -49,7 +49,7 @@ const debounce = (f, ms) =>{
   };
 };
 
-const getDateValue = (inputDate) => {
+export const getDateValue = (inputDate) => {
   const date = inputDate || new Date();
   const year = new Date(date.getFullYear());
   const month = new Date(date.getFullYear(), date.getMonth());
@@ -84,4 +84,34 @@ Element.prototype.parents = function(selector) {
   return elements;
 };
 
-export {getCoords, getNodeFromMarkup, getDay, addListenerMulti, removeListenerMulti, debounce, getDateValue};
+export const parseObjToHash = (inputObj) => {
+  let hashPartBuffer = [];
+  for (let k in inputObj) {
+    hashPartBuffer.push(
+      encodeURIComponent(k),
+      '=',
+      encodeURIComponent(inputObj[k]),
+      '&');
+  }
+  if (hashPartBuffer.length) {
+    // Remove the last element from the string buffer
+    // which is '&'.
+    hashPartBuffer.pop();
+  }
+  const hashPartString = hashPartBuffer.join('');
+
+  return hashPartString;
+};
+
+export const encodeObjFromHash = (hashPartString) => {
+  let pairs = hashPartString.split(/&/);
+  let object = {};
+  for (let i = 0; i < pairs.length; i++) {
+    let keyValue = pairs[i].split(/=/);
+    // Validate that this has the right structure.
+    if (keyValue.length == 2) {
+      object[keyValue[0]] = keyValue[1];
+    }
+  }
+  return object;
+};

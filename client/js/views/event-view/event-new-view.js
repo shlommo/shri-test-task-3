@@ -1,7 +1,7 @@
 import AbstractView from './../abstract-view';
 import getEventFormMarkup from './getEventFormMarkup';
 
-import Application from './../../application'
+import Application from './../../application';
 
 class EventNewView extends AbstractView {
 
@@ -15,7 +15,7 @@ class EventNewView extends AbstractView {
 
     const eventForm = getEventFormMarkup(false);
 
-    console.log(Application.data);
+    console.log(this.eventInputData, Application.data);
 
     return `<div class="event-page" id="app">
               ${header} 
