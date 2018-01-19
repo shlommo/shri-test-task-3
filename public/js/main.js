@@ -50,19 +50,17 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(16);
+	var _apiService = __webpack_require__(19);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(22);
+	var _createSvgSprite = __webpack_require__(25);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
-	var _meetingRoomsView = __webpack_require__(6);
-	
-	var _meetingRoomsView2 = _interopRequireDefault(_meetingRoomsView);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	// import createMeetingRoom from './views/meeting-rooms-view';
 	
 	// const createEvent = mutation.createEvent(
 	//   `{
@@ -70,6 +68,7 @@
 	//     dateStart: "${new Date().toISOString()}",
 	//     dateEnd: "${new Date().toISOString()}"}
 	//   `, `"${[1]}"`, 6);
+	
 	_apiService2.default.getAll().then(function (data) {
 	  _application2.default.data = data;
 	  _application2.default.showMeetingRooms();
@@ -125,13 +124,21 @@
 	    }
 	  }, {
 	    key: 'showEventCreate',
-	    value: function showEventCreate() {
+	    value: function showEventCreate(eventInputData) {
+	      (0, _view2.default)(_data.TYPES.EVENT_CREATE, eventInputData);
+	    }
+	  }, {
+	    key: 'showEventEdit',
+	    value: function showEventEdit() {
 	      (0, _view2.default)(_data.TYPES.EVENT_CREATE, meetingRoomsData);
 	    }
 	  }, {
 	    key: 'data',
 	    set: function set(data) {
 	      meetingRoomsData = data;
+	    },
+	    get: function get() {
+	      return meetingRoomsData;
 	    }
 	  }]);
 	
@@ -235,17 +242,21 @@
 	  value: true
 	});
 	
+	var _RENDERS;
+	
 	var _data = __webpack_require__(4);
 	
 	var _meetingRoomsView = __webpack_require__(6);
 	
 	var _meetingRoomsView2 = _interopRequireDefault(_meetingRoomsView);
 	
+	var _eventView = __webpack_require__(16);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
-	var RENDERS = _defineProperty({}, _data.TYPES.MEETING_ROOMS, _meetingRoomsView2.default);
+	var RENDERS = (_RENDERS = {}, _defineProperty(_RENDERS, _data.TYPES.MEETING_ROOMS, _meetingRoomsView2.default), _defineProperty(_RENDERS, _data.TYPES.EVENT_CREATE, _eventView.eventNewView), _RENDERS);
 	
 	exports.default = function (type, inputData) {
 	  RENDERS[type](inputData).renderView();
@@ -303,11 +314,7 @@
 	
 	var _activateRoomName2 = _interopRequireDefault(_activateRoomName);
 	
-	var _renderTimeSlotInfo = __webpack_require__(14);
-	
-	var _renderTimeSlotInfo2 = _interopRequireDefault(_renderTimeSlotInfo);
-	
-	var _renderEvents = __webpack_require__(15);
+	var _renderEvents = __webpack_require__(14);
 	
 	var _renderEvents2 = _interopRequireDefault(_renderEvents);
 	
@@ -711,23 +718,22 @@
 	  }, {
 	    key: 'getMarkup',
 	    value: function getMarkup() {
-	      var header = '<header class="header">\n                      <div class="logo"></div>\n                      <a href="event-new.html" class="button header__button button--blue" data-event-new-trigger>\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</a>\n                  </header>';
+	      var header = '<header class="header">\n                      <div class="logo"></div>\n                      <a href="event-new.html" class="button header__button button--blue" id="newEventTrigger">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</a>\n                  </header>';
 	
 	      var diagram = '<div class="diagram">\n                      <div class="diagram__body">\n                        <div class="diagram__body-cnt">\n                            <div class="diagram__time-line">' + this.diagramRowMarkup((0, _calendar.calendarMarkup)(), this.diagramTimelineTimeMarkup()) + '</div>\n                            <div class="diagram__content-wrapper">\n                              <div class="diagram__content">\n                                ' + this.diagramRowMarkup(null, this.getCellList(), 'diagram__cell-grid') + '\n                                ' + this.getFloorListMarkup() + '\n                              </div>\n                            </div>\n                        </div>\n                      </div>\n                    </div>';
 	
-	      return '<div class="inpex-page" id="app">\n              ' + header + ' \n              ' + diagram + '\n            </div>';
+	      return '<div class="index-page" id="app">\n              ' + header + ' \n              ' + diagram + '\n            </div>';
 	    }
 	  }, {
 	    key: 'bindHandlers',
 	    value: function bindHandlers() {
 	      var _this3 = this;
 	
-	      var eventNewTrigger = this.element.querySelector('[data-event-new-trigger]');
+	      var eventNewTrigger = this.element.querySelector('#newEventTrigger');
 	
 	      eventNewTrigger.addEventListener('click', function (e) {
 	        e.preventDefault();
-	        alert('times on');
-	        // Application.showEventCreate();
+	        _application2.default.showEventCreate();
 	      });
 	
 	      var windowResizeHandler = function windowResizeHandler() {
@@ -747,10 +753,8 @@
 	
 	      this.clock();
 	
-	      var renderEvents = new _renderEvents2.default(this.events, this.date, this.minuteStep);
-	      renderEvents.render();
-	
-	      (0, _renderTimeSlotInfo2.default)(this.events, this.rooms, this.users);
+	      var renderEvents = new _renderEvents2.default(this.element, this.events, this.date, this.rooms, this.users, this.minuteStep);
+	      renderEvents.renderView();
 	    }
 	  }]);
 	
@@ -1036,6 +1040,24 @@
 	    hour: hour.valueOf(),
 	    minute: minute.valueOf()
 	  };
+	};
+	
+	Element.prototype.parents = function (selector) {
+	  var elements = [];
+	  var elem = this;
+	  var ishaveselector = selector !== undefined;
+	
+	  while ((elem = elem.parentElement) !== null) {
+	    if (elem.nodeType !== Node.ELEMENT_NODE) {
+	      continue;
+	    }
+	
+	    if (!ishaveselector || elem.matches(selector)) {
+	      elements.push(elem);
+	    }
+	  }
+	
+	  return elements;
 	};
 	
 	exports.getCoords = getCoords;
@@ -1410,237 +1432,36 @@
 	  value: true
 	});
 	
-	var _helpers = __webpack_require__(11);
-	
-	var _data = __webpack_require__(4);
-	
-	var _hideOnClickOutside = __webpack_require__(10);
-	
-	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var getTimeSlotInfoTemplate = function getTimeSlotInfoTemplate(event, rooms, users) {
-	  var dateStart = new Date(event.dateStart);
-	  var dateEnd = new Date(event.dateEnd);
-	  var getMinutes = function getMinutes(date) {
-	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
-	  };
-	  var inclineMonths = _data.monthNames.map(function (month) {
-	    var lastLetterCharCode = month.toLowerCase().charCodeAt(month.length - 1);
-	    var inclineMonth = void 0;
-	
-	    if (lastLetterCharCode === 1100 || lastLetterCharCode === 1081) {
-	      inclineMonth = month.slice(0, -1) + 'я';
-	    } else if (lastLetterCharCode === 1090) {
-	      inclineMonth = month + 'а';
-	    }
-	    return inclineMonth.toLowerCase();
-	  });
-	
-	  var roomName = void 0;
-	  var _iteratorNormalCompletion = true;
-	  var _didIteratorError = false;
-	  var _iteratorError = undefined;
-	
-	  try {
-	    for (var _iterator = rooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	      var room = _step.value;
-	
-	      if (room.id === event.room.id) {
-	        roomName = room.title;
-	      }
-	    }
-	  } catch (err) {
-	    _didIteratorError = true;
-	    _iteratorError = err;
-	  } finally {
-	    try {
-	      if (!_iteratorNormalCompletion && _iterator.return) {
-	        _iterator.return();
-	      }
-	    } finally {
-	      if (_didIteratorError) {
-	        throw _iteratorError;
-	      }
-	    }
-	  }
-	
-	  var userLogin = void 0,
-	      userAvatarUrl = void 0;
-	
-	  var _iteratorNormalCompletion2 = true;
-	  var _didIteratorError2 = false;
-	  var _iteratorError2 = undefined;
-	
-	  try {
-	    for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	      var user = _step2.value;
-	
-	      if (user.id === event.users[0].id) {
-	        userLogin = user.login;
-	        userAvatarUrl = user.avatarUrl;
-	      }
-	    }
-	  } catch (err) {
-	    _didIteratorError2 = true;
-	    _iteratorError2 = err;
-	  } finally {
-	    try {
-	      if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	        _iterator2.return();
-	      }
-	    } finally {
-	      if (_didIteratorError2) {
-	        throw _iteratorError2;
-	      }
-	    }
-	  }
-	
-	  var members = void 0;
-	  var usersLength = event.users.length;
-	
-	  if (usersLength === 1) {
-	    members = '';
-	  } else if (usersLength === 2) {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A';
-	  } else if (usersLength > 2 && event.users.length < 5) {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u0430';
-	  } else {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432';
-	  }
-	
-	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
-	
-	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="event-edit.html" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
-	};
-	
-	exports.default = function (events, rooms, users) {
-	  var timeSlotArr = document.querySelectorAll('[data-event-edit-trigger]');
-	
-	  var _iteratorNormalCompletion3 = true;
-	  var _didIteratorError3 = false;
-	  var _iteratorError3 = undefined;
-	
-	  try {
-	    var _loop = function _loop() {
-	      var timeSlot = _step3.value;
-	
-	      timeSlot.addEventListener('click', function (event) {
-	        event.preventDefault();
-	
-	        var timeSlotComputedStyle = getComputedStyle(timeSlot);
-	        var timeSlotHeight = +timeSlotComputedStyle.height.slice(0, -2);
-	        var timeSlotWidth = +timeSlotComputedStyle.width.slice(0, -2);
-	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
-	        var timeSlotTop = timeSlotCoords.top;
-	        var timeSlotLeft = timeSlotCoords.left;
-	        var body = document.querySelector('body');
-	        var windowWidth = window.innerWidth;
-	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
-	        var timeSlotInfoTemplate = void 0;
-	        var timeSlotInfoNode = void 0;
-	
-	        var _iteratorNormalCompletion4 = true;
-	        var _didIteratorError4 = false;
-	        var _iteratorError4 = undefined;
-	
-	        try {
-	          for (var _iterator4 = events[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	            var _event = _step4.value;
-	
-	            if (_event.id === timeSlotEventId) {
-	              timeSlotInfoTemplate = getTimeSlotInfoTemplate(_event, rooms, users);
-	              timeSlotInfoNode = (0, _helpers.getNodeFromMarkup)(timeSlotInfoTemplate);
-	            }
-	          }
-	        } catch (err) {
-	          _didIteratorError4 = true;
-	          _iteratorError4 = err;
-	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion4 && _iterator4.return) {
-	              _iterator4.return();
-	            }
-	          } finally {
-	            if (_didIteratorError4) {
-	              throw _iteratorError4;
-	            }
-	          }
-	        }
-	
-	        timeSlot.classList.add('focused');
-	        body.appendChild(timeSlotInfoNode);
-	
-	        setTimeout(function () {
-	          if (windowWidth < 1280) {
-	            var timeSlotInfoMarker = document.querySelector('.time-slot-info__marker');
-	            var timeSlotInfoMarkerWidth = +getComputedStyle(timeSlotInfoMarker).width.slice(0, -2);
-	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px;';
-	            timeSlotInfoMarker.style.left = timeSlotLeft + timeSlotWidth / 2 - timeSlotInfoMarkerWidth / 2 + 'px';
-	          } else {
-	            var timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
-	            var leftMoveValue = timeSlotLeft + timeSlotWidth / 2 - timeSlotNodeWidth / 2;
-	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px; left: ' + leftMoveValue + 'px';
-	          }
-	          timeSlotInfoNode.classList.add('showed');
-	        }, 100);
-	
-	        setTimeout(function () {
-	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
-	            body.removeChild(timeSlotInfoNode);
-	            timeSlot.classList.remove('focused');
-	          });
-	        }, 10);
-	      });
-	    };
-	
-	    for (var _iterator3 = Array.from(timeSlotArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	      _loop();
-	    }
-	  } catch (err) {
-	    _didIteratorError3 = true;
-	    _iteratorError3 = err;
-	  } finally {
-	    try {
-	      if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	        _iterator3.return();
-	      }
-	    } finally {
-	      if (_didIteratorError3) {
-	        throw _iteratorError3;
-	      }
-	    }
-	  }
-	};
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
 	var _helpers = __webpack_require__(11);
+	
+	var _renderTimeSlotInfo = __webpack_require__(15);
+	
+	var _renderTimeSlotInfo2 = _interopRequireDefault(_renderTimeSlotInfo);
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var RenderEvents = function () {
-	  function RenderEvents(inputEvents, inputDate, minuteStep) {
+	  function RenderEvents(parent, inputEvents, inputDate, inputRooms, inputUsers, minuteStep) {
 	    _classCallCheck(this, RenderEvents);
 	
-	    this.roomArr = document.querySelectorAll('.diagram__room');
+	    this.parent = parent;
+	    this.roomArr = this.parent.querySelectorAll('.diagram__room');
 	    this.MINUTE = 60 * 1000;
 	    this.HOUR = 60 * this.MINUTE;
 	    this.inputEvents = inputEvents;
 	    this.inputDate = inputDate;
+	    this.inputRooms = inputRooms;
+	    this.inputUsers = inputUsers;
 	    this.minuteStep = minuteStep;
 	    this.now = new Date();
 	    this.today = (0, _helpers.getDateValue)(this.now).day;
@@ -1850,8 +1671,6 @@
 	                var freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
 	
 	                timeContainer.appendChild(freeTimeNode);
-	
-	                console.log(new Date(freeTime.start), new Date(freeTime.end));
 	              }
 	            } catch (err) {
 	              _didIteratorError4 = true;
@@ -1885,10 +1704,62 @@
 	      }
 	    }
 	  }, {
-	    key: 'render',
-	    value: function render() {
+	    key: 'freeTimeSlotHandler',
+	    value: function freeTimeSlotHandler() {
+	      var eventNewTriggerArr = document.querySelectorAll('[data-event-new-trigger]');
+	      var roomId = void 0,
+	          startTime = void 0,
+	          endTime = void 0,
+	          eventCreateInputData = {};
+	
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
+	
+	      try {
+	        var _loop = function _loop() {
+	          var eventNewTrigger = _step5.value;
+	
+	          eventNewTrigger.addEventListener('click', function () {
+	            startTime = eventNewTrigger.getAttribute('data-start-time');
+	            endTime = eventNewTrigger.getAttribute('data-end-time');
+	            roomId = eventNewTrigger.parents('.diagram__room')[0].getAttribute('data-room-id');
+	            eventCreateInputData = {
+	              roomId: roomId,
+	              startTime: startTime,
+	              endTime: endTime
+	            };
+	
+	            _application2.default.showEventCreate(eventCreateInputData);
+	          });
+	        };
+	
+	        for (var _iterator5 = eventNewTriggerArr[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
+	          }
+	        } finally {
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'renderView',
+	    value: function renderView() {
 	      this.renderPlannedEvent();
 	      this.renderUnplannedEvents();
+	
+	      (0, _renderTimeSlotInfo2.default)(this.parent, this.inputEvents, this.inputRooms, this.inputUsers);
+	      this.freeTimeSlotHandler();
 	    }
 	  }]);
 	
@@ -1896,6 +1767,221 @@
 	}();
 	
 	exports.default = RenderEvents;
+
+/***/ }),
+/* 15 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _helpers = __webpack_require__(11);
+	
+	var _data = __webpack_require__(4);
+	
+	var _hideOnClickOutside = __webpack_require__(10);
+	
+	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var getTimeSlotInfoTemplate = function getTimeSlotInfoTemplate(event, rooms, users) {
+	  var dateStart = new Date(event.dateStart);
+	  var dateEnd = new Date(event.dateEnd);
+	  var getMinutes = function getMinutes(date) {
+	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+	  };
+	  var inclineMonths = _data.monthNames.map(function (month) {
+	    var lastLetterCharCode = month.toLowerCase().charCodeAt(month.length - 1);
+	    var inclineMonth = void 0;
+	
+	    if (lastLetterCharCode === 1100 || lastLetterCharCode === 1081) {
+	      inclineMonth = month.slice(0, -1) + 'я';
+	    } else if (lastLetterCharCode === 1090) {
+	      inclineMonth = month + 'а';
+	    }
+	    return inclineMonth.toLowerCase();
+	  });
+	
+	  var roomName = void 0;
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    for (var _iterator = rooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var room = _step.value;
+	
+	      if (room.id === event.room.id) {
+	        roomName = room.title;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  var userLogin = void 0,
+	      userAvatarUrl = void 0;
+	
+	  var _iteratorNormalCompletion2 = true;
+	  var _didIteratorError2 = false;
+	  var _iteratorError2 = undefined;
+	
+	  try {
+	    for (var _iterator2 = users[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	      var user = _step2.value;
+	
+	      if (user.id === event.users[0].id) {
+	        userLogin = user.login;
+	        userAvatarUrl = user.avatarUrl;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError2 = true;
+	    _iteratorError2 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	        _iterator2.return();
+	      }
+	    } finally {
+	      if (_didIteratorError2) {
+	        throw _iteratorError2;
+	      }
+	    }
+	  }
+	
+	  var members = void 0;
+	  var usersLength = event.users.length;
+	
+	  if (usersLength === 1) {
+	    members = '';
+	  } else if (usersLength === 2) {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A';
+	  } else if (usersLength > 2 && event.users.length < 5) {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u0430';
+	  } else {
+	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432';
+	  }
+	
+	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
+	
+	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="event-edit.html" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
+	};
+	
+	exports.default = function (parent, events, rooms, users) {
+	  // const parent = context;
+	  var timeSlotArr = parent.querySelectorAll('[data-event-edit-trigger]');
+	
+	  var _iteratorNormalCompletion3 = true;
+	  var _didIteratorError3 = false;
+	  var _iteratorError3 = undefined;
+	
+	  try {
+	    var _loop = function _loop() {
+	      var timeSlot = _step3.value;
+	
+	      timeSlot.addEventListener('click', function (event) {
+	        event.preventDefault();
+	
+	        var timeSlotComputedStyle = getComputedStyle(timeSlot);
+	        var timeSlotHeight = +timeSlotComputedStyle.height.slice(0, -2);
+	        var timeSlotWidth = +timeSlotComputedStyle.width.slice(0, -2);
+	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
+	        var timeSlotTop = timeSlotCoords.top;
+	        var timeSlotLeft = timeSlotCoords.left;
+	        var body = document.querySelector('body');
+	        var windowWidth = window.innerWidth;
+	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
+	        var timeSlotInfoTemplate = void 0;
+	        var timeSlotInfoNode = void 0;
+	
+	        var _iteratorNormalCompletion4 = true;
+	        var _didIteratorError4 = false;
+	        var _iteratorError4 = undefined;
+	
+	        try {
+	          for (var _iterator4 = events[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	            var _event = _step4.value;
+	
+	            if (_event.id === timeSlotEventId) {
+	              timeSlotInfoTemplate = getTimeSlotInfoTemplate(_event, rooms, users);
+	              timeSlotInfoNode = (0, _helpers.getNodeFromMarkup)(timeSlotInfoTemplate);
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError4 = true;
+	          _iteratorError4 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	              _iterator4.return();
+	            }
+	          } finally {
+	            if (_didIteratorError4) {
+	              throw _iteratorError4;
+	            }
+	          }
+	        }
+	
+	        timeSlot.classList.add('focused');
+	        body.appendChild(timeSlotInfoNode);
+	
+	        setTimeout(function () {
+	          if (windowWidth < 1280) {
+	            var timeSlotInfoMarker = document.querySelector('.time-slot-info__marker');
+	            var timeSlotInfoMarkerWidth = +getComputedStyle(timeSlotInfoMarker).width.slice(0, -2);
+	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px;';
+	            timeSlotInfoMarker.style.left = timeSlotLeft + timeSlotWidth / 2 - timeSlotInfoMarkerWidth / 2 + 'px';
+	          } else {
+	            var timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
+	            var leftMoveValue = timeSlotLeft + timeSlotWidth / 2 - timeSlotNodeWidth / 2;
+	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px; left: ' + leftMoveValue + 'px';
+	          }
+	          timeSlotInfoNode.classList.add('showed');
+	        }, 100);
+	
+	        setTimeout(function () {
+	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
+	            body.removeChild(timeSlotInfoNode);
+	            timeSlot.classList.remove('focused');
+	          });
+	        }, 10);
+	      });
+	    };
+	
+	    for (var _iterator3 = Array.from(timeSlotArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	      _loop();
+	    }
+	  } catch (err) {
+	    _didIteratorError3 = true;
+	    _iteratorError3 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	        _iterator3.return();
+	      }
+	    } finally {
+	      if (_didIteratorError3) {
+	        throw _iteratorError3;
+	      }
+	    }
+	  }
+	};
 
 /***/ }),
 /* 16 */
@@ -1906,14 +1992,118 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.eventNewView = undefined;
+	
+	var _eventNewView = __webpack_require__(17);
+	
+	var _eventNewView2 = _interopRequireDefault(_eventNewView);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var eventNewView = exports.eventNewView = function eventNewView(data) {
+	  return new _eventNewView2.default(data);
+	};
+
+/***/ }),
+/* 17 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(17);
+	var _abstractView = __webpack_require__(8);
 	
-	var _queries = __webpack_require__(18);
+	var _abstractView2 = _interopRequireDefault(_abstractView);
 	
-	var _grapnhQlRequest = __webpack_require__(21);
+	var _getEventFormMarkup = __webpack_require__(18);
+	
+	var _getEventFormMarkup2 = _interopRequireDefault(_getEventFormMarkup);
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var EventNewView = function (_AbstractView) {
+	  _inherits(EventNewView, _AbstractView);
+	
+	  function EventNewView(eventInputData) {
+	    _classCallCheck(this, EventNewView);
+	
+	    var _this = _possibleConstructorReturn(this, (EventNewView.__proto__ || Object.getPrototypeOf(EventNewView)).call(this, eventInputData));
+	
+	    _this.eventInputData = eventInputData || {};
+	    return _this;
+	  }
+	
+	  _createClass(EventNewView, [{
+	    key: 'getMarkup',
+	    value: function getMarkup() {
+	      var header = '<header class="header"><div class="logo"></div></header>';
+	
+	      var eventForm = (0, _getEventFormMarkup2.default)(false);
+	
+	      console.log(_application2.default.data);
+	
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              ' + eventForm + '\n            </div>';
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {}
+	  }]);
+	
+	  return EventNewView;
+	}(_abstractView2.default);
+	
+	exports.default = EventNewView;
+
+/***/ }),
+/* 18 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	exports.default = function (isEdit) {
+	    var editClass = isEdit ? ' event-form--edit' : '';
+	    var eventHeader = '<h3 class="event-form__title">' + (isEdit ? 'Редактирование встречи' : 'Новая встреча') + '</h3>\n        <a href="#" class="event-form__close circle-icon">\n            <i>\n                <svg width="10" height="10">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                </svg>\n            </i>\n        </a>';
+	    var eventFooter = isEdit ? 'button class="button button--gray">\u041E\u0442\u043C\u0435\u043D\u0430</button>\n    <button class="button button--blue button--disabled">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>' : '<button class="button button--gray" data-close>\u041E\u0442\u043C\u0435\u043D\u0430</button>\n      <button class="button button--gray">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>';
+	
+	    return '<div class="event-form' + editClass + '">\n              <div class="event-form__header">' + eventHeader + '</div>\n              <div class="event-form__body"></div>\n              <div class="event-form__footer">' + eventFooter + '</div>\n          </div>';
+	};
+
+/***/ }),
+/* 19 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	__webpack_require__(20);
+	
+	var _queries = __webpack_require__(21);
+	
+	var _grapnhQlRequest = __webpack_require__(24);
 	
 	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
 	
@@ -2012,7 +2202,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 17 */
+/* 20 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -2476,7 +2666,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 18 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2486,11 +2676,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(19);
+	var _query = __webpack_require__(22);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(20);
+	var _mutation = __webpack_require__(23);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -2500,7 +2690,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 19 */
+/* 22 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2515,7 +2705,7 @@
 	};
 
 /***/ }),
-/* 20 */
+/* 23 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2530,7 +2720,7 @@
 	};
 
 /***/ }),
-/* 21 */
+/* 24 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -2559,7 +2749,7 @@
 	};
 
 /***/ }),
-/* 22 */
+/* 25 */
 /***/ (function(module, exports) {
 
 	'use strict';

@@ -1,7 +1,8 @@
 import Application from './application';
 import ApiService from './api-service';
 import createSvgSprite from './tools/createSvgSprite';
-import createMeetingRoom from './views/meeting-rooms-view';
+
+// import createMeetingRoom from './views/meeting-rooms-view';
 
 // const createEvent = mutation.createEvent(
 //   `{
@@ -9,6 +10,7 @@ import createMeetingRoom from './views/meeting-rooms-view';
 //     dateStart: "${new Date().toISOString()}",
 //     dateEnd: "${new Date().toISOString()}"}
 //   `, `"${[1]}"`, 6);
+
 ApiService.getAll()
   .then((data) => {
     Application.data = data;
@@ -24,6 +26,3 @@ ApiService.getAll()
       Application.showMeetingRooms();
     });
   });
-
-
-

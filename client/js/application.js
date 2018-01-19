@@ -10,12 +10,20 @@ export default class Application {
     view(TYPES.MEETING_ROOMS, meetingRoomsData);
   }
 
-  static showEventCreate() {
+  static showEventCreate(eventInputData) {
+    view(TYPES.EVENT_CREATE, eventInputData)
+  }
+
+  static showEventEdit() {
     view(TYPES.EVENT_CREATE, meetingRoomsData)
   }
 
   static set data(data) {
     meetingRoomsData = data;
+  }
+
+  static get data() {
+    return meetingRoomsData;
   }
 
 }

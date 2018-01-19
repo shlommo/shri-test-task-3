@@ -1,13 +1,18 @@
 import {getNodeFromMarkup, getDateValue} from './../../tools/helpers';
+import renderTimeSlotInfo from './renderTimeSlotInfo';
+import Application from './../../application';
 
 export default class RenderEvents {
 
-  constructor(inputEvents, inputDate, minuteStep) {
-    this.roomArr = document.querySelectorAll('.diagram__room');
+  constructor(parent, inputEvents, inputDate, inputRooms, inputUsers, minuteStep) {
+    this.parent = parent;
+    this.roomArr = this.parent.querySelectorAll('.diagram__room');
     this.MINUTE = 60 * 1000;
     this.HOUR = 60 * this.MINUTE;
     this.inputEvents = inputEvents;
     this.inputDate = inputDate;
+    this.inputRooms = inputRooms;
+    this.inputUsers = inputUsers;
     this.minuteStep = minuteStep;
     this.now = new Date();
     this.today = getDateValue(this.now).day;
@@ -160,15 +165,39 @@ export default class RenderEvents {
           let freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
 
           timeContainer.appendChild(freeTimeNode);
-
-          console.log(new Date(freeTime.start), new Date(freeTime.end))
         }
       }
     }
   }
 
-  render() {
+  freeTimeSlotHandler() {
+    const eventNewTriggerArr = document.querySelectorAll('[data-event-new-trigger]');
+    let roomId,
+      startTime,
+      endTime,
+      eventCreateInputData = {};
+
+    for (let eventNewTrigger of eventNewTriggerArr) {
+      eventNewTrigger.addEventListener('click', () => {
+        startTime = eventNewTrigger.getAttribute('data-start-time');
+        endTime = eventNewTrigger.getAttribute('data-end-time');
+        roomId = eventNewTrigger.parents('.diagram__room')[0].getAttribute('data-room-id');
+        eventCreateInputData = {
+          roomId: roomId,
+          startTime: startTime,
+          endTime: endTime
+        };
+
+        Application.showEventCreate(eventCreateInputData);
+      });
+    }
+  }
+
+  renderView() {
     this.renderPlannedEvent();
     this.renderUnplannedEvents();
+
+    renderTimeSlotInfo(this.parent, this.inputEvents, this.inputRooms, this.inputUsers);
+    this.freeTimeSlotHandler();
   }
 }

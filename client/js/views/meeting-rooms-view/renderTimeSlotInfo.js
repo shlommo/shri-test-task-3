@@ -84,8 +84,9 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
 };
 
 
-export default (events, rooms, users) => {
-  const timeSlotArr = document.querySelectorAll('[data-event-edit-trigger]');
+export default (parent, events, rooms, users) => {
+  // const parent = context;
+  const timeSlotArr = parent.querySelectorAll('[data-event-edit-trigger]');
 
   for ( let timeSlot of Array.from(timeSlotArr) ) {
     timeSlot.addEventListener('click', (event) => {

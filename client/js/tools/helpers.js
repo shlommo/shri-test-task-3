@@ -66,4 +66,22 @@ const getDateValue = (inputDate) => {
   }
 };
 
+Element.prototype.parents = function(selector) {
+  let elements = [];
+  let elem = this;
+  const ishaveselector = selector !== undefined;
+
+  while ((elem = elem.parentElement) !== null) {
+    if (elem.nodeType !== Node.ELEMENT_NODE) {
+      continue;
+    }
+
+    if (!ishaveselector || elem.matches(selector)) {
+      elements.push(elem);
+    }
+  }
+
+  return elements;
+};
+
 export {getCoords, getNodeFromMarkup, getDay, addListenerMulti, removeListenerMulti, debounce, getDateValue};

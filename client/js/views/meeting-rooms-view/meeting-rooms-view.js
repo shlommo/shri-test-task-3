@@ -4,7 +4,6 @@ import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './renderCalendarWidget';
 import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activateRoomName';
-import renderTimeSlotInfo from './renderTimeSlotInfo';
 import RenderEvents from './renderEvents';
 
 let globalTimeout;
@@ -234,7 +233,7 @@ class MeetingRoomsView extends AbstractView {
   getMarkup() {
     const header = `<header class="header">
                       <div class="logo"></div>
-                      <a href="event-new.html" class="button header__button button--blue" data-event-new-trigger>Создать встречу</a>
+                      <a href="event-new.html" class="button header__button button--blue" id="newEventTrigger">Создать встречу</a>
                   </header>`;
 
     const diagram = `<div class="diagram">
@@ -251,19 +250,18 @@ class MeetingRoomsView extends AbstractView {
                       </div>
                     </div>`;
 
-    return `<div class="inpex-page" id="app">
+    return `<div class="index-page" id="app">
               ${header} 
               ${diagram}
             </div>`;
   }
 
   bindHandlers() {
-    const eventNewTrigger = this.element.querySelector('[data-event-new-trigger]');
+    const eventNewTrigger = this.element.querySelector('#newEventTrigger');
 
     eventNewTrigger.addEventListener('click', (e) => {
       e.preventDefault();
-      alert('times on');
-      // Application.showEventCreate();
+      Application.showEventCreate();
     });
 
     const windowResizeHandler = () => {
@@ -282,10 +280,8 @@ class MeetingRoomsView extends AbstractView {
 
     this.clock();
 
-    const renderEvents = new RenderEvents(this.events, this.date, this.minuteStep);
-    renderEvents.render();
-
-    renderTimeSlotInfo(this.events, this.rooms, this.users);
+    const renderEvents = new RenderEvents(this.element, this.events, this.date, this.rooms, this.users, this.minuteStep);
+    renderEvents.renderView();
   }
 
 }
