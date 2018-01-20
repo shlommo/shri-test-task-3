@@ -909,8 +909,11 @@
 	exports.default = function (selector, callback) {
 	  var outsideClickListener = function outsideClickListener(event) {
 	    var elem = document.querySelector(selector);
-	    var elemChildIsTarget = checkEventTarget(event, selector);
 	    var clickCallback = callback || function () {};
+	    var elemChildIsTarget = false;
+	    if (elem !== null) {
+	      elemChildIsTarget = checkEventTarget(event, selector);
+	    }
 	
 	    if (event.target !== elem && !elemChildIsTarget) {
 	      clickCallback();
@@ -1741,7 +1744,7 @@
 	        var _loop = function _loop() {
 	          var eventNewTrigger = _step5.value;
 	
-	          eventNewTrigger.addEventListener('click', function () {
+	          var eventNewClickHandler = function eventNewClickHandler() {
 	            startTime = eventNewTrigger.getAttribute('data-start-time');
 	            endTime = eventNewTrigger.getAttribute('data-end-time');
 	            roomId = eventNewTrigger.parents('.diagram__room')[0].getAttribute('data-room-id');
@@ -1752,7 +1755,9 @@
 	            };
 	
 	            _router.router.navigate('/event/' + (0, _helpers.parseObjToHash)(eventCreateInputData) + '/create');
-	          });
+	            eventNewTrigger.removeEventListener('click', eventNewClickHandler);
+	          };
+	          eventNewTrigger.addEventListener('click', eventNewClickHandler);
 	        };
 	
 	        for (var _iterator5 = eventNewTriggerArr[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
@@ -1908,7 +1913,7 @@
 	    endTime: dateEnd.getTime()
 	  };
 	
-	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="#/event/' + (0, _helpers.parseObjToHash)(eventEditInputData) + '/edit" class="time-slot-info__trigger" data-navigo>\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
+	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="/event/' + (0, _helpers.parseObjToHash)(eventEditInputData) + '/edit" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
 	};
 	
 	exports.default = function (parent, events, rooms, users) {
@@ -1923,7 +1928,7 @@
 	    var _loop = function _loop() {
 	      var timeSlot = _step3.value;
 	
-	      timeSlot.addEventListener('click', function (event) {
+	      var timeSlotClickHandler = function timeSlotClickHandler(event) {
 	        event.preventDefault();
 	
 	        var timeSlotComputedStyle = getComputedStyle(timeSlot);
@@ -1985,11 +1990,23 @@
 	
 	        setTimeout(function () {
 	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
-	            app.removeChild(timeSlotInfoNode);
 	            timeSlot.classList.remove('focused');
+	            app.removeChild(timeSlotInfoNode);
 	          });
 	        }, 10);
-	      });
+	
+	        var timeSlotInfoTrigger = parent.querySelector('.time-slot-info__trigger');
+	
+	        timeSlotInfoTrigger.addEventListener('click', function (e) {
+	          e.preventDefault();
+	          var eventHref = timeSlotInfoTrigger.getAttribute('href');
+	
+	          timeSlot.removeEventListener('click', timeSlotClickHandler);
+	          _router.router.navigate(eventHref);
+	        });
+	      };
+	
+	      timeSlot.addEventListener('click', timeSlotClickHandler);
 	    };
 	
 	    for (var _iterator3 = Array.from(timeSlotArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
@@ -2309,6 +2326,8 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
+	var _router = __webpack_require__(16);
+	
 	var _eventFormHeader = __webpack_require__(22);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
@@ -2345,14 +2364,81 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
+	      var eventStartDate = void 0;
+	      // const eventStart = () ? '' : ''
+	      if (this.eventInputData.hasOwnProperty('startTime')) {
+	        eventStartDate = new Date(this.eventInputData.startTime);
+	        console.log(this.eventInputData);
+	      }
+	      console.log(_application2.default.data);
 	
-	      console.log(this.eventInputData, _application2.default.data);
-	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('fieldInputOne', 'Тема', 'О чём будете говорить?') + '\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('eventTitle', 'Тема', 'О чём будете говорить?', null, null) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)('eventDate', 'Дата', null, 'field--icon field--date', null, true) + '\n                    </div>\n                    \n                    <div class="event-form__col-time"></div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	    }
+	  }, {
+	    key: 'cancelBtnHandler',
+	    value: function cancelBtnHandler(event) {
+	      event.preventDefault();
+	      this.clearHandlers();
+	      _router.router.navigate();
 	    }
 	  }, {
 	    key: 'bindHandlers',
-	    value: function bindHandlers() {}
+	    value: function bindHandlers() {
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
+	
+	      try {
+	        for (var _iterator = this.cancelBtnArr[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var cancelBtn = _step.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'clearHandlers',
+	    value: function clearHandlers() {
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        for (var _iterator2 = this.cancelBtnArr[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var cancelBtn = _step2.value;
+	
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	    }
 	  }]);
 	
 	  return EventNewView;
@@ -2377,7 +2463,7 @@
 	});
 	
 	exports.default = function (isEdit) {
-	    return '<h3 class="event-form__title">' + (isEdit ? 'Редактирование встречи' : 'Новая встреча') + '</h3>\n        <a href="/" class="event-form__close circle-icon" data-navigo>\n            <i>\n                <svg width="10" height="10">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                </svg>\n            </i>\n        </a>';
+	    return '<h3 class="event-form__title">' + (isEdit ? 'Редактирование встречи' : 'Новая встреча') + '</h3>\n        <a href="#" class="event-form__close circle-icon" data-cancel>\n            <i>\n                <svg width="10" height="10">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                </svg>\n            </i>\n        </a>';
 	};
 
 /***/ }),
@@ -2391,7 +2477,7 @@
 	});
 	
 	exports.default = function (isEdit) {
-	  var eventFormContent = isEdit ? "<a href=\"/\" class=\"button button--gray\" data-navigo>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--gray\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>" : "<a href=\"/\" class=\"button button--gray\" data-navigo>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n    <button class=\"button button--blue button--disabled\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
+	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--gray\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n    <button class=\"button button--blue button--disabled\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
 	
 	  return eventFormContent;
 	};
@@ -2406,8 +2492,12 @@
 	    value: true
 	});
 	
-	exports.default = function (inputId, label, placeholder, extraClasses) {
-	    return '<div class="field ' + (extraClasses || '') + '">\n                <label class="field__label" for="' + inputId + '">' + label + '</label>\n                <input type="text" name="fieldInput" id="' + inputId + '" placeholder="' + placeholder + '">\n                <a href="#" class="field__reset">\n                    <i>\n                        <svg width="12" height="12">\n                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                        </svg>\n                    </i>\n                </a>\n            </div>';
+	exports.default = function (inputId, label, inputPlaceholder, inputExtraClass, inputValue, isDate) {
+	    var filledClass = inputValue !== null ? ' filled' : '';
+	    var extraClass = inputExtraClass !== null ? ' ' + inputExtraClass : '';
+	    var placeholder = inputPlaceholder !== null ? inputPlaceholder : '';
+	
+	    return '<div class="field' + extraClass + filledClass + '" id="' + (isDate ? 'date' : '') + '">\n                <label class="field__label" for="' + inputId + '">' + label + '</label>\n                <input type="text" \n                  name="fieldInput" \n                  id="' + inputId + '" \n                  placeholder="' + placeholder + '"\n                  value="' + (inputValue || '') + '"\n                  ' + (isDate ? 'data-input' : '') + '\n                  >\n                  \n                <a href="#" class="field__reset">\n                    <i>\n                        <svg width="12" height="12">\n                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                        </svg>\n                    </i>\n                </a>\n                \n                ' + (isDate ? '<button class="field__trigger" id="dateTrigger" data-toggle></button>' : '') + '\n            </div>';
 	};
 
 /***/ }),
@@ -2434,6 +2524,8 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
+	var _router = __webpack_require__(16);
+	
 	var _eventFormHeader = __webpack_require__(22);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
@@ -2470,14 +2562,124 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
+	      var appData = _application2.default.data;
+	      var eventDate = new Date(+this.eventInputData.startTime);
+	      var eventDateDay = eventDate.setHours(0, 0, 0);
+	      var events = appData.events[eventDateDay];
+	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	
-	      console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), _application2.default.data);
+	      var eventName = void 0;
+	      var _iteratorNormalCompletion = true;
+	      var _didIteratorError = false;
+	      var _iteratorError = undefined;
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('fieldInputOne', 'Тема', 'О чём будете говорить?') + '\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n            </div>';
+	      try {
+	        for (var _iterator = events[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var event = _step.value;
+	
+	          if (eventInputId === event.id) {
+	            eventName = event.title;
+	          }
+	        }
+	
+	        // console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
+	      } catch (err) {
+	        _didIteratorError = true;
+	        _iteratorError = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion && _iterator.return) {
+	            _iterator.return();
+	          }
+	        } finally {
+	          if (_didIteratorError) {
+	            throw _iteratorError;
+	          }
+	        }
+	      }
+	
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('fieldInputOne', 'Тема', 'О чём будете говорить?', null, eventName) + '\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n            </div>';
+	    }
+	  }, {
+	    key: 'cancelBtnHandler',
+	    value: function cancelBtnHandler(event) {
+	      event.preventDefault();
+	      this.clearHandlers();
+	      _router.router.navigate();
+	    }
+	  }, {
+	    key: 'fieldResetHandler',
+	    value: function fieldResetHandler(event) {
+	      event.preventDefault();
+	      var field = this.parentNode;
+	      var input = field.querySelector('input');
+	      field.classList.remove('filled');
+	      input.value = '';
+	      input.focus();
 	    }
 	  }, {
 	    key: 'bindHandlers',
-	    value: function bindHandlers() {}
+	    value: function bindHandlers() {
+	      this.fieldResetBtn = this.element.querySelector('.field__reset');
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	
+	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
+	
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        for (var _iterator2 = this.cancelBtnArr[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var cancelBtn = _step2.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'clearHandlers',
+	    value: function clearHandlers() {
+	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
+	
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+	
+	      try {
+	        for (var _iterator3 = this.cancelBtnArr[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var cancelBtn = _step3.value;
+	
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	    }
 	  }]);
 	
 	  return EventNewView;

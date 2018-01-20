@@ -62,7 +62,7 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
   return `<div class="time-slot-info" id="timeSlotInfoModal">
     <i class="time-slot-info__marker"></i>
     <div class="time-slot-info__cnt">
-        <a href="#/event/${parseObjToHash(eventEditInputData)}/edit" class="time-slot-info__trigger" data-navigo>
+        <a href="/event/${parseObjToHash(eventEditInputData)}/edit" class="time-slot-info__trigger">
             <i>
                 <svg width="12" height="12">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>
@@ -95,7 +95,7 @@ export default (parent, events, rooms, users) => {
   const timeSlotArr = parent.querySelectorAll('[data-event-edit-trigger]');
 
   for ( let timeSlot of Array.from(timeSlotArr) ) {
-    timeSlot.addEventListener('click', (event) => {
+    const timeSlotClickHandler = (event) => {
       event.preventDefault();
 
       const timeSlotComputedStyle = getComputedStyle(timeSlot);
@@ -136,10 +136,22 @@ export default (parent, events, rooms, users) => {
 
       setTimeout(() => {
         hideOnClickOutside('#timeSlotInfoModal', () => {
-          app.removeChild(timeSlotInfoNode);
-          timeSlot.classList.remove('focused');
-        });
+            timeSlot.classList.remove('focused');
+            app.removeChild(timeSlotInfoNode);
+          });
       }, 10);
-    });
+
+      const timeSlotInfoTrigger = parent.querySelector('.time-slot-info__trigger');
+
+      timeSlotInfoTrigger.addEventListener('click', (e) => {
+        e.preventDefault();
+        const eventHref = timeSlotInfoTrigger.getAttribute('href');
+
+        timeSlot.removeEventListener('click', timeSlotClickHandler);
+        router.navigate(eventHref);
+      })
+    };
+
+    timeSlot.addEventListener('click', timeSlotClickHandler);
   }
 };

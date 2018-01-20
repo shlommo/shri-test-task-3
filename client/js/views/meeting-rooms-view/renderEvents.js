@@ -178,7 +178,7 @@ export default class RenderEvents {
       eventCreateInputData = {};
 
     for (let eventNewTrigger of eventNewTriggerArr) {
-      eventNewTrigger.addEventListener('click', () => {
+      const eventNewClickHandler = () => {
         startTime = eventNewTrigger.getAttribute('data-start-time');
         endTime = eventNewTrigger.getAttribute('data-end-time');
         roomId = eventNewTrigger.parents('.diagram__room')[0].getAttribute('data-room-id');
@@ -189,7 +189,9 @@ export default class RenderEvents {
         };
 
         router.navigate(`/event/${parseObjToHash(eventCreateInputData)}/create`);
-      });
+        eventNewTrigger.removeEventListener('click', eventNewClickHandler);
+      };
+      eventNewTrigger.addEventListener('click', eventNewClickHandler);
     }
   }
 

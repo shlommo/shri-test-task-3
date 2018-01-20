@@ -3,8 +3,11 @@ import {addListenerMulti, removeListenerMulti} from './helpers';
 export default (selector, callback) => {
   const outsideClickListener = (event) => {
     const elem = document.querySelector(selector);
-    const elemChildIsTarget = checkEventTarget(event, selector);
     const clickCallback = callback || function () {};
+    let elemChildIsTarget = false;
+    if (elem !== null) {
+      elemChildIsTarget = checkEventTarget(event, selector);
+    }
 
     if (event.target !== elem && !elemChildIsTarget) {
       clickCallback();
