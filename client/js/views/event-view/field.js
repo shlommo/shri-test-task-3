@@ -1,7 +1,11 @@
-export default (inputId, label, inputPlaceholder, inputExtraClass, inputValue, isDate) => {
+export default (fieldProps) => {
+  const inputId = fieldProps.inputId;
+  const label = fieldProps.label;
+  const placeholder = (fieldProps.placeholder !== null) ? fieldProps.placeholder : '';
+  const extraClass = (fieldProps.extraClass !== null) ?  ' ' + fieldProps.extraClass : '';
+  const inputValue = fieldProps.inputValue;
   const filledClass = (inputValue !== null) ? ' filled' : '';
-  const extraClass = (inputExtraClass !== null) ?  ' ' + inputExtraClass : '';
-  const placeholder = (inputPlaceholder !== null) ? inputPlaceholder : '';
+  const isDate = fieldProps.isDate;
 
   return `<div class="field${extraClass}${filledClass}" id="${(isDate) ? 'date' : ''}">
                 <label class="field__label" for="${inputId}">${label}</label>
