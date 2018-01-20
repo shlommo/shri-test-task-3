@@ -16,18 +16,18 @@ class EventNewView extends AbstractView {
   getMarkup() {
     const header = `<header class="header"><div class="logo"></div></header>`;
 
-    console.log(this.eventInputData, Application.data);
+    console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
 
     return `<div class="event-page" id="app">
               ${header} 
               <div class="event-form">
-                <div class="event-form__header">${eventFormHeader(false)}</div>
+                <div class="event-form__header">${eventFormHeader(true)}</div>
                 <div class="event-form__body">
                   <div class="event-form__col">
                     ${field('fieldInputOne', 'Тема', 'О чём будете говорить?')}
                   </div>
                 </div>
-                <div class="event-form__footer">${eventFormFooter(false)}</div>
+                <div class="event-form__footer">${eventFormFooter(true)}</div>
             </div>
             </div>`;
   }

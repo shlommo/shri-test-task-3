@@ -1,6 +1,7 @@
-import {getCoords, getNodeFromMarkup} from './../../tools/helpers';
+import {getCoords, getNodeFromMarkup, parseObjToHash} from './../../tools/helpers';
 import {monthNames} from './../../data/data';
 import hideOnClickOutside from './../../tools/hideOnClickOutside';
+import {router} from './../../router';
 
 
 const getTimeSlotInfoTemplate = (event, rooms, users) => {
@@ -51,12 +52,17 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
   }
 
   const time = `${dateStart.getHours()}:${getMinutes(dateStart)}—${dateEnd.getHours()}:${getMinutes(dateEnd)}`;
+  const eventEditInputData = {
+    eventId: event.id,
+    startTime: dateStart.getTime(),
+    endTime: dateEnd.getTime()
+  };
 
 
   return `<div class="time-slot-info" id="timeSlotInfoModal">
     <i class="time-slot-info__marker"></i>
     <div class="time-slot-info__cnt">
-        <a href="event-edit.html" class="time-slot-info__trigger">
+        <a href="#/event/${parseObjToHash(eventEditInputData)}/edit" class="time-slot-info__trigger" data-navigo>
             <i>
                 <svg width="12" height="12">
                     <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>
@@ -98,7 +104,7 @@ export default (parent, events, rooms, users) => {
       const timeSlotCoords = getCoords(timeSlot);
       const timeSlotTop = timeSlotCoords.top;
       const timeSlotLeft = timeSlotCoords.left;
-      const body = document.querySelector('body');
+      const app = document.getElementById('app');
       const windowWidth = window.innerWidth;
       const timeSlotEventId = timeSlot.getAttribute('data-event-id');
       let timeSlotInfoTemplate;
@@ -112,7 +118,7 @@ export default (parent, events, rooms, users) => {
       }
 
       timeSlot.classList.add('focused');
-      body.appendChild(timeSlotInfoNode);
+      app.appendChild(timeSlotInfoNode);
 
       setTimeout(() => {
         if (windowWidth < 1280) {
@@ -130,7 +136,7 @@ export default (parent, events, rooms, users) => {
 
       setTimeout(() => {
         hideOnClickOutside('#timeSlotInfoModal', () => {
-          body.removeChild(timeSlotInfoNode);
+          app.removeChild(timeSlotInfoNode);
           timeSlot.classList.remove('focused');
         });
       }, 10);

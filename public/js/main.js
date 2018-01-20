@@ -50,19 +50,15 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(22);
+	var _apiService = __webpack_require__(26);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(28);
+	var _createSvgSprite = __webpack_require__(32);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
-	var _helpers = __webpack_require__(11);
-	
 	var _router = __webpack_require__(16);
-	
-	var _router2 = _interopRequireDefault(_router);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -77,34 +73,20 @@
 	
 	(0, _createSvgSprite2.default)();
 	
-	var appInit = function appInit() {
-	  return _apiService2.default.getAll().then(function (data) {
-	    _application2.default.data = data;
-	    _application2.default.showMeetingRooms();
+	_apiService2.default.getAll().then(function (data) {
+	  _application2.default.data = data;
 	
-	    document.addEventListener('dateChange', function (e) {
-	      var newData = Object.assign(data, {
-	        date: e.detail.date
-	      });
+	  (0, _router.activateRouter)();
 	
-	      _application2.default.data = newData;
-	      _application2.default.showMeetingRooms();
+	  document.addEventListener('dateChange', function (e) {
+	    var newData = Object.assign(data, {
+	      date: e.detail.date
 	    });
-	  });
-	};
 	
-	_router2.default.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (hash, action) {
-	  var encodeData = (0, _helpers.encodeObjFromHash)(hash);
-	  if (action === 'create') {
-	    _application2.default.showEventCreate(encodeData);
-	  } else if (action === 'edit') {}
-	}).on(/event\/(\w+)\/?/, function (action) {
-	  if (action === 'create') {
-	    _application2.default.showEventCreate();
-	  } else if (action === 'edit') {}
-	}).on('*', function () {
-	  appInit();
-	}).resolve();
+	    _application2.default.data = newData;
+	    _application2.default.showMeetingRooms();
+	  });
+	});
 
 /***/ }),
 /* 1 */
@@ -151,8 +133,8 @@
 	    }
 	  }, {
 	    key: 'showEventEdit',
-	    value: function showEventEdit() {
-	      (0, _view2.default)(_data.TYPES.EVENT_CREATE, meetingRoomsData);
+	    value: function showEventEdit(eventInputData) {
+	      (0, _view2.default)(_data.TYPES.EVENT_EDIT, eventInputData);
 	    }
 	  }, {
 	    key: 'data',
@@ -278,7 +260,7 @@
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
 	
-	var RENDERS = (_RENDERS = {}, _defineProperty(_RENDERS, _data.TYPES.MEETING_ROOMS, _meetingRoomsView2.default), _defineProperty(_RENDERS, _data.TYPES.EVENT_CREATE, _eventView.eventNewView), _RENDERS);
+	var RENDERS = (_RENDERS = {}, _defineProperty(_RENDERS, _data.TYPES.MEETING_ROOMS, _meetingRoomsView2.default), _defineProperty(_RENDERS, _data.TYPES.EVENT_CREATE, _eventView.eventNewView), _defineProperty(_RENDERS, _data.TYPES.EVENT_EDIT, _eventView.eventEditView), _RENDERS);
 	
 	exports.default = function (type, inputData) {
 	  RENDERS[type](inputData).renderView();
@@ -320,10 +302,6 @@
 	
 	var _abstractView2 = _interopRequireDefault(_abstractView);
 	
-	var _application = __webpack_require__(1);
-	
-	var _application2 = _interopRequireDefault(_application);
-	
 	var _calendar = __webpack_require__(9);
 	
 	var _renderCalendarWidget = __webpack_require__(12);
@@ -341,8 +319,6 @@
 	var _renderEvents2 = _interopRequireDefault(_renderEvents);
 	
 	var _router = __webpack_require__(16);
-	
-	var _router2 = _interopRequireDefault(_router);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -760,7 +736,7 @@
 	      eventNewTrigger.addEventListener('click', function (e) {
 	        e.preventDefault();
 	        // Application.showEventCreate();
-	        _router2.default.navigate('/event/create');
+	        _router.router.navigate('/event/create');
 	      });
 	
 	      var windowResizeHandler = function windowResizeHandler() {
@@ -1489,8 +1465,6 @@
 	
 	var _router = __webpack_require__(16);
 	
-	var _router2 = _interopRequireDefault(_router);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -1777,7 +1751,7 @@
 	              endTime: endTime
 	            };
 	
-	            _router2.default.navigate('/event/' + (0, _helpers.parseObjToHash)(eventCreateInputData) + '/create');
+	            _router.router.navigate('/event/' + (0, _helpers.parseObjToHash)(eventCreateInputData) + '/create');
 	          });
 	        };
 	
@@ -1832,6 +1806,8 @@
 	var _hideOnClickOutside = __webpack_require__(10);
 	
 	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
+	
+	var _router = __webpack_require__(16);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1926,8 +1902,13 @@
 	  }
 	
 	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
+	  var eventEditInputData = {
+	    eventId: event.id,
+	    startTime: dateStart.getTime(),
+	    endTime: dateEnd.getTime()
+	  };
 	
-	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="event-edit.html" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
+	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="#/event/' + (0, _helpers.parseObjToHash)(eventEditInputData) + '/edit" class="time-slot-info__trigger" data-navigo>\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
 	};
 	
 	exports.default = function (parent, events, rooms, users) {
@@ -1951,7 +1932,7 @@
 	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
 	        var timeSlotTop = timeSlotCoords.top;
 	        var timeSlotLeft = timeSlotCoords.left;
-	        var body = document.querySelector('body');
+	        var app = document.getElementById('app');
 	        var windowWidth = window.innerWidth;
 	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
 	        var timeSlotInfoTemplate = void 0;
@@ -1986,7 +1967,7 @@
 	        }
 	
 	        timeSlot.classList.add('focused');
-	        body.appendChild(timeSlotInfoNode);
+	        app.appendChild(timeSlotInfoNode);
 	
 	        setTimeout(function () {
 	          if (windowWidth < 1280) {
@@ -2004,7 +1985,7 @@
 	
 	        setTimeout(function () {
 	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
-	            body.removeChild(timeSlotInfoNode);
+	            app.removeChild(timeSlotInfoNode);
 	            timeSlot.classList.remove('focused');
 	          });
 	        }, 10);
@@ -2039,10 +2020,17 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.activateRouter = exports.router = undefined;
 	
 	var _navigo = __webpack_require__(17);
 	
 	var _navigo2 = _interopRequireDefault(_navigo);
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	var _helpers = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2051,8 +2039,25 @@
 	var hash = '#';
 	var router = new _navigo2.default(root, useHash, hash);
 	
-	exports.default = router;
-	// router.navigate('/event');
+	var activateRouter = function activateRouter() {
+	  return router.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (hash, action) {
+	    var encodeData = (0, _helpers.encodeObjFromHash)(hash);
+	    if (action === 'create') {
+	      _application2.default.showEventCreate(encodeData);
+	    } else if (action === 'edit') {
+	      _application2.default.showEventEdit(encodeData);
+	    }
+	  }).on(/event\/(\w+)\/?/, function (action) {
+	    if (action === 'create') {
+	      _application2.default.showEventCreate();
+	    } else if (action === 'edit') {}
+	  }).on('*', function () {
+	    _application2.default.showMeetingRooms();
+	  }).resolve();
+	};
+	
+	exports.router = router;
+	exports.activateRouter = activateRouter;
 
 /***/ }),
 /* 17 */
@@ -2261,16 +2266,23 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
-	exports.eventNewView = undefined;
+	exports.eventEditView = exports.eventNewView = undefined;
 	
 	var _eventNewView = __webpack_require__(20);
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
+	var _eventEditView = __webpack_require__(25);
+	
+	var _eventEditView2 = _interopRequireDefault(_eventEditView);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var eventNewView = exports.eventNewView = function eventNewView(data) {
 	  return new _eventNewView2.default(data);
+	};
+	var eventEditView = exports.eventEditView = function eventEditView(data) {
+	  return new _eventEditView2.default(data);
 	};
 
 /***/ }),
@@ -2297,6 +2309,18 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
+	var _eventFormHeader = __webpack_require__(22);
+	
+	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
+	
+	var _eventFormFooter = __webpack_require__(23);
+	
+	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
+	
+	var _field = __webpack_require__(24);
+	
+	var _field2 = _interopRequireDefault(_field);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -2322,11 +2346,9 @@
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
 	
-	      var eventForm = (0, _getEventFormMarkup2.default)(false);
-	
 	      console.log(this.eventInputData, _application2.default.data);
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              ' + eventForm + '\n            </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('fieldInputOne', 'Тема', 'О чём будете говорить?') + '\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
 	    }
 	  }, {
 	    key: 'bindHandlers',
@@ -2342,6 +2364,12 @@
 /* 21 */
 /***/ (function(module, exports) {
 
+	"use strict";
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
 	'use strict';
 	
 	Object.defineProperty(exports, "__esModule", {
@@ -2349,15 +2377,41 @@
 	});
 	
 	exports.default = function (isEdit) {
-	    var editClass = isEdit ? ' event-form--edit' : '';
-	    var eventHeader = '<h3 class="event-form__title">' + (isEdit ? 'Редактирование встречи' : 'Новая встреча') + '</h3>\n        <a href="#" class="event-form__close circle-icon">\n            <i>\n                <svg width="10" height="10">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                </svg>\n            </i>\n        </a>';
-	    var eventFooter = isEdit ? '<button class="button button--gray" data-close>\u041E\u0442\u043C\u0435\u043D\u0430</button>\n      <button class="button button--gray">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>' : '<button class="button button--gray">\u041E\u0442\u043C\u0435\u043D\u0430</button>\n    <button class="button button--blue button--disabled">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>';
-	
-	    return '<div class="event-form' + editClass + '">\n              <div class="event-form__header">' + eventHeader + '</div>\n              <div class="event-form__body"></div>\n              <div class="event-form__footer">' + eventFooter + '</div>\n          </div>';
+	    return '<h3 class="event-form__title">' + (isEdit ? 'Редактирование встречи' : 'Новая встреча') + '</h3>\n        <a href="/" class="event-form__close circle-icon" data-navigo>\n            <i>\n                <svg width="10" height="10">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                </svg>\n            </i>\n        </a>';
 	};
 
 /***/ }),
-/* 22 */
+/* 23 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	exports.default = function (isEdit) {
+	  var eventFormContent = isEdit ? "<a href=\"/\" class=\"button button--gray\" data-navigo>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--gray\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>" : "<a href=\"/\" class=\"button button--gray\" data-navigo>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n    <button class=\"button button--blue button--disabled\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
+	
+	  return eventFormContent;
+	};
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	exports.default = function (inputId, label, placeholder, extraClasses) {
+	    return '<div class="field ' + (extraClasses || '') + '">\n                <label class="field__label" for="' + inputId + '">' + label + '</label>\n                <input type="text" name="fieldInput" id="' + inputId + '" placeholder="' + placeholder + '">\n                <a href="#" class="field__reset">\n                    <i>\n                        <svg width="12" height="12">\n                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                        </svg>\n                    </i>\n                </a>\n            </div>';
+	};
+
+/***/ }),
+/* 25 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2368,11 +2422,86 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(23);
+	var _abstractView = __webpack_require__(8);
 	
-	var _queries = __webpack_require__(24);
+	var _abstractView2 = _interopRequireDefault(_abstractView);
 	
-	var _grapnhQlRequest = __webpack_require__(27);
+	var _getEventFormMarkup = __webpack_require__(21);
+	
+	var _getEventFormMarkup2 = _interopRequireDefault(_getEventFormMarkup);
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	var _eventFormHeader = __webpack_require__(22);
+	
+	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
+	
+	var _eventFormFooter = __webpack_require__(23);
+	
+	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
+	
+	var _field = __webpack_require__(24);
+	
+	var _field2 = _interopRequireDefault(_field);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
+	
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	
+	var EventNewView = function (_AbstractView) {
+	  _inherits(EventNewView, _AbstractView);
+	
+	  function EventNewView(eventInputData) {
+	    _classCallCheck(this, EventNewView);
+	
+	    var _this = _possibleConstructorReturn(this, (EventNewView.__proto__ || Object.getPrototypeOf(EventNewView)).call(this, eventInputData));
+	
+	    _this.eventInputData = eventInputData || {};
+	    return _this;
+	  }
+	
+	  _createClass(EventNewView, [{
+	    key: 'getMarkup',
+	    value: function getMarkup() {
+	      var header = '<header class="header"><div class="logo"></div></header>';
+	
+	      console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), _application2.default.data);
+	
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)('fieldInputOne', 'Тема', 'О чём будете говорить?') + '\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n            </div>';
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {}
+	  }]);
+	
+	  return EventNewView;
+	}(_abstractView2.default);
+	
+	exports.default = EventNewView;
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	__webpack_require__(27);
+	
+	var _queries = __webpack_require__(28);
+	
+	var _grapnhQlRequest = __webpack_require__(31);
 	
 	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
 	
@@ -2471,7 +2600,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 23 */
+/* 27 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -2935,7 +3064,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 24 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2945,11 +3074,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(25);
+	var _query = __webpack_require__(29);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(26);
+	var _mutation = __webpack_require__(30);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -2959,7 +3088,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 25 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2974,7 +3103,7 @@
 	};
 
 /***/ }),
-/* 26 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -2989,7 +3118,7 @@
 	};
 
 /***/ }),
-/* 27 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -3018,7 +3147,7 @@
 	};
 
 /***/ }),
-/* 28 */
+/* 32 */
 /***/ (function(module, exports) {
 
 	'use strict';

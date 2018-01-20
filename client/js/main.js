@@ -1,8 +1,7 @@
 import Application from './application';
 import ApiService from './api-service';
 import createSvgSprite from './tools/createSvgSprite';
-import {encodeObjFromHash} from './tools/helpers';
-import router from './router';
+import {activateRouter} from './router';
 
 // import createMeetingRoom from './views/meeting-rooms-view';
 
@@ -15,40 +14,20 @@ import router from './router';
 
 createSvgSprite();
 
-const appInit = () => {
-  return ApiService.getAll()
-    .then((data) => {
-      Application.data = data;
-      Application.showMeetingRooms();
+ApiService.getAll()
+  .then((data) => {
+    Application.data = data;
 
-      document.addEventListener('dateChange', (e) => {
-        const newData = Object.assign(data, {
-          date: e.detail.date
-        });
+    activateRouter();
 
-        Application.data = newData;
-        Application.showMeetingRooms();
+    document.addEventListener('dateChange', (e) => {
+      const newData = Object.assign(data, {
+        date: e.detail.date
       });
+
+      Application.data = newData;
+      Application.showMeetingRooms();
     });
-};
+  });
 
-router
-  .on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, (hash, action) => {
-    const encodeData = encodeObjFromHash(hash);
-    if (action === 'create') {
-      Application.showEventCreate(encodeData);
-    } else if (action === 'edit') {
 
-    }
-  })
-  .on(/event\/(\w+)\/?/, (action) => {
-    if (action === 'create') {
-      Application.showEventCreate();
-    } else if (action === 'edit') {
-
-    }
-  })
-  .on('*', function () {
-    appInit();
-  })
-  .resolve();

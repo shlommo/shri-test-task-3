@@ -1,11 +1,10 @@
 import AbstractView from './../abstract-view';
-import Application from './../../application';
 import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './renderCalendarWidget';
 import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activateRoomName';
 import RenderEvents from './renderEvents';
-import router from './../../router';
+import {router} from './../../router';
 
 let globalTimeout;
 

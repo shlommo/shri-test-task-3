@@ -14,8 +14,8 @@ export default class Application {
     view(TYPES.EVENT_CREATE, eventInputData)
   }
 
-  static showEventEdit() {
-    view(TYPES.EVENT_CREATE, meetingRoomsData)
+  static showEventEdit(eventInputData) {
+    view(TYPES.EVENT_EDIT, eventInputData)
   }
 
   static set data(data) {
