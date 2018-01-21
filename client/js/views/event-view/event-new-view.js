@@ -7,7 +7,7 @@ import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
-import fieldAutocomplete from './field-autocomplete';
+import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
 
 class EventNewView extends AbstractView {
 
@@ -56,6 +56,7 @@ class EventNewView extends AbstractView {
         isDate: false
       }
     };
+    this.users = Application.data.users || {};
   }
 
   getMarkup() {
@@ -68,8 +69,6 @@ class EventNewView extends AbstractView {
       this.eventStartDate = new Date();
       this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
     }
-
-    console.log(Application.data);
 
     return `<div class="event-page" id="app">
               ${header} 
@@ -93,7 +92,7 @@ class EventNewView extends AbstractView {
                   </div>
                   
                   <div class="event-form__col">
-                    ${fieldAutocomplete(this.fieldsProps.eventMembers)}                  
+                    ${getAutocompleteMarkup(this.fieldsProps.eventMembers)}                  
                   </div>
                 </div>
                 <div class="event-form__footer">${eventFormFooter(false)}</div>
@@ -107,21 +106,29 @@ class EventNewView extends AbstractView {
     router.navigate();
   }
 
+  getAutocompleteHandler(event) {
+    autocompleteHandler(event, this.users);
+  }
+
   bindHandlers() {
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+    this.autocomplete = this.element.querySelector('[data-autocomplete]');
 
-    for (let cancelBtn of this.cancelBtnArr) {
+    for (let cancelBtn of Array.from(this.cancelBtnArr)) {
       cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this))
     }
+
+    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this))
   }
 
   clearHandlers() {
-    for (let cancelBtn of this.cancelBtnArr) {
+    for (let cancelBtn of Array.from(this.cancelBtnArr)) {
       cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this))
     }
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
+    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this))
   }
 
   viewRendered() {

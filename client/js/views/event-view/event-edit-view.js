@@ -7,7 +7,8 @@ import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
-import fieldAutocomplete from './field-autocomplete';
+import getUserTag from './getUserTag';
+import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
 
 class EventNewView extends AbstractView {
 
@@ -48,24 +49,24 @@ class EventNewView extends AbstractView {
         isDate: false
       }
     };
+    this.users = Application.data.users || {};
   }
 
   getMarkup() {
     const header = `<header class="header"><div class="logo"></div></header>`;
     const appData = Application.data;
     const eventDate = new Date(+this.eventInputData.startTime);
-    const eventDateDay = eventDate.setHours(0, 0, 0);
+    const eventDateDay = eventDate.setHours(0, 0, 0, 0);
     const events = appData.events[eventDateDay];
     const eventInputId = this.eventInputData.eventId; // id события переданное по url
     this.eventStartDate = new Date(+this.eventInputData.startTime);
     this.eventEndDate = new Date(+this.eventInputData.endTime);
 
     let eventName;
-    let usersId;
     for (let event of events) {
       if (eventInputId === event.id) {
         eventName = event.title;
-        usersId = event.users;
+        this.eventUsers = event.users;
       }
     }
     this.fieldsProps.eventTitle = {
@@ -77,7 +78,7 @@ class EventNewView extends AbstractView {
       isDate: false
     };
 
-    console.log(usersId);
+    console.log(this.users);
 
     // console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
 
@@ -103,7 +104,7 @@ class EventNewView extends AbstractView {
                   </div>
                   
                   <div class="event-form__col">
-                    ${fieldAutocomplete(this.fieldsProps.eventMembers)}                  
+                    ${getAutocompleteMarkup(this.fieldsProps.eventMembers)}                  
                   </div>
                 </div>
                 <div class="event-form__footer">${eventFormFooter(true)}</div>
@@ -115,6 +116,10 @@ class EventNewView extends AbstractView {
     event.preventDefault();
     this.clearHandlers();
     router.navigate();
+  }
+
+  getAutocompleteHandler(event) {
+    autocompleteHandler(event, this.users);
   }
 
   fieldResetHandler(event) {
@@ -129,23 +134,26 @@ class EventNewView extends AbstractView {
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+    this.autocomplete = this.element.querySelector('[data-autocomplete]');
 
     this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 
-    for (let cancelBtn of this.cancelBtnArr) {
+    for (let cancelBtn of Array.from(this.cancelBtnArr)) {
       cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this))
     }
+    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this))
   }
 
   clearHandlers() {
     this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
 
-    for (let cancelBtn of this.cancelBtnArr) {
+    for (let cancelBtn of Array.from(this.cancelBtnArr)) {
       cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this))
     }
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
+    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this))
   }
 
   viewRendered() {
@@ -171,6 +179,19 @@ class EventNewView extends AbstractView {
       time_24hr: true,
       defaultDate: this.eventEndDate,
     });
+
+
+    this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
+
+    let userTag;
+    for (let eventUser of this.eventUsers) {
+      for (let user of this.users) {
+        if (eventUser.id === user.id) {
+          userTag = getUserTag(user.id, user.login, user.avatarUrl);
+          this.autocompleteTagsContainer.appendChild(userTag);
+        }
+      }
+    }
   }
 }
 

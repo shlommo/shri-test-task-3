@@ -50,11 +50,11 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(28);
+	var _apiService = __webpack_require__(30);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(34);
+	var _createSvgSprite = __webpack_require__(36);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
@@ -1937,7 +1937,7 @@
 	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
 	        var timeSlotTop = timeSlotCoords.top;
 	        var timeSlotLeft = timeSlotCoords.left;
-	        var app = document.getElementById('app');
+	        var body = document.querySelector('body');
 	        var windowWidth = window.innerWidth;
 	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
 	        var timeSlotInfoTemplate = void 0;
@@ -1972,7 +1972,7 @@
 	        }
 	
 	        timeSlot.classList.add('focused');
-	        app.appendChild(timeSlotInfoNode);
+	        body.appendChild(timeSlotInfoNode);
 	
 	        setTimeout(function () {
 	          if (windowWidth < 1280) {
@@ -1991,16 +1991,19 @@
 	        setTimeout(function () {
 	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
 	            timeSlot.classList.remove('focused');
-	            app.removeChild(timeSlotInfoNode);
+	            if (body.contains(timeSlotInfoNode)) {
+	              body.removeChild(timeSlotInfoNode);
+	            }
 	          });
 	        }, 10);
 	
-	        var timeSlotInfoTrigger = parent.querySelector('.time-slot-info__trigger');
+	        var timeSlotInfoTrigger = body.querySelector('.time-slot-info__trigger');
 	
 	        timeSlotInfoTrigger.addEventListener('click', function (e) {
 	          e.preventDefault();
 	          var eventHref = timeSlotInfoTrigger.getAttribute('href');
 	
+	          body.removeChild(timeSlotInfoNode);
 	          timeSlot.removeEventListener('click', timeSlotClickHandler);
 	          _router.router.navigate(eventHref);
 	        });
@@ -2289,7 +2292,7 @@
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
-	var _eventEditView = __webpack_require__(27);
+	var _eventEditView = __webpack_require__(29);
 	
 	var _eventEditView2 = _interopRequireDefault(_eventEditView);
 	
@@ -2343,8 +2346,6 @@
 	var _field2 = _interopRequireDefault(_field);
 	
 	var _fieldAutocomplete = __webpack_require__(26);
-	
-	var _fieldAutocomplete2 = _interopRequireDefault(_fieldAutocomplete);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2405,6 +2406,7 @@
 	        isDate: false
 	      }
 	    };
+	    _this.users = _application2.default.data.users || {};
 	    return _this;
 	  }
 	
@@ -2421,9 +2423,7 @@
 	        this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
 	      }
 	
-	      console.log(_application2.default.data);
-	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete2.default)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -2433,16 +2433,22 @@
 	      _router.router.navigate();
 	    }
 	  }, {
+	    key: 'getAutocompleteHandler',
+	    value: function getAutocompleteHandler(event) {
+	      (0, _fieldAutocomplete.autocompleteHandler)(event, this.users);
+	    }
+	  }, {
 	    key: 'bindHandlers',
 	    value: function bindHandlers() {
 	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
 	
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
 	
 	      try {
-	        for (var _iterator = this.cancelBtnArr[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        for (var _iterator = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
 	          var cancelBtn = _step.value;
 	
 	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
@@ -2461,6 +2467,8 @@
 	          }
 	        }
 	      }
+	
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -2470,7 +2478,7 @@
 	      var _iteratorError2 = undefined;
 	
 	      try {
-	        for (var _iterator2 = this.cancelBtnArr[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        for (var _iterator2 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	          var cancelBtn = _step2.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
@@ -2493,6 +2501,7 @@
 	      this.eventDateDatepickr.destroy();
 	      this.eventTimeStartDatepickr.destroy();
 	      this.eventTimeEndDatepickr.destroy();
+	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -4373,19 +4382,243 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	exports.autocompleteHandler = exports.getAutocompleteMarkup = undefined;
 	
 	var _field = __webpack_require__(25);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
+	var _getUser = __webpack_require__(27);
+	
+	var _getUser2 = _interopRequireDefault(_getUser);
+	
+	var _getUserTag = __webpack_require__(28);
+	
+	var _getUserTag2 = _interopRequireDefault(_getUserTag);
+	
+	var _hideOnClickOutside = __webpack_require__(10);
+	
+	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
+	
+	var _helpers = __webpack_require__(11);
+	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
-	exports.default = function (fieldProps) {
-	  return '<div class="field-autocomplete" data-autocomplete>\n            ' + (0, _field2.default)(fieldProps) + '\n            \n            <i class="field-autocomplete__arrow">\n              <svg width="12" height="12">\n                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow"></use>\n              </svg>\n            </i>\n            \n            <div class="field-autocomplete__dropdown"></div>\n          </div>';
+	var getAutocompleteMarkup = function getAutocompleteMarkup(fieldProps) {
+	  return '<div class="field-autocomplete" data-autocomplete>\n            ' + (0, _field2.default)(fieldProps) + '\n            \n            <i class="field-autocomplete__arrow">\n              <svg width="12" height="12">\n                <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-arrow"></use>\n              </svg>\n            </i>\n            \n            <div class="field-autocomplete__dropdown"></div>\n            <div class="field-autocomplete__tags"></div>\n          </div>';
 	};
+	
+	var dropdownItemHandler = function dropdownItemHandler(event, item, container) {
+	  var dropdownItem = item;
+	  var userId = dropdownItem.getAttribute('data-user-id');
+	  var user = dropdownItem.querySelector('.user');
+	  var login = user.getAttribute('data-login');
+	  var avatarUrl = user.querySelector('img').getAttribute('src');
+	  var userArrInContainer = container.querySelectorAll('.user-tag');
+	  var userTag = (0, _getUserTag2.default)(userId, login, avatarUrl);
+	
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    for (var _iterator = Array.from(userArrInContainer)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var userIn = _step.value;
+	
+	      var userInId = userIn.getAttribute('data-user-id');
+	
+	      if (userInId === userId) {
+	        return false;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  console.log(user);
+	
+	  container.appendChild(userTag);
+	};
+	
+	var autocompleteHandler = function autocompleteHandler(event, inputUsers) {
+	  var input = event.target;
+	  var autocomplete = input.parents('[data-autocomplete]')[0];
+	  var autocompleteDropdown = autocomplete.querySelector('.field-autocomplete__dropdown');
+	  var autocompleteTagsContainer = autocomplete.querySelector('.field-autocomplete__tags');
+	  var clearAutocomplete = function clearAutocomplete() {
+	    autocomplete.classList.remove('opened');
+	    autocompleteDropdown.innerHTML = '';
+	  };
+	  var inputValue = input.value;
+	  var autocompleteList = void 0,
+	      autocompleteListItems = '',
+	      autocompleteListItem = void 0,
+	      autocompleteDropdownItemArr = void 0;
+	
+	  if (inputValue.length < 2) {
+	    clearAutocomplete();
+	    return false;
+	  }
+	
+	  // console.log(autocomplete);
+	
+	  var _iteratorNormalCompletion2 = true;
+	  var _didIteratorError2 = false;
+	  var _iteratorError2 = undefined;
+	
+	  try {
+	    for (var _iterator2 = Array.from(inputUsers)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	      var user = _step2.value;
+	
+	      var login = user.login;
+	
+	      if (login.indexOf(inputValue) !== -1) {
+	        autocompleteListItem = '<li class="field-autocomplete__dropdown-item" data-user-id="' + user.id + '" data-autocomplete-item>\n                                  ' + (0, _getUser2.default)(login, user.avatarUrl) + '\n                                  &nbsp;\xB7&nbsp;' + user.homeFloor + ' \u044D\u0442\u0430\u0436\n                              </li>';
+	
+	        autocompleteListItems += autocompleteListItem;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError2 = true;
+	    _iteratorError2 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	        _iterator2.return();
+	      }
+	    } finally {
+	      if (_didIteratorError2) {
+	        throw _iteratorError2;
+	      }
+	    }
+	  }
+	
+	  if (autocompleteListItems.length === 0) {
+	    return false;
+	  }
+	
+	  autocompleteList = '<ul>' + autocompleteListItems + '</ul>';
+	  autocompleteDropdown.innerHTML = autocompleteList;
+	  autocomplete.classList.add('opened');
+	
+	  autocompleteDropdownItemArr = autocompleteDropdown.querySelectorAll('.field-autocomplete__dropdown-item');
+	
+	  var getDropdownItemHandler = void 0,
+	      dropdownItemRemoveClickListener = void 0;
+	  var _iteratorNormalCompletion3 = true;
+	  var _didIteratorError3 = false;
+	  var _iteratorError3 = undefined;
+	
+	  try {
+	    var _loop = function _loop() {
+	      var autocompleteDropdownItem = _step3.value;
+	
+	      getDropdownItemHandler = function getDropdownItemHandler(event) {
+	        dropdownItemHandler(event, autocompleteDropdownItem, autocompleteTagsContainer);
+	        clearAutocomplete();
+	        dropdownItemRemoveClickListener();
+	      };
+	
+	      dropdownItemRemoveClickListener = function dropdownItemRemoveClickListener() {
+	        autocompleteDropdownItem.removeEventListener('click', getDropdownItemHandler);
+	      };
+	
+	      autocompleteDropdownItem.addEventListener('click', getDropdownItemHandler);
+	    };
+	
+	    for (var _iterator3 = Array.from(autocompleteDropdownItemArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	      _loop();
+	    }
+	  } catch (err) {
+	    _didIteratorError3 = true;
+	    _iteratorError3 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	        _iterator3.return();
+	      }
+	    } finally {
+	      if (_didIteratorError3) {
+	        throw _iteratorError3;
+	      }
+	    }
+	  }
+	
+	  (0, _hideOnClickOutside2.default)('[data-autocomplete]', function () {
+	    clearAutocomplete();
+	    dropdownItemRemoveClickListener();
+	  });
+	};
+	
+	exports.getAutocompleteMarkup = getAutocompleteMarkup;
+	exports.autocompleteHandler = autocompleteHandler;
 
 /***/ }),
 /* 27 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+	
+	exports.default = function (login, avatarUrl) {
+	    return "<div class=\"user\" data-login=\"" + login + "\">\n              <div class=\"user__icon\">\n                  <img src=\"" + avatarUrl + "\" alt=\"\">\n              </div>\n              " + login + "\n          </div>";
+	};
+
+/***/ }),
+/* 28 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _getUser = __webpack_require__(27);
+	
+	var _getUser2 = _interopRequireDefault(_getUser);
+	
+	var _helpers = __webpack_require__(11);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function (userId, login, avatarUrl) {
+	  var userTag = '<div class="user-tag" data-user-id="' + userId + '">\n                      ' + (0, _getUser2.default)(login, avatarUrl) + '\n                      <a class="user-tag__remove" href="#">\n                        <i>\n                          <svg width="10" height="10">\n                            <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                          </svg>\n                        </i>\n                      </a>\n                  </div>';
+	
+	  var userTagElement = (0, _helpers.getNodeFromMarkup)(userTag);
+	  var userTagRemoveBtn = userTagElement.querySelector('.user-tag__remove');
+	
+	  var userRemoveBtnHandler = function userRemoveBtnHandler(event) {
+	    event.preventDefault();
+	    userTagElement.parentNode.removeChild(userTagElement);
+	    removeClickListener();
+	  };
+	
+	  var removeClickListener = function removeClickListener() {
+	    userTagRemoveBtn.removeEventListener('click', userRemoveBtnHandler);
+	  };
+	
+	  userTagRemoveBtn.addEventListener('click', userRemoveBtnHandler);
+	
+	  return userTagElement;
+	};
+
+/***/ }),
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4424,9 +4657,11 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _fieldAutocomplete = __webpack_require__(26);
+	var _getUserTag = __webpack_require__(28);
 	
-	var _fieldAutocomplete2 = _interopRequireDefault(_fieldAutocomplete);
+	var _getUserTag2 = _interopRequireDefault(_getUserTag);
+	
+	var _fieldAutocomplete = __webpack_require__(26);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -4479,6 +4714,7 @@
 	        isDate: false
 	      }
 	    };
+	    _this.users = _application2.default.data.users || {};
 	    return _this;
 	  }
 	
@@ -4488,14 +4724,13 @@
 	      var header = '<header class="header"><div class="logo"></div></header>';
 	      var appData = _application2.default.data;
 	      var eventDate = new Date(+this.eventInputData.startTime);
-	      var eventDateDay = eventDate.setHours(0, 0, 0);
+	      var eventDateDay = eventDate.setHours(0, 0, 0, 0);
 	      var events = appData.events[eventDateDay];
 	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	      this.eventStartDate = new Date(+this.eventInputData.startTime);
 	      this.eventEndDate = new Date(+this.eventInputData.endTime);
 	
 	      var eventName = void 0;
-	      var usersId = void 0;
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
@@ -4506,7 +4741,7 @@
 	
 	          if (eventInputId === event.id) {
 	            eventName = event.title;
-	            usersId = event.users;
+	            this.eventUsers = event.users;
 	          }
 	        }
 	      } catch (err) {
@@ -4533,11 +4768,11 @@
 	        isDate: false
 	      };
 	
-	      console.log(usersId);
+	      console.log(this.users);
 	
 	      // console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete2.default)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -4545,6 +4780,11 @@
 	      event.preventDefault();
 	      this.clearHandlers();
 	      _router.router.navigate();
+	    }
+	  }, {
+	    key: 'getAutocompleteHandler',
+	    value: function getAutocompleteHandler(event) {
+	      (0, _fieldAutocomplete.autocompleteHandler)(event, this.users);
 	    }
 	  }, {
 	    key: 'fieldResetHandler',
@@ -4561,6 +4801,7 @@
 	    value: function bindHandlers() {
 	      this.fieldResetBtn = this.element.querySelector('.field__reset');
 	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
 	
 	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 	
@@ -4569,7 +4810,7 @@
 	      var _iteratorError2 = undefined;
 	
 	      try {
-	        for (var _iterator2 = this.cancelBtnArr[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	        for (var _iterator2 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	          var cancelBtn = _step2.value;
 	
 	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
@@ -4588,6 +4829,8 @@
 	          }
 	        }
 	      }
+	
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -4599,7 +4842,7 @@
 	      var _iteratorError3 = undefined;
 	
 	      try {
-	        for (var _iterator3 = this.cancelBtnArr[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	        for (var _iterator3 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          var cancelBtn = _step3.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
@@ -4622,6 +4865,7 @@
 	      this.eventDateDatepickr.destroy();
 	      this.eventTimeStartDatepickr.destroy();
 	      this.eventTimeEndDatepickr.destroy();
+	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -4648,6 +4892,59 @@
 	        time_24hr: true,
 	        defaultDate: this.eventEndDate
 	      });
+	
+	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
+	
+	      var userTag = void 0;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = this.eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var eventUser = _step4.value;
+	          var _iteratorNormalCompletion5 = true;
+	          var _didIteratorError5 = false;
+	          var _iteratorError5 = undefined;
+	
+	          try {
+	            for (var _iterator5 = this.users[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	              var user = _step5.value;
+	
+	              if (eventUser.id === user.id) {
+	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
+	                this.autocompleteTagsContainer.appendChild(userTag);
+	              }
+	            }
+	          } catch (err) {
+	            _didIteratorError5 = true;
+	            _iteratorError5 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	                _iterator5.return();
+	              }
+	            } finally {
+	              if (_didIteratorError5) {
+	                throw _iteratorError5;
+	              }
+	            }
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
+	          }
+	        }
+	      }
 	    }
 	  }]);
 	
@@ -4657,7 +4954,7 @@
 	exports.default = EventNewView;
 
 /***/ }),
-/* 28 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4668,11 +4965,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(29);
+	__webpack_require__(31);
 	
-	var _queries = __webpack_require__(30);
+	var _queries = __webpack_require__(32);
 	
-	var _grapnhQlRequest = __webpack_require__(33);
+	var _grapnhQlRequest = __webpack_require__(35);
 	
 	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
 	
@@ -4771,7 +5068,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 29 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5235,7 +5532,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 30 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5245,11 +5542,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(31);
+	var _query = __webpack_require__(33);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(32);
+	var _mutation = __webpack_require__(34);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -5259,7 +5556,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 31 */
+/* 33 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5274,7 +5571,7 @@
 	};
 
 /***/ }),
-/* 32 */
+/* 34 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5289,7 +5586,7 @@
 	};
 
 /***/ }),
-/* 33 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5318,7 +5615,7 @@
 	};
 
 /***/ }),
-/* 34 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	'use strict';

@@ -104,7 +104,7 @@ export default (parent, events, rooms, users) => {
       const timeSlotCoords = getCoords(timeSlot);
       const timeSlotTop = timeSlotCoords.top;
       const timeSlotLeft = timeSlotCoords.left;
-      const app = document.getElementById('app');
+      const body = document.querySelector('body');
       const windowWidth = window.innerWidth;
       const timeSlotEventId = timeSlot.getAttribute('data-event-id');
       let timeSlotInfoTemplate;
@@ -118,7 +118,7 @@ export default (parent, events, rooms, users) => {
       }
 
       timeSlot.classList.add('focused');
-      app.appendChild(timeSlotInfoNode);
+      body.appendChild(timeSlotInfoNode);
 
       setTimeout(() => {
         if (windowWidth < 1280) {
@@ -137,16 +137,19 @@ export default (parent, events, rooms, users) => {
       setTimeout(() => {
         hideOnClickOutside('#timeSlotInfoModal', () => {
             timeSlot.classList.remove('focused');
-            app.removeChild(timeSlotInfoNode);
+            if (body.contains(timeSlotInfoNode)) {
+              body.removeChild(timeSlotInfoNode);
+            }
           });
       }, 10);
 
-      const timeSlotInfoTrigger = parent.querySelector('.time-slot-info__trigger');
+      const timeSlotInfoTrigger = body.querySelector('.time-slot-info__trigger');
 
       timeSlotInfoTrigger.addEventListener('click', (e) => {
         e.preventDefault();
         const eventHref = timeSlotInfoTrigger.getAttribute('href');
 
+        body.removeChild(timeSlotInfoNode);
         timeSlot.removeEventListener('click', timeSlotClickHandler);
         router.navigate(eventHref);
       })
