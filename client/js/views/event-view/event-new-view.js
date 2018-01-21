@@ -33,7 +33,7 @@ class EventNewView extends AbstractView {
         isDate: true
       },
       'eventStartTime': {
-        inputId: 'eventStartTime',
+        inputId: 'eventStartTimeInput',
         label: 'Начало',
         placeholder: null,
         extraClass: null,
@@ -41,7 +41,7 @@ class EventNewView extends AbstractView {
         isDate: false
       },
       'eventEndTime': {
-        inputId: 'eventEndTime',
+        inputId: 'eventEndTimeInput',
         label: 'Конец',
         placeholder: null,
         extraClass: null,
@@ -148,14 +148,14 @@ class EventNewView extends AbstractView {
       wrap: true,
       disableMobile: 'true'
     });
-    this.eventTimeStartDatepickr = new Flatpickr('#eventStartTime', {
+    this.eventTimeStartDatepickr = new Flatpickr('#eventStartTimeInput', {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',
       time_24hr: true,
       defaultDate: this.eventStartDate,
     });
-    this.eventTimeEndDatepickr = new Flatpickr('#eventEndTime', {
+    this.eventTimeEndDatepickr = new Flatpickr('#eventEndTimeInput', {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',

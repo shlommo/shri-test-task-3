@@ -27,7 +27,7 @@ module.exports.index = function (req, res) {
       </head>
       
       <body>
-        <div id="app">Hello</div>
+        <div id="app">loading...</div>
         
         <link rel="stylesheet" href="/css/main.min.css">
         <script src="/js/main.js"></script>

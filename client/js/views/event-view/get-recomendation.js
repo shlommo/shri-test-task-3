@@ -51,7 +51,39 @@
  * @returns {Recommendation[]}
  */
 function getRecommendation(date, members, db) {
-  let recommendation = [];
+  const eventStart = date.start;
+  const eventEnd = date.end;
+  const dbEvents = db.events;
+  const dbRooms = db.rooms;
+  const dbPersons = db.persons;
+  const numberOfMembers = members.length;
+  let recommendation = {},
+      recommendationArr = [];
 
-  return recommendation;
+
+  roomLoop: for (let dbRoom of dbRooms) {
+    let dbRoomId = dbRoom.id;
+    if (dbRoom.capacity < numberOfMembers) { //если вместимость комнаты меньше участников события
+      continue roomLoop;
+    }
+
+    eventLoop: for (let dbEvent of dbEvents) {
+      let dbEventDateStart = new Date(dbEvent.dateStart),
+          dbEventDateEnd = new Date(dbEvent.dateEnd);
+
+      if (dbRoomId === dbEvent.room.id) { //если в этой комнате есть события
+        if (eventStart - dbEventDateStart.getTime() < 0
+            || eventStart - dbEventDateEnd.getTime() < 0
+            || eventEnd - dbEventDateStart.getTime() < 0
+            || eventEnd - dbEventDateEnd.getTime() < 0) { //Если веремя начала и конца события совпадают с уже имеющимся событием
+          continue eventLoop;
+        }
+        console.log(dbEventDateStart, dbEventDateEnd);
+      }
+    }
+  }
+
+  return recommendationArr;
 }
+
+export default getRecommendation;

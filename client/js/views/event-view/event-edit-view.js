@@ -8,6 +8,7 @@ import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
 import getUserTag from './get-user-tag';
+import getRecommendation from './get-recomendation';
 import getRecommendationTagMarkup from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
 
@@ -26,7 +27,7 @@ class EventNewView extends AbstractView {
         isDate: true
       },
       'eventStartTime': {
-        inputId: 'eventStartTime',
+        inputId: 'eventStartTimeInput',
         label: 'Начало',
         placeholder: null,
         extraClass: null,
@@ -34,7 +35,7 @@ class EventNewView extends AbstractView {
         isDate: false
       },
       'eventEndTime': {
-        inputId: 'eventEndTime',
+        inputId: 'eventEndTimeInput',
         label: 'Конец',
         placeholder: null,
         extraClass: null,
@@ -52,14 +53,14 @@ class EventNewView extends AbstractView {
     };
     this.appData = Application.data;
     this.users = this.appData.users || {};
-    this.rooms = this.appData.rooms || {}
+    this.rooms = this.appData.rooms || {};
   }
 
   getMarkup() {
     const header = `<header class="header"><div class="logo"></div></header>`;
     const eventDate = new Date(+this.eventInputData.startTime);
-    const eventDateDay = eventDate.setHours(0, 0, 0, 0);
-    const events = this.appData.events[eventDateDay];
+    this.eventDateDay = eventDate.setHours(0, 0, 0, 0); //день в который происходят все события
+    const events = this.appData.events[this.eventDateDay];
     const eventInputId = this.eventInputData.eventId; // id события переданное по url
     this.eventStartDate = new Date(+this.eventInputData.startTime);
     this.eventEndDate = new Date(+this.eventInputData.endTime);
@@ -76,6 +77,7 @@ class EventNewView extends AbstractView {
         this.eventRoomId = event.room.id;
       }
     }
+
     this.fieldsProps.eventTitle = {
       inputId: 'eventTitle',
       label: 'Тема',
@@ -204,6 +206,30 @@ class EventNewView extends AbstractView {
     this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
   }
 
+  handleRecommendation() {
+    this.members = [];
+    let person = {};
+    for (let eventUser of this.eventUsers) {
+      for (let user of this.users) {
+        if (eventUser.id === user.id) {
+          person = {
+            login: user.login,
+            floor: user.homeFloor,
+            avatarUrl: user.avatarUrl
+          };
+          this.members.push(person);
+        }
+      }
+    }
+    const db = {
+      events: this.appData.events[this.eventDateDay] || [],
+      rooms: this.appData.rooms,
+      persons: this.appData.users
+    };
+
+    this.recommendationArr = getRecommendation(this.eventDate, this.members, db);
+  }
+
   viewRendered() {
     this.eventDateDatepickr = new Flatpickr('#date', {
       locale: Russian,
@@ -213,19 +239,30 @@ class EventNewView extends AbstractView {
       wrap: true,
       disableMobile: 'true'
     });
-    this.eventTimeStartDatepickr = new Flatpickr('#eventStartTime', {
+    this.eventTimeStartDatepickr = new Flatpickr('#eventStartTimeInput', {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',
       time_24hr: true,
       defaultDate: this.eventStartDate,
+      onChange: (selectedDates) => {
+        const start = new Date(selectedDates);
+        this.eventDate.start = start.getTime();
+        this.handleRecommendation();
+      }
     });
-    this.eventTimeEndDatepickr = new Flatpickr('#eventEndTime', {
+    this.eventTimeEndDatepickr = new Flatpickr('#eventEndTimeInput', {
       enableTime: true,
       noCalendar: true,
       dateFormat: 'H:i',
       time_24hr: true,
       defaultDate: this.eventEndDate,
+      onChange: (selectedDates) => {
+        const end = new Date(selectedDates);
+        this.eventDate.end = end.getTime();
+        this.handleRecommendation();
+      }
+
     });
 
     this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');

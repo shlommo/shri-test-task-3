@@ -50,11 +50,11 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(31);
+	var _apiService = __webpack_require__(32);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(37);
+	var _createSvgSprite = __webpack_require__(38);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
@@ -2384,7 +2384,7 @@
 	        isDate: true
 	      },
 	      'eventStartTime': {
-	        inputId: 'eventStartTime',
+	        inputId: 'eventStartTimeInput',
 	        label: 'Начало',
 	        placeholder: null,
 	        extraClass: null,
@@ -2392,7 +2392,7 @@
 	        isDate: false
 	      },
 	      'eventEndTime': {
-	        inputId: 'eventEndTime',
+	        inputId: 'eventEndTimeInput',
 	        label: 'Конец',
 	        placeholder: null,
 	        extraClass: null,
@@ -2516,14 +2516,14 @@
 	        wrap: true,
 	        disableMobile: 'true'
 	      });
-	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTime', {
+	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTimeInput', {
 	        enableTime: true,
 	        noCalendar: true,
 	        dateFormat: 'H:i',
 	        time_24hr: true,
 	        defaultDate: this.eventStartDate
 	      });
-	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTime', {
+	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTimeInput', {
 	        enableTime: true,
 	        noCalendar: true,
 	        dateFormat: 'H:i',
@@ -4722,6 +4722,10 @@
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
+	var _getRecomendation = __webpack_require__(31);
+	
+	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
+	
 	var _getRecomendationTag = __webpack_require__(26);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
@@ -4755,7 +4759,7 @@
 	        isDate: true
 	      },
 	      'eventStartTime': {
-	        inputId: 'eventStartTime',
+	        inputId: 'eventStartTimeInput',
 	        label: 'Начало',
 	        placeholder: null,
 	        extraClass: null,
@@ -4763,7 +4767,7 @@
 	        isDate: false
 	      },
 	      'eventEndTime': {
-	        inputId: 'eventEndTime',
+	        inputId: 'eventEndTimeInput',
 	        label: 'Конец',
 	        placeholder: null,
 	        extraClass: null,
@@ -4790,8 +4794,8 @@
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
 	      var eventDate = new Date(+this.eventInputData.startTime);
-	      var eventDateDay = eventDate.setHours(0, 0, 0, 0);
-	      var events = this.appData.events[eventDateDay];
+	      this.eventDateDay = eventDate.setHours(0, 0, 0, 0); //день в который происходят все события
+	      var events = this.appData.events[this.eventDateDay];
 	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	      this.eventStartDate = new Date(+this.eventInputData.startTime);
 	      this.eventEndDate = new Date(+this.eventInputData.endTime);
@@ -5000,34 +5004,10 @@
 	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
-	    key: 'viewRendered',
-	    value: function viewRendered() {
-	      this.eventDateDatepickr = new _flatpickr2.default('#date', {
-	        locale: _ru.Russian,
-	        altInput: true,
-	        altFormat: 'j F, Y',
-	        defaultDate: this.eventStartDate,
-	        wrap: true,
-	        disableMobile: 'true'
-	      });
-	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTime', {
-	        enableTime: true,
-	        noCalendar: true,
-	        dateFormat: 'H:i',
-	        time_24hr: true,
-	        defaultDate: this.eventStartDate
-	      });
-	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTime', {
-	        enableTime: true,
-	        noCalendar: true,
-	        dateFormat: 'H:i',
-	        time_24hr: true,
-	        defaultDate: this.eventEndDate
-	      });
-	
-	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
-	
-	      var userTag = void 0;
+	    key: 'handleRecommendation',
+	    value: function handleRecommendation() {
+	      this.members = [];
+	      var person = {};
 	      var _iteratorNormalCompletion5 = true;
 	      var _didIteratorError5 = false;
 	      var _iteratorError5 = undefined;
@@ -5044,8 +5024,12 @@
 	              var user = _step6.value;
 	
 	              if (eventUser.id === user.id) {
-	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
-	                this.autocompleteTagsContainer.appendChild(userTag);
+	                person = {
+	                  login: user.login,
+	                  floor: user.homeFloor,
+	                  avatarUrl: user.avatarUrl
+	                };
+	                this.members.push(person);
 	              }
 	            }
 	          } catch (err) {
@@ -5077,6 +5061,106 @@
 	          }
 	        }
 	      }
+	
+	      var db = {
+	        events: this.appData.events[this.eventDateDay] || [],
+	        rooms: this.appData.rooms,
+	        persons: this.appData.users
+	      };
+	
+	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
+	    }
+	  }, {
+	    key: 'viewRendered',
+	    value: function viewRendered() {
+	      var _this3 = this;
+	
+	      this.eventDateDatepickr = new _flatpickr2.default('#date', {
+	        locale: _ru.Russian,
+	        altInput: true,
+	        altFormat: 'j F, Y',
+	        defaultDate: this.eventStartDate,
+	        wrap: true,
+	        disableMobile: 'true'
+	      });
+	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTimeInput', {
+	        enableTime: true,
+	        noCalendar: true,
+	        dateFormat: 'H:i',
+	        time_24hr: true,
+	        defaultDate: this.eventStartDate,
+	        onChange: function onChange(selectedDates) {
+	          var start = new Date(selectedDates);
+	          _this3.eventDate.start = start.getTime();
+	          _this3.handleRecommendation();
+	        }
+	      });
+	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTimeInput', {
+	        enableTime: true,
+	        noCalendar: true,
+	        dateFormat: 'H:i',
+	        time_24hr: true,
+	        defaultDate: this.eventEndDate,
+	        onChange: function onChange(selectedDates) {
+	          var end = new Date(selectedDates);
+	          _this3.eventDate.end = end.getTime();
+	          _this3.handleRecommendation();
+	        }
+	
+	      });
+	
+	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
+	
+	      var userTag = void 0;
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
+	
+	      try {
+	        for (var _iterator7 = this.eventUsers[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var eventUser = _step7.value;
+	          var _iteratorNormalCompletion8 = true;
+	          var _didIteratorError8 = false;
+	          var _iteratorError8 = undefined;
+	
+	          try {
+	            for (var _iterator8 = this.users[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	              var user = _step8.value;
+	
+	              if (eventUser.id === user.id) {
+	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
+	                this.autocompleteTagsContainer.appendChild(userTag);
+	              }
+	            }
+	          } catch (err) {
+	            _didIteratorError8 = true;
+	            _iteratorError8 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	                _iterator8.return();
+	              }
+	            } finally {
+	              if (_didIteratorError8) {
+	                throw _iteratorError8;
+	              }
+	            }
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
+	          }
+	        } finally {
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
+	          }
+	        }
+	      }
 	    }
 	  }]);
 	
@@ -5087,6 +5171,146 @@
 
 /***/ }),
 /* 31 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	/**
+	 * @typedef {Object} Person
+	 * @property {String} login Идентификатор сотрудника.
+	 * @property {Number} floor "Домашний" этаж сотрудника.
+	 * @property {String} avatar Ссылка на аватар.
+	 */
+	
+	/**
+	 * @typedef {Object} Room
+	 * @property {Number} id Идентификатор переговорки.
+	 * @property {String} title Название переговорки.
+	 * @property {Number} capacity Вместимость (количество человек).
+	 * @property {Number} floor Этаж, на котором расположена переговорка.
+	 */
+	
+	/**
+	 * @typedef {Object} EventDate
+	 * @property {Number} start Timestamp начала встречи.
+	 * @property {Number} end Timestamp окончания встречи.
+	 */
+	
+	/**
+	 * @typedef {Object} Event
+	 * @property {String} id Идентификатор встречи.
+	 * @property {String} title Название встречи.
+	 * @property {String[]} members Логины участников встречи.
+	 * @property {EventDate} date Дата и время проведения встречи.
+	 * @property {Number} room Идентификатор переговорки.
+	 */
+	
+	/**
+	 * @typedef {Object} RoomsSwap
+	 * @property {string} event Идентификатор встречи.
+	 * @property {String} room Новый идентификатор переговорки.
+	 */
+	
+	/**
+	 * @typedef {Object} Recommendation
+	 * @property {EventDate} date Дата и время проведения встречи.
+	 * @property {String} room Идентификатор переговорки.
+	 * @property {RoomsSwap[]} [swap] Необходимые замены переговорк для реализации рекомендации.
+	 */
+	
+	/**
+	 * @param {EventDate} date Дата планируемой встречи.
+	 * @param {Person[]} members Участники планируемой встречи.
+	 * @param {Object} db
+	 * @param {Event[]} db.events Список все встреч.
+	 * @param {Room[]} db.rooms Список всех переговорок.
+	 * @param {Person[]} db.persons Список всех сотрудников.
+	 * @returns {Recommendation[]}
+	 */
+	function getRecommendation(date, members, db) {
+	  var eventStart = date.start;
+	  var eventEnd = date.end;
+	  var dbEvents = db.events;
+	  var dbRooms = db.rooms;
+	  var dbPersons = db.persons;
+	  var numberOfMembers = members.length;
+	  var recommendation = {},
+	      recommendationArr = [];
+	
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    roomLoop: for (var _iterator = dbRooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var dbRoom = _step.value;
+	
+	      var dbRoomId = dbRoom.id;
+	      if (dbRoom.capacity < numberOfMembers) {
+	        //если вместимость комнаты меньше участников события
+	        continue roomLoop;
+	      }
+	
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        eventLoop: for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var dbEvent = _step2.value;
+	
+	          var dbEventDateStart = new Date(dbEvent.dateStart),
+	              dbEventDateEnd = new Date(dbEvent.dateEnd);
+	
+	          if (dbRoomId === dbEvent.room.id) {
+	            //если в этой комнате есть события
+	            if (eventStart - dbEventDateStart.getTime() < 0 || eventStart - dbEventDateEnd.getTime() < 0 || eventEnd - dbEventDateStart.getTime() < 0 || eventEnd - dbEventDateEnd.getTime() < 0) {
+	              //Если веремя начала и концы события не совпадают с уже имеющимся событием
+	              continue eventLoop;
+	            }
+	            console.log(dbEventDateStart, dbEventDateEnd);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  return recommendationArr;
+	}
+	
+	exports.default = getRecommendation;
+
+/***/ }),
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5097,11 +5321,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(32);
+	__webpack_require__(33);
 	
-	var _queries = __webpack_require__(33);
+	var _queries = __webpack_require__(34);
 	
-	var _grapnhqlRequest = __webpack_require__(36);
+	var _grapnhqlRequest = __webpack_require__(37);
 	
 	var _grapnhqlRequest2 = _interopRequireDefault(_grapnhqlRequest);
 	
@@ -5200,7 +5424,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5664,7 +5888,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5674,11 +5898,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(34);
+	var _query = __webpack_require__(35);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(35);
+	var _mutation = __webpack_require__(36);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -5688,7 +5912,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5703,7 +5927,7 @@
 	};
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5718,7 +5942,7 @@
 	};
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5747,7 +5971,7 @@
 	};
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports) {
 
 	'use strict';
