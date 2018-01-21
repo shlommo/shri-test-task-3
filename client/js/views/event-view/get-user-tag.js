@@ -1,4 +1,4 @@
-import getUser from './getUser'
+import getUser from './get-user'
 import {getNodeFromMarkup} from './../../tools/helpers';
 
 export default (userId, login, avatarUrl) => {

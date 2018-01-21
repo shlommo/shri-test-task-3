@@ -1,6 +1,6 @@
 import 'whatwg-fetch';
 import {query, mutation} from './queries';
-import grapnhQlRequest from './grapnhQlRequest';
+import grapnhQlRequest from './grapnhql-request';
 import {getDateValue} from './../tools/helpers';
 
 

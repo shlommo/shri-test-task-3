@@ -1,6 +1,6 @@
 import Application from './application';
 import ApiService from './api-service';
-import createSvgSprite from './tools/createSvgSprite';
+import createSvgSprite from './tools/create-svg-sprite';
 import {activateRouter} from './router';
 
 // import createMeetingRoom from './views/meeting-rooms-view';

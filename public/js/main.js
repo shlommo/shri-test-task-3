@@ -50,11 +50,11 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(30);
+	var _apiService = __webpack_require__(31);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(36);
+	var _createSvgSprite = __webpack_require__(37);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
@@ -2292,7 +2292,7 @@
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
-	var _eventEditView = __webpack_require__(29);
+	var _eventEditView = __webpack_require__(30);
 	
 	var _eventEditView2 = _interopRequireDefault(_eventEditView);
 	
@@ -2345,7 +2345,9 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _fieldAutocomplete = __webpack_require__(26);
+	var _getRecomendationTag = __webpack_require__(26);
+	
+	var _fieldAutocomplete = __webpack_require__(27);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2423,7 +2425,7 @@
 	        this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
 	      }
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations hidden">\n                      <div class="recommendations__title">\u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0438</div>\n                      <div class="recomendations__cnt"></div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -4382,17 +4384,78 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.default = function (inputData, isSelected) {
+	  var appData = _application2.default.data;
+	  var dbRooms = appData.rooms || {};
+	  var eventDate = inputData.eventDate;
+	  var eventStartDate = new Date(eventDate.start);
+	  var eventEndDate = new Date(eventDate.end);
+	  var roomId = inputData.room;
+	  var getMinutes = function getMinutes(date) {
+	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+	  };
+	  var time = eventStartDate.getHours() + ':' + getMinutes(eventStartDate) + '\u2014' + eventEndDate.getHours() + ':' + getMinutes(eventEndDate);
+	  var roomTitle = void 0,
+	      roomFloor = void 0;
+	
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    for (var _iterator = dbRooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var dbRoom = _step.value;
+	
+	      if (roomId === dbRoom.id) {
+	        roomTitle = dbRoom.title;
+	        roomFloor = dbRoom.floor;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <span class="recommendation-tag__time">\n              ' + time + '\n            </span>\n            <span class="recommendation-tag__room">\n              ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n            </span>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
+	};
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.autocompleteHandler = exports.getAutocompleteMarkup = undefined;
 	
 	var _field = __webpack_require__(25);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUser = __webpack_require__(27);
+	var _getUser = __webpack_require__(28);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
-	var _getUserTag = __webpack_require__(28);
+	var _getUserTag = __webpack_require__(29);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
@@ -4445,8 +4508,6 @@
 	      }
 	    }
 	  }
-	
-	  console.log(user);
 	
 	  container.appendChild(userTag);
 	};
@@ -4565,7 +4626,7 @@
 	exports.autocompleteHandler = autocompleteHandler;
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -4579,7 +4640,7 @@
 	};
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4588,7 +4649,7 @@
 	  value: true
 	});
 	
-	var _getUser = __webpack_require__(27);
+	var _getUser = __webpack_require__(28);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
@@ -4618,7 +4679,7 @@
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4657,11 +4718,15 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUserTag = __webpack_require__(28);
+	var _getUserTag = __webpack_require__(29);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
-	var _fieldAutocomplete = __webpack_require__(26);
+	var _getRecomendationTag = __webpack_require__(26);
+	
+	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
+	
+	var _fieldAutocomplete = __webpack_require__(27);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -4714,7 +4779,9 @@
 	        isDate: false
 	      }
 	    };
-	    _this.users = _application2.default.data.users || {};
+	    _this.appData = _application2.default.data;
+	    _this.users = _this.appData.users || {};
+	    _this.rooms = _this.appData.rooms || {};
 	    return _this;
 	  }
 	
@@ -4722,13 +4789,16 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
-	      var appData = _application2.default.data;
 	      var eventDate = new Date(+this.eventInputData.startTime);
 	      var eventDateDay = eventDate.setHours(0, 0, 0, 0);
-	      var events = appData.events[eventDateDay];
+	      var events = this.appData.events[eventDateDay];
 	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	      this.eventStartDate = new Date(+this.eventInputData.startTime);
 	      this.eventEndDate = new Date(+this.eventInputData.endTime);
+	      this.eventDate = {
+	        start: +this.eventInputData.startTime,
+	        end: +this.eventInputData.endTime
+	      };
 	
 	      var eventName = void 0;
 	      var _iteratorNormalCompletion = true;
@@ -4742,6 +4812,7 @@
 	          if (eventInputId === event.id) {
 	            eventName = event.title;
 	            this.eventUsers = event.users;
+	            this.eventRoomId = event.room.id;
 	          }
 	        }
 	      } catch (err) {
@@ -4768,11 +4839,12 @@
 	        isDate: false
 	      };
 	
-	      console.log(this.users);
+	      this.recommendation = {
+	        eventDate: this.eventDate,
+	        room: this.eventRoomId
+	      };
 	
-	      // console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
-	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations">\n                      <div class="recommendations__title">\u0412\u0430\u0448\u0430 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0430</div>\n                      <div class="recomendations__cnt">\n                        ' + (0, _getRecomendationTag2.default)(this.recommendation, true) + '\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -4797,23 +4869,48 @@
 	      input.focus();
 	    }
 	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.fieldResetBtn = this.element.querySelector('.field__reset');
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	    key: 'recommendationTagClickHandler',
+	    value: function recommendationTagClickHandler(recommendationTag) {
+	      var click = function click() {
+	        recommendationTag.classList.add('recommendation-tag--selected');
+	        removeClickHandler();
+	      };
+	      var removeClickHandler = function removeClickHandler() {
+	        recommendationTag.removeEventListener('click', click);
+	      };
+	      recommendationTag.addEventListener('click', click);
+	    }
+	  }, {
+	    key: 'recommendationTagHandlers',
+	    value: function recommendationTagHandlers() {
+	      var _this2 = this;
 	
-	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
+	      this.recommendationTagArr = this.element.querySelectorAll('.recommendation-tag');
 	
 	      var _iteratorNormalCompletion2 = true;
 	      var _didIteratorError2 = false;
 	      var _iteratorError2 = undefined;
 	
 	      try {
-	        for (var _iterator2 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var cancelBtn = _step2.value;
+	        var _loop = function _loop() {
+	          var recommendationTag = _step2.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	          var recommendationTagDeleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
+	
+	          if (!recommendationTag.classList.contains('recommendation-tag--selected')) {
+	            _this2.recommendationTagClickHandler(recommendationTag);
+	          }
+	
+	          recommendationTagDeleteBtn.addEventListener('click', function () {
+	            recommendationTag.classList.remove('recommendation-tag--selected');
+	            setTimeout(function () {
+	              _this2.recommendationTagClickHandler(recommendationTag);
+	            }, 10);
+	          });
+	        };
+	
+	        for (var _iterator2 = Array.from(this.recommendationTagArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          _loop();
 	        }
 	      } catch (err) {
 	        _didIteratorError2 = true;
@@ -4829,13 +4926,14 @@
 	          }
 	        }
 	      }
-	
-	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	    }
 	  }, {
-	    key: 'clearHandlers',
-	    value: function clearHandlers() {
-	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.fieldResetBtn = this.element.querySelector('.field__reset');
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 	
 	      var _iteratorNormalCompletion3 = true;
 	      var _didIteratorError3 = false;
@@ -4845,7 +4943,7 @@
 	        for (var _iterator3 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          var cancelBtn = _step3.value;
 	
-	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
 	        }
 	      } catch (err) {
 	        _didIteratorError3 = true;
@@ -4858,6 +4956,40 @@
 	        } finally {
 	          if (_didIteratorError3) {
 	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	
+	      this.recommendationTagHandlers();
+	    }
+	  }, {
+	    key: 'clearHandlers',
+	    value: function clearHandlers() {
+	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
+	
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        for (var _iterator4 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var cancelBtn = _step4.value;
+	
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
 	          }
 	        }
 	      }
@@ -4896,20 +5028,20 @@
 	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
 	
 	      var userTag = void 0;
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator4 = this.eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	          var eventUser = _step4.value;
-	          var _iteratorNormalCompletion5 = true;
-	          var _didIteratorError5 = false;
-	          var _iteratorError5 = undefined;
+	        for (var _iterator5 = this.eventUsers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var eventUser = _step5.value;
+	          var _iteratorNormalCompletion6 = true;
+	          var _didIteratorError6 = false;
+	          var _iteratorError6 = undefined;
 	
 	          try {
-	            for (var _iterator5 = this.users[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	              var user = _step5.value;
+	            for (var _iterator6 = this.users[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	              var user = _step6.value;
 	
 	              if (eventUser.id === user.id) {
 	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
@@ -4917,31 +5049,31 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError5 = true;
-	            _iteratorError5 = err;
+	            _didIteratorError6 = true;
+	            _iteratorError6 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	                _iterator5.return();
+	              if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	                _iterator6.return();
 	              }
 	            } finally {
-	              if (_didIteratorError5) {
-	                throw _iteratorError5;
+	              if (_didIteratorError6) {
+	                throw _iteratorError6;
 	              }
 	            }
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError4 = true;
-	        _iteratorError4 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-	            _iterator4.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError4) {
-	            throw _iteratorError4;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -4954,7 +5086,7 @@
 	exports.default = EventNewView;
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4965,13 +5097,13 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(31);
+	__webpack_require__(32);
 	
-	var _queries = __webpack_require__(32);
+	var _queries = __webpack_require__(33);
 	
-	var _grapnhQlRequest = __webpack_require__(35);
+	var _grapnhqlRequest = __webpack_require__(36);
 	
-	var _grapnhQlRequest2 = _interopRequireDefault(_grapnhQlRequest);
+	var _grapnhqlRequest2 = _interopRequireDefault(_grapnhqlRequest);
 	
 	var _helpers = __webpack_require__(11);
 	
@@ -4987,17 +5119,17 @@
 	  _createClass(ApiService, [{
 	    key: 'getRooms',
 	    value: function getRooms() {
-	      return (0, _grapnhQlRequest2.default)(_queries.query.rooms);
+	      return (0, _grapnhqlRequest2.default)(_queries.query.rooms);
 	    }
 	  }, {
 	    key: 'getEvents',
 	    value: function getEvents() {
-	      return (0, _grapnhQlRequest2.default)(_queries.query.events);
+	      return (0, _grapnhqlRequest2.default)(_queries.query.events);
 	    }
 	  }, {
 	    key: 'getUsers',
 	    value: function getUsers() {
-	      return (0, _grapnhQlRequest2.default)(_queries.query.users);
+	      return (0, _grapnhqlRequest2.default)(_queries.query.users);
 	    }
 	  }, {
 	    key: 'getAll',
@@ -5068,7 +5200,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5532,7 +5664,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5542,11 +5674,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(33);
+	var _query = __webpack_require__(34);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(34);
+	var _mutation = __webpack_require__(35);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -5556,7 +5688,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5571,7 +5703,7 @@
 	};
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5586,7 +5718,7 @@
 	};
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5615,7 +5747,7 @@
 	};
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports) {
 
 	'use strict';

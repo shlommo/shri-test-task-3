@@ -7,6 +7,7 @@ import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
+import {getRecommendationTagMarkup, recommendationTagHandler} from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
 
 class EventNewView extends AbstractView {
@@ -93,6 +94,13 @@ class EventNewView extends AbstractView {
                   
                   <div class="event-form__col">
                     ${getAutocompleteMarkup(this.fieldsProps.eventMembers)}                  
+                  </div>
+                  
+                  <div class="event-form__col">
+                    <div class="recommendations hidden">
+                      <div class="recommendations__title">Рекомендованные переговорки</div>
+                      <div class="recomendations__cnt"></div>
+                    </div>
                   </div>
                 </div>
                 <div class="event-form__footer">${eventFormFooter(false)}</div>

@@ -1,4 +1,4 @@
-import hideOnClickOutside from './../../tools/hideOnClickOutside';
+import hideOnClickOutside from '../../tools/hide-on-click-outside';
 import {addListenerMulti} from './../../tools/helpers';
 
 const calendarMarkup = () => {

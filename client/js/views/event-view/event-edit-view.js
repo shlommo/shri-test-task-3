@@ -7,7 +7,8 @@ import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
-import getUserTag from './getUserTag';
+import getUserTag from './get-user-tag';
+import getRecommendationTagMarkup from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
 
 class EventNewView extends AbstractView {
@@ -49,24 +50,30 @@ class EventNewView extends AbstractView {
         isDate: false
       }
     };
-    this.users = Application.data.users || {};
+    this.appData = Application.data;
+    this.users = this.appData.users || {};
+    this.rooms = this.appData.rooms || {}
   }
 
   getMarkup() {
     const header = `<header class="header"><div class="logo"></div></header>`;
-    const appData = Application.data;
     const eventDate = new Date(+this.eventInputData.startTime);
     const eventDateDay = eventDate.setHours(0, 0, 0, 0);
-    const events = appData.events[eventDateDay];
+    const events = this.appData.events[eventDateDay];
     const eventInputId = this.eventInputData.eventId; // id события переданное по url
     this.eventStartDate = new Date(+this.eventInputData.startTime);
     this.eventEndDate = new Date(+this.eventInputData.endTime);
+    this.eventDate = {
+      start: +this.eventInputData.startTime,
+      end: +this.eventInputData.endTime
+    };
 
     let eventName;
     for (let event of events) {
       if (eventInputId === event.id) {
         eventName = event.title;
         this.eventUsers = event.users;
+        this.eventRoomId = event.room.id;
       }
     }
     this.fieldsProps.eventTitle = {
@@ -78,9 +85,10 @@ class EventNewView extends AbstractView {
       isDate: false
     };
 
-    console.log(this.users);
-
-    // console.log(new Date(+this.eventInputData.startTime), new Date(+this.eventInputData.endTime), Application.data);
+    this.recommendation = {
+      eventDate: this.eventDate,
+      room: this.eventRoomId
+    };
 
     return `<div class="event-page" id="app">
               ${header} 
@@ -105,6 +113,15 @@ class EventNewView extends AbstractView {
                   
                   <div class="event-form__col">
                     ${getAutocompleteMarkup(this.fieldsProps.eventMembers)}                  
+                  </div>
+                  
+                  <div class="event-form__col">
+                    <div class="recommendations">
+                      <div class="recommendations__title">Ваша переговорка</div>
+                      <div class="recomendations__cnt">
+                        ${getRecommendationTagMarkup(this.recommendation, true)}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="event-form__footer">${eventFormFooter(true)}</div>
@@ -131,17 +148,48 @@ class EventNewView extends AbstractView {
     input.focus();
   }
 
+  recommendationTagClickHandler(recommendationTag) {
+    const click = () => {
+      recommendationTag.classList.add('recommendation-tag--selected');
+      removeClickHandler();
+    };
+    const removeClickHandler = () => {
+      recommendationTag.removeEventListener('click', click);
+    };
+    recommendationTag.addEventListener('click', click);
+  }
+
+  recommendationTagHandlers() {
+    this.recommendationTagArr = this.element.querySelectorAll('.recommendation-tag');
+
+    for (let recommendationTag of Array.from(this.recommendationTagArr)) {
+      const recommendationTagDeleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
+
+      if (!recommendationTag.classList.contains('recommendation-tag--selected')) {
+        this.recommendationTagClickHandler(recommendationTag);
+      }
+
+      recommendationTagDeleteBtn.addEventListener('click', () => {
+        recommendationTag.classList.remove('recommendation-tag--selected');
+        setTimeout(() => {
+          this.recommendationTagClickHandler(recommendationTag);
+        }, 10);
+      });
+    }
+  }
+
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
     this.autocomplete = this.element.querySelector('[data-autocomplete]');
-
     this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
       cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this))
     }
-    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this))
+    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+
+    this.recommendationTagHandlers();
   }
 
   clearHandlers() {
@@ -153,7 +201,7 @@ class EventNewView extends AbstractView {
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
-    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this))
+    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
   }
 
   viewRendered() {
@@ -179,7 +227,6 @@ class EventNewView extends AbstractView {
       time_24hr: true,
       defaultDate: this.eventEndDate,
     });
-
 
     this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
 

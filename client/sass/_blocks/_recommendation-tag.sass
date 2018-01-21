@@ -5,7 +5,10 @@
   border-radius: 4px
   font-size: 13px
   line-height: 17px
+  background-color: #E9ECEF
+  color: #000
   box-sizing: border-box
+  cursor: pointer
 
 .field .recommendation-tag
   margin-bottom: 8px
@@ -18,10 +21,6 @@
   margin-left: 16px
   font-weight: 400
   
-.recommendation-tag--simple
-  background-color: #E9ECEF
-  color: #000
-
 .recommendation-tag--selected
   background-color: #007DFF
   color: #fff
@@ -40,7 +39,6 @@
   border: none
   background-color: transparent
   transform: translateY(-50%)
-  cursor: pointer
 
 .recommendation-tag__delete i
   position: absolute
@@ -52,3 +50,6 @@
 
 .recommendation-tag__delete svg
   fill: #ffffff !important
+
+.recommendation-tag__delete:hover
+  opacity: .8

@@ -1,5 +1,5 @@
 import {getNodeFromMarkup, getDateValue, parseObjToHash} from './../../tools/helpers';
-import renderTimeSlotInfo from './renderTimeSlotInfo';
+import renderTimeSlotInfo from './render-time-slot-info';
 import {router} from './../../router';
 
 export default class RenderEvents {

@@ -1,7 +1,7 @@
 import field from './field'
-import getUser from './getUser'
-import getUserTag from './getUserTag'
-import hideOnClickOutside from './../../tools/hideOnClickOutside';
+import getUser from './get-user'
+import getUserTag from './get-user-tag'
+import hideOnClickOutside from '../../tools/hide-on-click-outside';
 import {getNodeFromMarkup} from './../../tools/helpers';
 
 const getAutocompleteMarkup = (fieldProps) => {
@@ -35,7 +35,6 @@ const dropdownItemHandler = (event, item, container) => {
      return false;
    }
   }
-  console.log(user);
 
   container.appendChild(userTag);
 };
