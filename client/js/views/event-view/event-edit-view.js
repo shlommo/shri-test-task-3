@@ -3,6 +3,8 @@ import Application from './../../application';
 import {router} from './../../router';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
+import {getDateValue} from '../../tools/helpers';
+
 
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
@@ -54,13 +56,17 @@ class EventNewView extends AbstractView {
     this.appData = Application.data;
     this.users = this.appData.users || {};
     this.rooms = this.appData.rooms || {};
+
+    this.eventStartDate = new Date(+this.eventInputData.startTime);
+    this.eventDateDay = getDateValue(this.eventStartDate).day; //день в который происходят все события
+
+    this.initialAppDate = new Date();
+    this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
   }
 
   getMarkup() {
     const header = `<header class="header"><div class="logo"></div></header>`;
-    const eventDate = new Date(+this.eventInputData.startTime);
-    this.eventDateDay = eventDate.setHours(0, 0, 0, 0); //день в который происходят все события
-    const events = this.appData.events[this.eventDateDay];
+    const events = this.appData.events[this.eventDateDay];//события происходящие в этот день
     const eventInputId = this.eventInputData.eventId; // id события переданное по url
     this.eventStartDate = new Date(+this.eventInputData.startTime);
     this.eventEndDate = new Date(+this.eventInputData.endTime);
@@ -180,6 +186,26 @@ class EventNewView extends AbstractView {
     }
   }
 
+  addUserHandler(event) { //Срабатывает при добавление участника события
+    let usersId = [];
+    for (let eventUser of this.eventUsers) {
+      usersId.push(eventUser.id);
+    }
+    if (usersId.indexOf(event.detail.userId) === -1) {
+      this.eventUsers.push({id: event.detail.userId});
+    }
+  }
+
+  removeUserHandler(event) { //Срабатывает при удалении участника события
+    let newArr = [];
+    for (let eventUser of this.eventUsers) {
+      if (eventUser.id !== event.detail.userId) {
+        newArr.push(eventUser);
+      }
+    }
+    this.eventUsers = newArr;
+  }
+
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
@@ -192,6 +218,9 @@ class EventNewView extends AbstractView {
     this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 
     this.recommendationTagHandlers();
+
+    document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
+    document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
   }
 
   clearHandlers() {
@@ -204,12 +233,24 @@ class EventNewView extends AbstractView {
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
     this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+
+    document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
+    document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
   }
 
   handleRecommendation() {
     this.members = [];
     let person = {};
-    for (let eventUser of this.eventUsers) {
+
+    if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) { //Событие не может быть меньше 15 мин
+      throw new Error('Минимальная продолжительность события - 15 минут');
+    }
+
+    if (this.eventDateDay < this.initialAppDay) {
+      throw new Error('Нельзя редактировать события ушедших дней');
+    }
+
+    for (let eventUser of this.eventUsers) { //
       for (let user of this.users) {
         if (eventUser.id === user.id) {
           person = {
@@ -221,6 +262,12 @@ class EventNewView extends AbstractView {
         }
       }
     }
+
+    if (this.members.length === 0) {
+      throw new Error('Выберите участников события');
+    }
+
+
     const db = {
       events: this.appData.events[this.eventDateDay] || [],
       rooms: this.appData.rooms,

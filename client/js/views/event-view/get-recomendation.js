@@ -1,3 +1,4 @@
+import {getDateValue} from '../../tools/helpers';
 /**
  * @typedef {Object} Person
  * @property {String} login Идентификатор сотрудника.
@@ -50,9 +51,18 @@
  * @param {Person[]} db.persons Список всех сотрудников.
  * @returns {Recommendation[]}
  */
+
+// this.eventStartDate = new Date(+this.eventInputData.startTime);
+// this.eventDateDay = getDateValue(this.eventStartDate).day; //день в который происходят все события
+//
+// this.initialAppDate = new Date();
+// this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
+
 function getRecommendation(date, members, db) {
   const eventStart = date.start;
   const eventEnd = date.end;
+  const eventDuration = eventEnd - eventStart;
+  const dayEnd = new Date(eventStart).setHours(23, 0, 0);
   const dbEvents = db.events;
   const dbRooms = db.rooms;
   const dbPersons = db.persons;
@@ -60,6 +70,17 @@ function getRecommendation(date, members, db) {
   let recommendation = {},
       recommendationArr = [];
 
+  const now = new Date();
+  const today = getDateValue(now).day;
+  const currentMinute = getDateValue(now).minute;
+  const eventStartDate = new Date(date.start);
+  const eventStartDay = getDateValue(eventStartDate).day;
+
+  if (today === eventStartDay) {
+    if (currentMinute > eventStart || currentMinute > eventEnd) {//если время предпологаемого события меньше текущего времени
+      return [];
+    }
+  }
 
   roomLoop: for (let dbRoom of dbRooms) {
     let dbRoomId = dbRoom.id;
@@ -67,19 +88,52 @@ function getRecommendation(date, members, db) {
       continue roomLoop;
     }
 
-    eventLoop: for (let dbEvent of dbEvents) {
-      let dbEventDateStart = new Date(dbEvent.dateStart),
-          dbEventDateEnd = new Date(dbEvent.dateEnd);
+    //Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
+    timeLoop: for (let t = eventStart; t <= dayEnd - eventDuration; t += eventDuration) {
+      let tStart = t, //Время начала предпологаемого события
+          tEnd = tStart + eventDuration; //Время окончания предпологаемого события
 
-      if (dbRoomId === dbEvent.room.id) { //если в этой комнате есть события
-        if (eventStart - dbEventDateStart.getTime() < 0
-            || eventStart - dbEventDateEnd.getTime() < 0
-            || eventEnd - dbEventDateStart.getTime() < 0
-            || eventEnd - dbEventDateEnd.getTime() < 0) { //Если веремя начала и конца события совпадают с уже имеющимся событием
+      eventLoop: for (let dbEvent of dbEvents) {
+        let dbEventStart = new Date(dbEvent.dateStart).getTime(),
+            dbEventEnd = new Date(dbEvent.dateEnd).getTime();
+
+        if (currentMinute > dbEventEnd) {
           continue eventLoop;
         }
-        console.log(dbEventDateStart, dbEventDateEnd);
+
+        if (dbEvent.room.id === dbRoomId) { //если в этой комнате есть события
+          // console.log('В этой комнате есть события', dbRoom.title, new Date(dbEventEnd), new Date(t));
+
+          if (dbEventStart >= tStart && dbEventEnd <= tEnd
+              || dbEventStart >= tStart && dbEventEnd > tEnd && dbEventStart !== tEnd
+              || dbEventStart <= tStart && dbEventEnd > tStart && dbEventEnd <= tEnd) {
+
+            t = dbEventEnd - eventDuration;
+
+            continue timeLoop;
+          }
+
+          recommendation = {
+            date: {
+              start: tStart,
+              end: tEnd
+            },
+            room: dbRoomId
+          };
+          console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
+          continue roomLoop;
+        }
       }
+      // console.log('В этой комнате нет событий', dbRoom.title, new Date(t), dbRoomId);
+      recommendation = {
+        date: {
+          start: tStart,
+          end: tEnd
+        },
+        room: dbRoomId
+      };
+      console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
+      continue roomLoop;
     }
   }
 

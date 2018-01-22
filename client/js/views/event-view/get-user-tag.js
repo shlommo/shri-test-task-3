@@ -16,9 +16,16 @@ export default (userId, login, avatarUrl) => {
   const userTagElement = getNodeFromMarkup(userTag);
   const userTagRemoveBtn = userTagElement.querySelector('.user-tag__remove');
 
+  const removeUserFromEvent = new CustomEvent("removeUserFromEvent", {
+    detail: {
+      userId: userId
+    }
+  });
+
   const userRemoveBtnHandler = (event) => {
     event.preventDefault();
     userTagElement.parentNode.removeChild(userTagElement);
+    document.dispatchEvent(removeUserFromEvent);
     removeClickListener();
   };
 

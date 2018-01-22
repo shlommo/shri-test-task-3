@@ -188,7 +188,7 @@ class MeetingRoomsView extends AbstractView {
 
   getRoomList(floor) {
     let roomList = '';
-    const diagramDayTemp = '<div class="diagram__day"></div>'
+    const diagramDayTemp = '<div class="diagram__day"></div>';
 
     for (let room of this.rooms) {
       if (room.floor === floor) {
@@ -261,7 +261,6 @@ class MeetingRoomsView extends AbstractView {
 
     eventNewTrigger.addEventListener('click', (e) => {
       e.preventDefault();
-      // Application.showEventCreate();
       router.navigate(`/event/create`);
     });
 

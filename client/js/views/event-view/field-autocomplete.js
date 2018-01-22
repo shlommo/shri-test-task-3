@@ -50,16 +50,14 @@ const autocompleteHandler = (event, inputUsers) => {
   };
   let inputValue = input.value;
   let autocompleteList,
-    autocompleteListItems = '',
-    autocompleteListItem,
-    autocompleteDropdownItemArr;
+      autocompleteListItems = '',
+      autocompleteListItem,
+      autocompleteDropdownItemArr;
 
   if (inputValue.length < 2) {
     clearAutocomplete();
     return false;
   }
-
-  // console.log(autocomplete);
 
   for (let user of Array.from(inputUsers)) {
     const login = user.login;
@@ -84,13 +82,24 @@ const autocompleteHandler = (event, inputUsers) => {
 
   autocompleteDropdownItemArr = autocompleteDropdown.querySelectorAll('.field-autocomplete__dropdown-item');
 
+
+
   let getDropdownItemHandler,
-    dropdownItemRemoveClickListener;
+      dropdownItemRemoveClickListener;
+
   for (let autocompleteDropdownItem of Array.from(autocompleteDropdownItemArr)) {
+    const addUserToEvent = new CustomEvent("addUserToEvent", {
+      detail: {
+        userId: autocompleteDropdownItem.getAttribute('data-user-id')
+      }
+    });
+
     getDropdownItemHandler = (event) =>  {
       dropdownItemHandler(event, autocompleteDropdownItem, autocompleteTagsContainer);
       clearAutocomplete();
+
       dropdownItemRemoveClickListener();
+      document.dispatchEvent(addUserToEvent);
     };
 
     dropdownItemRemoveClickListener = () => {
@@ -99,8 +108,6 @@ const autocompleteHandler = (event, inputUsers) => {
 
     autocompleteDropdownItem.addEventListener('click', getDropdownItemHandler);
   }
-
-
 
   hideOnClickOutside('[data-autocomplete]', () => {
     clearAutocomplete();
