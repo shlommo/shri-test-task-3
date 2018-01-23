@@ -65,18 +65,18 @@
 	(0, _createSvgSprite2.default)();
 	
 	_apiService2.default.getAll().then(function (data) {
-	  _application2.default.data = data;
+	    _application2.default.data = data;
 	
-	  (0, _router.activateRouter)();
+	    (0, _router.activateRouter)();
+	});
 	
-	  document.addEventListener('dateChange', function (e) {
-	    var newData = Object.assign(data, {
-	      date: e.detail.date
+	document.addEventListener('dateChange', function (e) {
+	    var newData = Object.assign({}, _application2.default.data, {
+	        date: e.detail.date
 	    });
 	
 	    _application2.default.data = newData;
 	    _application2.default.showMeetingRooms();
-	  });
 	});
 
 /***/ }),
@@ -507,18 +507,19 @@
 	      var dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
 	      var timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
 	      var dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
-	      var now = this.date.valueOf();
+	      // const now = this.date.valueOf();
+	      var now = Date.now();
 	      var date = new Date(now);
-	      this.dayStart = date.setHours(8, 0, 0);
+	      this.dayStart = new Date(now).setHours(8, 0, 0);
 	      var currentMinute = (now - this.dayStart) / this.MINUTE;
 	      this.minuteStep = dayElWidth / (this.dayTotal * 60);
-	      var minute = this.minute < 10 ? '0' + this.minute : this.minute;
+	      var minute = date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 	
 	      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
 	        timeNowEl.classList.add('show');
 	
 	        timeNowEl.style.left = currentMinute * this.minuteStep + 'px';
-	        timeNowEl.innerHTML = this.hour + ':' + minute;
+	        timeNowEl.innerHTML = date.getHours() + ':' + minute;
 	
 	        if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
 	          timeNowEl.style.opacity = 0;
@@ -533,7 +534,7 @@
 	            var timelineCell = _step3.value;
 	
 	            var timelineCellValue = timelineCell.getAttribute('data-time');
-	            if (timelineCellValue <= this.date.getHours()) {
+	            if (timelineCellValue <= date.getHours()) {
 	              timelineCell.classList.add('past');
 	            }
 	          }
@@ -780,7 +781,7 @@
 	          var newData = _this3.inputData;
 	          delete newData.newEvent;
 	          _application2.default.data = newData;
-	          window.location.href = '/';
+	          // window.location.href = '/';
 	          // Application.showMeetingRooms();
 	        });
 	      }
@@ -2652,10 +2653,11 @@
 	      var usersInput = '[' + users + ']';
 	      var self = this;
 	
-	      console.log(usersInput);
-	
 	      _apiService2.default.createEvent(eventInput, usersInput, roomId).then(function () {
-	        var newData = Object.assign({}, self.appData, {
+	        return _apiService2.default.getAll();
+	      }).then(function (data) {
+	        var newData = Object.assign({}, data, {
+	          date: self.eventStartDate,
 	          newEvent: {
 	            dateStart: dateStart,
 	            dateEnd: dateEnd,
@@ -2664,7 +2666,8 @@
 	        });
 	        self.clearHandlers();
 	        _application2.default.data = newData;
-	        _application2.default.showMeetingRooms();
+	        _router.router.navigate();
+	        // Application.showMeetingRooms();
 	      });
 	    }
 	  }, {
@@ -3001,12 +3004,13 @@
 	
 	      // Удалить редактируемое событие из списка событий
 	      var newEventsArr = [];
+	      var appDateEvents = this.appData.events[this.eventDateDay] || [];
 	      var _iteratorNormalCompletion9 = true;
 	      var _didIteratorError9 = false;
 	      var _iteratorError9 = undefined;
 	
 	      try {
-	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	        for (var _iterator9 = appDateEvents[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
 	          var event = _step9.value;
 	
 	          if (event.id !== this.currentId) {
@@ -6515,9 +6519,18 @@
 	    value: function deleteEventBtnHandle() {
 	      var _this3 = this;
 	
+	      var self = this;
 	      (0, _showPopup2.default)('deletePopup', null, function () {
 	        _apiService2.default.removeEvent(_this3.eventInputData.eventId).then(function () {
-	          window.location.href = '/';
+	          return _apiService2.default.getAll();
+	        }).then(function (data) {
+	          var newData = Object.assign(data, {
+	            date: self.eventStartDate
+	          });
+	
+	          _application2.default.data = newData;
+	          _router.router.navigate();
+	          // window.location.href = '/';
 	        });
 	      });
 	    }

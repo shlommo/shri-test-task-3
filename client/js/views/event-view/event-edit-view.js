@@ -243,12 +243,22 @@ class EventNewView extends AbstractView {
   }
 
   deleteEventBtnHandle() {
+    const self = this;
     showPopup('deletePopup', null, () => {
       ApiService.removeEvent(this.eventInputData.eventId)
         .then(() => {
-            window.location.href = '/';
+            return ApiService.getAll()
           }
         )
+        .then((data) => {
+          const newData = Object.assign(data, {
+            date: self.eventStartDate
+          });
+
+          Application.data = newData;
+          router.navigate();
+          // window.location.href = '/';
+        })
     });
   }
 

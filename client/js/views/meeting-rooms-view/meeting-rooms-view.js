@@ -122,18 +122,19 @@ class MeetingRoomsView extends AbstractView {
     const dayEl = this.element.querySelector('.diagram__time-line .diagram__day');
     const timelineCellArr = this.element.querySelectorAll('.diagram__time-line .diagram__cell');
     const dayElWidth = getComputedStyle(dayEl).width.slice(0, -2);
-    const now = this.date.valueOf();
+    // const now = this.date.valueOf();
+    const now = Date.now();
     const date = new Date(now);
-    this.dayStart = date.setHours(8, 0, 0);
+    this.dayStart = new Date(now).setHours(8, 0, 0);
     const currentMinute = (now - this.dayStart) / this.MINUTE;
     this.minuteStep = dayElWidth / (this.dayTotal * 60);
-    const minute = this.minute < 10 ? `0${this.minute}` : this.minute;
+    const minute = date.getMinutes() < 10 ? `0${date.getMinutes()}` : date.getMinutes();
 
     if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
       timeNowEl.classList.add('show');
 
       timeNowEl.style.left = `${currentMinute * this.minuteStep}px`;
-      timeNowEl.innerHTML = `${this.hour}:${minute}`;
+      timeNowEl.innerHTML = `${date.getHours()}:${minute}`;
 
       if (currentMinute < 0 || currentMinute > this.dayTotal * 60) {
         timeNowEl.style.opacity = 0;
@@ -141,7 +142,7 @@ class MeetingRoomsView extends AbstractView {
 
       for (let timelineCell of Array.from(timelineCellArr)) {
         const timelineCellValue = timelineCell.getAttribute('data-time');
-        if (timelineCellValue <= this.date.getHours()) {
+        if (timelineCellValue <= date.getHours()) {
           timelineCell.classList.add('past');
         }
       }
@@ -288,7 +289,7 @@ class MeetingRoomsView extends AbstractView {
         const newData = this.inputData;
         delete newData.newEvent;
         Application.data = newData;
-        window.location.href = '/';
+        // window.location.href = '/';
         // Application.showMeetingRooms();
       });
     }

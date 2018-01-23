@@ -188,11 +188,14 @@ class EventNewView extends AbstractView {
     const usersInput = `[${users}]`;
     const self = this;
 
-    console.log(usersInput);
-
     ApiService.createEvent(eventInput, usersInput, roomId)
       .then(() => {
-          const newData = Object.assign({}, self.appData, {
+          return ApiService.getAll()
+        }
+      )
+      .then((data) => {
+          const newData = Object.assign({}, data, {
+            date: self.eventStartDate,
             newEvent: {
               dateStart: dateStart,
               dateEnd: dateEnd,
@@ -201,7 +204,8 @@ class EventNewView extends AbstractView {
           });
           self.clearHandlers();
           Application.data = newData;
-          Application.showMeetingRooms();
+          router.navigate();
+          // Application.showMeetingRooms();
         }
       );
   }
@@ -351,7 +355,8 @@ class EventNewView extends AbstractView {
 
     // Удалить редактируемое событие из списка событий
     let newEventsArr = [];
-    for (let event of this.appData.events[this.eventDateDay]) {
+    const appDateEvents = this.appData.events[this.eventDateDay] || [];
+    for (let event of appDateEvents) {
       if (event.id !== this.currentId) {
         newEventsArr.push(event);
       }
