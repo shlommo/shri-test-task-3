@@ -44,11 +44,11 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
   if (usersLength === 1) {
     members = '';
   } else if (usersLength === 2) {
-    members = `${usersLength - 1} участник`;
+    members = `&nbsp;и&nbsp;${usersLength - 1} участник`;
   } else if (usersLength > 2 && event.users.length < 5) {
-    members = `${usersLength - 1} участника`;
+    members = `&nbsp;и&nbsp;${usersLength - 1} участника`;
   } else {
-    members = `${usersLength - 1} участников`;
+    members = `&nbsp;и&nbsp;${usersLength - 1} участников`;
   }
 
   const time = `${dateStart.getHours()}:${getMinutes(dateStart)}—${dateEnd.getHours()}:${getMinutes(dateEnd)}`;
@@ -83,7 +83,7 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
                     <img src="${userAvatarUrl}" alt="">
                 </div>
                 ${userLogin}
-            </div>&nbsp;и&nbsp;${members}
+            </div>${members}
         </div>
     </div>
   </div>`;

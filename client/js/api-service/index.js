@@ -59,6 +59,10 @@ class ApiService {
       });
   }
 
+  createEvent(eventInput, usersIds, roomId) {
+    return grapnhQlRequest(mutation.createEvent(eventInput, usersIds, roomId));
+  }
+
 }
 
 export default new ApiService();

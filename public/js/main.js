@@ -50,7 +50,7 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(32);
+	var _apiService = __webpack_require__(21);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
@@ -1897,11 +1897,11 @@
 	  if (usersLength === 1) {
 	    members = '';
 	  } else if (usersLength === 2) {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A';
+	    members = '&nbsp;\u0438&nbsp;' + (usersLength - 1) + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A';
 	  } else if (usersLength > 2 && event.users.length < 5) {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u0430';
+	    members = '&nbsp;\u0438&nbsp;' + (usersLength - 1) + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u0430';
 	  } else {
-	    members = usersLength - 1 + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432';
+	    members = '&nbsp;\u0438&nbsp;' + (usersLength - 1) + ' \u0443\u0447\u0430\u0441\u0442\u043D\u0438\u043A\u043E\u0432';
 	  }
 	
 	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
@@ -1911,7 +1911,7 @@
 	    endTime: dateEnd.getTime()
 	  };
 	
-	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="/event/' + (0, _helpers.parseObjToHash)(eventEditInputData) + '/edit" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>&nbsp;\u0438&nbsp;' + members + '\n        </div>\n    </div>\n  </div>';
+	  return '<div class="time-slot-info" id="timeSlotInfoModal">\n    <i class="time-slot-info__marker"></i>\n    <div class="time-slot-info__cnt">\n        <a href="/event/' + (0, _helpers.parseObjToHash)(eventEditInputData) + '/edit" class="time-slot-info__trigger">\n            <i>\n                <svg width="12" height="12">\n                    <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-edit"></use>\n                </svg>\n            </i>\n        </a>\n\n        <div class="time-slot-info__title">\n            ' + event.title + '\n        </div>\n\n        <div class="time-slot-info__descr">\n            ' + dateStart.getDate() + ' ' + inclineMonths[dateStart.getMonth()] + ', ' + time + '&nbsp;\xB7&nbsp;' + roomName + '\n        </div>\n        <div class="time-slot-info__users">\n            <div class="user">\n                <div class="user__icon">\n                    <img src="' + userAvatarUrl + '" alt="">\n                </div>\n                ' + userLogin + '\n            </div>' + members + '\n        </div>\n    </div>\n  </div>';
 	};
 	
 	exports.default = function (parent, events, rooms, users) {
@@ -2069,7 +2069,7 @@
 	    if (action === 'create') {
 	      _application2.default.showEventCreate();
 	    } else if (action === 'edit') {}
-	  }).on('*', function () {
+	  }).on('/', function () {
 	    _application2.default.showMeetingRooms();
 	  }).resolve();
 	};
@@ -2290,7 +2290,7 @@
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
-	var _eventEditView = __webpack_require__(31);
+	var _eventEditView = __webpack_require__(37);
 	
 	var _eventEditView2 = _interopRequireDefault(_eventEditView);
 	
@@ -2325,35 +2325,39 @@
 	
 	var _router = __webpack_require__(16);
 	
-	var _flatpickr = __webpack_require__(21);
+	var _apiService = __webpack_require__(21);
+	
+	var _apiService2 = _interopRequireDefault(_apiService);
+	
+	var _flatpickr = __webpack_require__(27);
 	
 	var _flatpickr2 = _interopRequireDefault(_flatpickr);
 	
-	var _ru = __webpack_require__(22);
+	var _ru = __webpack_require__(28);
 	
 	var _helpers = __webpack_require__(11);
 	
-	var _eventFormHeader = __webpack_require__(23);
+	var _eventFormHeader = __webpack_require__(29);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
 	
-	var _eventFormFooter = __webpack_require__(24);
+	var _eventFormFooter = __webpack_require__(30);
 	
 	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
 	
-	var _field = __webpack_require__(25);
+	var _field = __webpack_require__(31);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getRecomendation = __webpack_require__(26);
+	var _getRecomendation = __webpack_require__(32);
 	
 	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
 	
-	var _getRecomendationTag = __webpack_require__(27);
+	var _getRecomendationTag = __webpack_require__(33);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
-	var _fieldAutocomplete = __webpack_require__(28);
+	var _fieldAutocomplete = __webpack_require__(34);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2471,26 +2475,26 @@
 	  }, {
 	    key: 'createEventHandler',
 	    value: function createEventHandler(event) {
-	      console.log(this);
-	      alert('click');
-	    }
-	  }, {
-	    key: 'recommendationTagClickHandler',
-	    value: function recommendationTagClickHandler(recommendationTag) {
-	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
-	      recommendationTag.classList.add('recommendation-tag--selected');
+	      var eventTitle = this.element.querySelector('#eventTitle').value;
+	      var userTagArr = this.element.querySelectorAll('.user-tag');
+	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
+	      var roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
+	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
+	      var now = new Date();
+	      var currentMinute = (0, _helpers.getDateValue)(now).minute;
 	
-	      var recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
-	
+	      var users = [];
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
 	
 	      try {
-	        for (var _iterator = Array.from(recomTagArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var item = _step.value;
+	        for (var _iterator = Array.from(userTagArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var userTag = _step.value;
 	
-	          this.recomContainer.removeChild(item);
+	          var userId = userTag.getAttribute('data-user-id');
+	          users.push(userId);
 	        }
 	      } catch (err) {
 	        _didIteratorError = true;
@@ -2507,11 +2511,77 @@
 	        }
 	      }
 	
+	      if (eventTitle.length === 0) {
+	        throw new Error('Введите название мероприятия');
+	        return false;
+	      }
+	
+	      if (users.length === 0) {
+	        throw new Error('Добавьте участников мероприятия');
+	        return false;
+	      }
+	
+	      if (roomId === null) {
+	        throw new Error('Выберите комнату из рекомменадций');
+	        return false;
+	      }
+	
+	      if (currentMinute > (0, _helpers.getDateValue)(dateStart).minute) {
+	        throw new Error('Время вышло. Пожалуйста, обновите время');
+	        return false;
+	      }
+	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
+	      var usersInput = '"' + users + '"';
+	
+	      _apiService2.default.createEvent(eventInput, usersInput, roomId).then(function () {
+	        location.reload();
+	        _router.router.navigate();
+	      });
+	    }
+	  }, {
+	    key: 'recommendationTagClickHandler',
+	    value: function recommendationTagClickHandler(recommendationTag) {
+	      var recommendationTagTime = recommendationTag.querySelector('.recommendation-tag__time');
+	      var startDate = recommendationTagTime.getAttribute('data-start-date');
+	      var endDate = recommendationTagTime.getAttribute('data-end-date');
+	
+	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
+	      recommendationTag.classList.add('recommendation-tag--selected');
+	
+	      var recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
+	
+	      var _iteratorNormalCompletion2 = true;
+	      var _didIteratorError2 = false;
+	      var _iteratorError2 = undefined;
+	
+	      try {
+	        for (var _iterator2 = Array.from(recomTagArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var item = _step2.value;
+	
+	          this.recomContainer.removeChild(item);
+	        }
+	      } catch (err) {
+	        _didIteratorError2 = true;
+	        _iteratorError2 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	            _iterator2.return();
+	          }
+	        } finally {
+	          if (_didIteratorError2) {
+	            throw _iteratorError2;
+	          }
+	        }
+	      }
+	
 	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
 	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 	      this.recomContainer.appendChild(recommendationTag);
 	
 	      this.createBtn.classList.remove('button--disabled');
+	      this.eventTimeStartDatepickr.setDate(new Date(+startDate));
+	      this.eventTimeEndDatepickr.setDate(new Date(+endDate));
 	      this.createBtn.addEventListener('click', this.createEventHandler);
 	    }
 	  }, {
@@ -2529,40 +2599,6 @@
 	    value: function addUserHandler(event) {
 	      //Срабатывает при добавление участника события
 	      var usersId = [];
-	      var _iteratorNormalCompletion2 = true;
-	      var _didIteratorError2 = false;
-	      var _iteratorError2 = undefined;
-	
-	      try {
-	        for (var _iterator2 = this.eventUsers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var eventUser = _step2.value;
-	
-	          usersId.push(eventUser.id);
-	        }
-	      } catch (err) {
-	        _didIteratorError2 = true;
-	        _iteratorError2 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	            _iterator2.return();
-	          }
-	        } finally {
-	          if (_didIteratorError2) {
-	            throw _iteratorError2;
-	          }
-	        }
-	      }
-	
-	      if (usersId.indexOf(event.detail.userId) === -1) {
-	        this.eventUsers.push({ id: event.detail.userId });
-	      }
-	    }
-	  }, {
-	    key: 'removeUserHandler',
-	    value: function removeUserHandler(event) {
-	      //Срабатывает при удалении участника события
-	      var newArr = [];
 	      var _iteratorNormalCompletion3 = true;
 	      var _didIteratorError3 = false;
 	      var _iteratorError3 = undefined;
@@ -2571,9 +2607,7 @@
 	        for (var _iterator3 = this.eventUsers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
 	          var eventUser = _step3.value;
 	
-	          if (eventUser.id !== event.detail.userId) {
-	            newArr.push(eventUser);
-	          }
+	          usersId.push(eventUser.id);
 	        }
 	      } catch (err) {
 	        _didIteratorError3 = true;
@@ -2590,45 +2624,27 @@
 	        }
 	      }
 	
-	      this.eventUsers = newArr;
+	      if (usersId.indexOf(event.detail.userId) === -1) {
+	        this.eventUsers.push({ id: event.detail.userId });
+	      }
+	      this.handleRecommendation();
 	    }
 	  }, {
-	    key: 'renderRecommendations',
-	    value: function renderRecommendations(recommendations) {
-	      var _this2 = this;
-	
-	      this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
-	      this.recomParent.classList.remove('hidden');
-	
-	      if (recommendations.length === 0) {
-	        this.recomContainer.innerHTML = 'Нет рекомендаций';
-	      } else {
-	        this.recomContainer.innerHTML = '';
-	      }
-	
+	    key: 'removeUserHandler',
+	    value: function removeUserHandler(event) {
+	      //Срабатывает при удалении участника события
+	      var newArr = [];
 	      var _iteratorNormalCompletion4 = true;
 	      var _didIteratorError4 = false;
 	      var _iteratorError4 = undefined;
 	
 	      try {
-	        var _loop = function _loop() {
-	          var recom = _step4.value;
+	        for (var _iterator4 = this.eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var eventUser = _step4.value;
 	
-	          var recomMarkup = (0, _getRecomendationTag2.default)(recom, false);
-	          var recomNode = (0, _helpers.getNodeFromMarkup)(recomMarkup);
-	
-	          recomNode.addEventListener('click', function (event) {
-	            var recomContent = recomNode.querySelector('.recommendation-tag__content');
-	            var recomContentChildsIsTarget = (0, _helpers.checkEventTarget)(event, recomContent);
-	            if (event.target === recomContent || recomContentChildsIsTarget) {
-	              _this2.recommendationTagClickHandler(recomNode);
-	            }
-	          });
-	          _this2.recomContainer.appendChild(recomNode);
-	        };
-	
-	        for (var _iterator4 = recommendations[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	          _loop();
+	          if (eventUser.id !== event.detail.userId) {
+	            newArr.push(eventUser);
+	          }
 	        }
 	      } catch (err) {
 	        _didIteratorError4 = true;
@@ -2644,22 +2660,47 @@
 	          }
 	        }
 	      }
+	
+	      this.eventUsers = newArr;
+	      this.handleRecommendation();
 	    }
 	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	    key: 'renderRecommendations',
+	    value: function renderRecommendations(recommendations) {
+	      var _this2 = this;
+	
+	      this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
+	      this.recomParent.classList.remove('hidden');
+	
+	      if (recommendations.length === 0) {
+	        this.recomContainer.innerHTML = 'Нет рекомендаций';
+	      } else {
+	        this.recomContainer.innerHTML = '';
+	      }
 	
 	      var _iteratorNormalCompletion5 = true;
 	      var _didIteratorError5 = false;
 	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator5 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var cancelBtn = _step5.value;
+	        var _loop = function _loop() {
+	          var recom = _step5.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
+	          var recomMarkup = (0, _getRecomendationTag2.default)(recom, false);
+	          var recomNode = (0, _helpers.getNodeFromMarkup)(recomMarkup);
+	
+	          recomNode.addEventListener('click', function (event) {
+	            var recomContent = recomNode.querySelector('.recommendation-tag__content');
+	            var recomContentChildsIsTarget = (0, _helpers.checkEventTarget)(event, recomContent);
+	            if (event.target === recomContent || recomContentChildsIsTarget) {
+	              _this2.recommendationTagClickHandler(recomNode);
+	            }
+	          });
+	          _this2.recomContainer.appendChild(recomNode);
+	        };
+	
+	        for (var _iterator5 = recommendations[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          _loop();
 	        }
 	      } catch (err) {
 	        _didIteratorError5 = true;
@@ -2672,6 +2713,37 @@
 	        } finally {
 	          if (_didIteratorError5) {
 	            throw _iteratorError5;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	
+	      var _iteratorNormalCompletion6 = true;
+	      var _didIteratorError6 = false;
+	      var _iteratorError6 = undefined;
+	
+	      try {
+	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	          var cancelBtn = _step6.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
+	        }
+	      } catch (err) {
+	        _didIteratorError6 = true;
+	        _iteratorError6 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	            _iterator6.return();
+	          }
+	        } finally {
+	          if (_didIteratorError6) {
+	            throw _iteratorError6;
 	          }
 	        }
 	      }
@@ -2690,27 +2762,27 @@
 	  }, {
 	    key: 'clearHandlers',
 	    value: function clearHandlers() {
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
 	
 	      try {
-	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var cancelBtn = _step6.value;
+	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var cancelBtn = _step7.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
-	        _didIteratorError6 = true;
-	        _iteratorError6 = err;
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
-	            _iterator6.return();
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
 	          }
 	        } finally {
-	          if (_didIteratorError6) {
-	            throw _iteratorError6;
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
 	          }
 	        }
 	      }
@@ -2739,21 +2811,21 @@
 	        throw new Error('Нельзя редактировать события ушедших дней');
 	      }
 	
-	      var _iteratorNormalCompletion7 = true;
-	      var _didIteratorError7 = false;
-	      var _iteratorError7 = undefined;
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
 	
 	      try {
-	        for (var _iterator7 = this.eventUsers[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	          var eventUser = _step7.value;
+	        for (var _iterator8 = this.eventUsers[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var eventUser = _step8.value;
 	          //
-	          var _iteratorNormalCompletion9 = true;
-	          var _didIteratorError9 = false;
-	          var _iteratorError9 = undefined;
+	          var _iteratorNormalCompletion10 = true;
+	          var _didIteratorError10 = false;
+	          var _iteratorError10 = undefined;
 	
 	          try {
-	            for (var _iterator9 = this.users[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	              var user = _step9.value;
+	            for (var _iterator10 = this.users[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+	              var user = _step10.value;
 	
 	              if (eventUser.id === user.id) {
 	                person = {
@@ -2765,51 +2837,18 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError9 = true;
-	            _iteratorError9 = err;
+	            _didIteratorError10 = true;
+	            _iteratorError10 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion9 && _iterator9.return) {
-	                _iterator9.return();
+	              if (!_iteratorNormalCompletion10 && _iterator10.return) {
+	                _iterator10.return();
 	              }
 	            } finally {
-	              if (_didIteratorError9) {
-	                throw _iteratorError9;
+	              if (_didIteratorError10) {
+	                throw _iteratorError10;
 	              }
 	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError7 = true;
-	        _iteratorError7 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
-	            _iterator7.return();
-	          }
-	        } finally {
-	          if (_didIteratorError7) {
-	            throw _iteratorError7;
-	          }
-	        }
-	      }
-	
-	      if (this.members.length === 0) {
-	        throw new Error('Выберите участников события');
-	      }
-	
-	      // Удалить редактируемое событие из списка событий
-	      var newEventsArr = [];
-	      var _iteratorNormalCompletion8 = true;
-	      var _didIteratorError8 = false;
-	      var _iteratorError8 = undefined;
-	
-	      try {
-	        for (var _iterator8 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	          var event = _step8.value;
-	
-	          if (event.id !== this.currentId) {
-	            newEventsArr.push(event);
 	          }
 	        }
 	      } catch (err) {
@@ -2823,6 +2862,39 @@
 	        } finally {
 	          if (_didIteratorError8) {
 	            throw _iteratorError8;
+	          }
+	        }
+	      }
+	
+	      if (this.members.length === 0) {
+	        throw new Error('Выберите участников события');
+	      }
+	
+	      // Удалить редактируемое событие из списка событий
+	      var newEventsArr = [];
+	      var _iteratorNormalCompletion9 = true;
+	      var _didIteratorError9 = false;
+	      var _iteratorError9 = undefined;
+	
+	      try {
+	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	          var event = _step9.value;
+	
+	          if (event.id !== this.currentId) {
+	            newEventsArr.push(event);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError9 = true;
+	        _iteratorError9 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion9 && _iterator9.return) {
+	            _iterator9.return();
+	          }
+	        } finally {
+	          if (_didIteratorError9) {
+	            throw _iteratorError9;
 	          }
 	        }
 	      }
@@ -2894,6 +2966,672 @@
 
 /***/ }),
 /* 21 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+	
+	__webpack_require__(22);
+	
+	var _queries = __webpack_require__(23);
+	
+	var _grapnhqlRequest = __webpack_require__(26);
+	
+	var _grapnhqlRequest2 = _interopRequireDefault(_grapnhqlRequest);
+	
+	var _helpers = __webpack_require__(11);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	
+	var ApiService = function () {
+	  function ApiService() {
+	    _classCallCheck(this, ApiService);
+	  }
+	
+	  _createClass(ApiService, [{
+	    key: 'getRooms',
+	    value: function getRooms() {
+	      return (0, _grapnhqlRequest2.default)(_queries.query.rooms);
+	    }
+	  }, {
+	    key: 'getEvents',
+	    value: function getEvents() {
+	      return (0, _grapnhqlRequest2.default)(_queries.query.events);
+	    }
+	  }, {
+	    key: 'getUsers',
+	    value: function getUsers() {
+	      return (0, _grapnhqlRequest2.default)(_queries.query.users);
+	    }
+	  }, {
+	    key: 'getAll',
+	    value: function getAll() {
+	      var _this = this;
+	
+	      var responseData = {};
+	      var getAllRequest = new Promise(function (resolve, reject) {
+	        resolve(_this.getRooms());
+	      });
+	      return getAllRequest.then(function (res) {
+	        responseData.rooms = res.data.rooms;
+	        return _this.getEvents();
+	      }).then(function (res) {
+	        /**
+	         * @typedef {Object} EventsSortedByDate
+	         * @property {Event[]} timestamp Встречи отсортированные по дате.
+	         */
+	        var eventsSortedByDate = {};
+	        var _iteratorNormalCompletion = true;
+	        var _didIteratorError = false;
+	        var _iteratorError = undefined;
+	
+	        try {
+	          for (var _iterator = res.data.events[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	            var event = _step.value;
+	
+	            var dateStart = new Date(event.dateStart);
+	            var dateStartDay = (0, _helpers.getDateValue)(dateStart).day;
+	
+	            if (!eventsSortedByDate.hasOwnProperty(dateStartDay)) {
+	              eventsSortedByDate[dateStartDay] = [event];
+	            } else {
+	              eventsSortedByDate[dateStartDay].push(event);
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError = true;
+	          _iteratorError = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion && _iterator.return) {
+	              _iterator.return();
+	            }
+	          } finally {
+	            if (_didIteratorError) {
+	              throw _iteratorError;
+	            }
+	          }
+	        }
+	
+	        responseData.events = eventsSortedByDate;
+	
+	        // console.log(eventsSortedByDate);
+	        return _this.getUsers();
+	      }).then(function (res) {
+	        responseData.users = res.data.users;
+	        return responseData;
+	      }).catch(function (error) {
+	        throw new Error('Rejected: ' + error);
+	      });
+	    }
+	  }, {
+	    key: 'createEvent',
+	    value: function createEvent(eventInput, usersIds, roomId) {
+	      return (0, _grapnhqlRequest2.default)(_queries.mutation.createEvent(eventInput, usersIds, roomId));
+	    }
+	  }]);
+	
+	  return ApiService;
+	}();
+	
+	exports.default = new ApiService();
+
+/***/ }),
+/* 22 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	(function (self) {
+	  'use strict';
+	
+	  if (self.fetch) {
+	    return;
+	  }
+	
+	  var support = {
+	    searchParams: 'URLSearchParams' in self,
+	    iterable: 'Symbol' in self && 'iterator' in Symbol,
+	    blob: 'FileReader' in self && 'Blob' in self && function () {
+	      try {
+	        new Blob();
+	        return true;
+	      } catch (e) {
+	        return false;
+	      }
+	    }(),
+	    formData: 'FormData' in self,
+	    arrayBuffer: 'ArrayBuffer' in self
+	  };
+	
+	  if (support.arrayBuffer) {
+	    var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
+	
+	    var isDataView = function isDataView(obj) {
+	      return obj && DataView.prototype.isPrototypeOf(obj);
+	    };
+	
+	    var isArrayBufferView = ArrayBuffer.isView || function (obj) {
+	      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
+	    };
+	  }
+	
+	  function normalizeName(name) {
+	    if (typeof name !== 'string') {
+	      name = String(name);
+	    }
+	    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
+	      throw new TypeError('Invalid character in header field name');
+	    }
+	    return name.toLowerCase();
+	  }
+	
+	  function normalizeValue(value) {
+	    if (typeof value !== 'string') {
+	      value = String(value);
+	    }
+	    return value;
+	  }
+	
+	  // Build a destructive iterator for the value list
+	  function iteratorFor(items) {
+	    var iterator = {
+	      next: function next() {
+	        var value = items.shift();
+	        return { done: value === undefined, value: value };
+	      }
+	    };
+	
+	    if (support.iterable) {
+	      iterator[Symbol.iterator] = function () {
+	        return iterator;
+	      };
+	    }
+	
+	    return iterator;
+	  }
+	
+	  function Headers(headers) {
+	    this.map = {};
+	
+	    if (headers instanceof Headers) {
+	      headers.forEach(function (value, name) {
+	        this.append(name, value);
+	      }, this);
+	    } else if (Array.isArray(headers)) {
+	      headers.forEach(function (header) {
+	        this.append(header[0], header[1]);
+	      }, this);
+	    } else if (headers) {
+	      Object.getOwnPropertyNames(headers).forEach(function (name) {
+	        this.append(name, headers[name]);
+	      }, this);
+	    }
+	  }
+	
+	  Headers.prototype.append = function (name, value) {
+	    name = normalizeName(name);
+	    value = normalizeValue(value);
+	    var oldValue = this.map[name];
+	    this.map[name] = oldValue ? oldValue + ',' + value : value;
+	  };
+	
+	  Headers.prototype['delete'] = function (name) {
+	    delete this.map[normalizeName(name)];
+	  };
+	
+	  Headers.prototype.get = function (name) {
+	    name = normalizeName(name);
+	    return this.has(name) ? this.map[name] : null;
+	  };
+	
+	  Headers.prototype.has = function (name) {
+	    return this.map.hasOwnProperty(normalizeName(name));
+	  };
+	
+	  Headers.prototype.set = function (name, value) {
+	    this.map[normalizeName(name)] = normalizeValue(value);
+	  };
+	
+	  Headers.prototype.forEach = function (callback, thisArg) {
+	    for (var name in this.map) {
+	      if (this.map.hasOwnProperty(name)) {
+	        callback.call(thisArg, this.map[name], name, this);
+	      }
+	    }
+	  };
+	
+	  Headers.prototype.keys = function () {
+	    var items = [];
+	    this.forEach(function (value, name) {
+	      items.push(name);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  Headers.prototype.values = function () {
+	    var items = [];
+	    this.forEach(function (value) {
+	      items.push(value);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  Headers.prototype.entries = function () {
+	    var items = [];
+	    this.forEach(function (value, name) {
+	      items.push([name, value]);
+	    });
+	    return iteratorFor(items);
+	  };
+	
+	  if (support.iterable) {
+	    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
+	  }
+	
+	  function consumed(body) {
+	    if (body.bodyUsed) {
+	      return Promise.reject(new TypeError('Already read'));
+	    }
+	    body.bodyUsed = true;
+	  }
+	
+	  function fileReaderReady(reader) {
+	    return new Promise(function (resolve, reject) {
+	      reader.onload = function () {
+	        resolve(reader.result);
+	      };
+	      reader.onerror = function () {
+	        reject(reader.error);
+	      };
+	    });
+	  }
+	
+	  function readBlobAsArrayBuffer(blob) {
+	    var reader = new FileReader();
+	    var promise = fileReaderReady(reader);
+	    reader.readAsArrayBuffer(blob);
+	    return promise;
+	  }
+	
+	  function readBlobAsText(blob) {
+	    var reader = new FileReader();
+	    var promise = fileReaderReady(reader);
+	    reader.readAsText(blob);
+	    return promise;
+	  }
+	
+	  function readArrayBufferAsText(buf) {
+	    var view = new Uint8Array(buf);
+	    var chars = new Array(view.length);
+	
+	    for (var i = 0; i < view.length; i++) {
+	      chars[i] = String.fromCharCode(view[i]);
+	    }
+	    return chars.join('');
+	  }
+	
+	  function bufferClone(buf) {
+	    if (buf.slice) {
+	      return buf.slice(0);
+	    } else {
+	      var view = new Uint8Array(buf.byteLength);
+	      view.set(new Uint8Array(buf));
+	      return view.buffer;
+	    }
+	  }
+	
+	  function Body() {
+	    this.bodyUsed = false;
+	
+	    this._initBody = function (body) {
+	      this._bodyInit = body;
+	      if (!body) {
+	        this._bodyText = '';
+	      } else if (typeof body === 'string') {
+	        this._bodyText = body;
+	      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
+	        this._bodyBlob = body;
+	      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
+	        this._bodyFormData = body;
+	      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+	        this._bodyText = body.toString();
+	      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
+	        this._bodyArrayBuffer = bufferClone(body.buffer);
+	        // IE 10-11 can't handle a DataView body.
+	        this._bodyInit = new Blob([this._bodyArrayBuffer]);
+	      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
+	        this._bodyArrayBuffer = bufferClone(body);
+	      } else {
+	        throw new Error('unsupported BodyInit type');
+	      }
+	
+	      if (!this.headers.get('content-type')) {
+	        if (typeof body === 'string') {
+	          this.headers.set('content-type', 'text/plain;charset=UTF-8');
+	        } else if (this._bodyBlob && this._bodyBlob.type) {
+	          this.headers.set('content-type', this._bodyBlob.type);
+	        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
+	          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
+	        }
+	      }
+	    };
+	
+	    if (support.blob) {
+	      this.blob = function () {
+	        var rejected = consumed(this);
+	        if (rejected) {
+	          return rejected;
+	        }
+	
+	        if (this._bodyBlob) {
+	          return Promise.resolve(this._bodyBlob);
+	        } else if (this._bodyArrayBuffer) {
+	          return Promise.resolve(new Blob([this._bodyArrayBuffer]));
+	        } else if (this._bodyFormData) {
+	          throw new Error('could not read FormData body as blob');
+	        } else {
+	          return Promise.resolve(new Blob([this._bodyText]));
+	        }
+	      };
+	
+	      this.arrayBuffer = function () {
+	        if (this._bodyArrayBuffer) {
+	          return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
+	        } else {
+	          return this.blob().then(readBlobAsArrayBuffer);
+	        }
+	      };
+	    }
+	
+	    this.text = function () {
+	      var rejected = consumed(this);
+	      if (rejected) {
+	        return rejected;
+	      }
+	
+	      if (this._bodyBlob) {
+	        return readBlobAsText(this._bodyBlob);
+	      } else if (this._bodyArrayBuffer) {
+	        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
+	      } else if (this._bodyFormData) {
+	        throw new Error('could not read FormData body as text');
+	      } else {
+	        return Promise.resolve(this._bodyText);
+	      }
+	    };
+	
+	    if (support.formData) {
+	      this.formData = function () {
+	        return this.text().then(decode);
+	      };
+	    }
+	
+	    this.json = function () {
+	      return this.text().then(JSON.parse);
+	    };
+	
+	    return this;
+	  }
+	
+	  // HTTP methods whose capitalization should be normalized
+	  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
+	
+	  function normalizeMethod(method) {
+	    var upcased = method.toUpperCase();
+	    return methods.indexOf(upcased) > -1 ? upcased : method;
+	  }
+	
+	  function Request(input, options) {
+	    options = options || {};
+	    var body = options.body;
+	
+	    if (input instanceof Request) {
+	      if (input.bodyUsed) {
+	        throw new TypeError('Already read');
+	      }
+	      this.url = input.url;
+	      this.credentials = input.credentials;
+	      if (!options.headers) {
+	        this.headers = new Headers(input.headers);
+	      }
+	      this.method = input.method;
+	      this.mode = input.mode;
+	      if (!body && input._bodyInit != null) {
+	        body = input._bodyInit;
+	        input.bodyUsed = true;
+	      }
+	    } else {
+	      this.url = String(input);
+	    }
+	
+	    this.credentials = options.credentials || this.credentials || 'omit';
+	    if (options.headers || !this.headers) {
+	      this.headers = new Headers(options.headers);
+	    }
+	    this.method = normalizeMethod(options.method || this.method || 'GET');
+	    this.mode = options.mode || this.mode || null;
+	    this.referrer = null;
+	
+	    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
+	      throw new TypeError('Body not allowed for GET or HEAD requests');
+	    }
+	    this._initBody(body);
+	  }
+	
+	  Request.prototype.clone = function () {
+	    return new Request(this, { body: this._bodyInit });
+	  };
+	
+	  function decode(body) {
+	    var form = new FormData();
+	    body.trim().split('&').forEach(function (bytes) {
+	      if (bytes) {
+	        var split = bytes.split('=');
+	        var name = split.shift().replace(/\+/g, ' ');
+	        var value = split.join('=').replace(/\+/g, ' ');
+	        form.append(decodeURIComponent(name), decodeURIComponent(value));
+	      }
+	    });
+	    return form;
+	  }
+	
+	  function parseHeaders(rawHeaders) {
+	    var headers = new Headers();
+	    rawHeaders.split(/\r?\n/).forEach(function (line) {
+	      var parts = line.split(':');
+	      var key = parts.shift().trim();
+	      if (key) {
+	        var value = parts.join(':').trim();
+	        headers.append(key, value);
+	      }
+	    });
+	    return headers;
+	  }
+	
+	  Body.call(Request.prototype);
+	
+	  function Response(bodyInit, options) {
+	    if (!options) {
+	      options = {};
+	    }
+	
+	    this.type = 'default';
+	    this.status = 'status' in options ? options.status : 200;
+	    this.ok = this.status >= 200 && this.status < 300;
+	    this.statusText = 'statusText' in options ? options.statusText : 'OK';
+	    this.headers = new Headers(options.headers);
+	    this.url = options.url || '';
+	    this._initBody(bodyInit);
+	  }
+	
+	  Body.call(Response.prototype);
+	
+	  Response.prototype.clone = function () {
+	    return new Response(this._bodyInit, {
+	      status: this.status,
+	      statusText: this.statusText,
+	      headers: new Headers(this.headers),
+	      url: this.url
+	    });
+	  };
+	
+	  Response.error = function () {
+	    var response = new Response(null, { status: 0, statusText: '' });
+	    response.type = 'error';
+	    return response;
+	  };
+	
+	  var redirectStatuses = [301, 302, 303, 307, 308];
+	
+	  Response.redirect = function (url, status) {
+	    if (redirectStatuses.indexOf(status) === -1) {
+	      throw new RangeError('Invalid status code');
+	    }
+	
+	    return new Response(null, { status: status, headers: { location: url } });
+	  };
+	
+	  self.Headers = Headers;
+	  self.Request = Request;
+	  self.Response = Response;
+	
+	  self.fetch = function (input, init) {
+	    return new Promise(function (resolve, reject) {
+	      var request = new Request(input, init);
+	      var xhr = new XMLHttpRequest();
+	
+	      xhr.onload = function () {
+	        var options = {
+	          status: xhr.status,
+	          statusText: xhr.statusText,
+	          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
+	        };
+	        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
+	        var body = 'response' in xhr ? xhr.response : xhr.responseText;
+	        resolve(new Response(body, options));
+	      };
+	
+	      xhr.onerror = function () {
+	        reject(new TypeError('Network request failed'));
+	      };
+	
+	      xhr.ontimeout = function () {
+	        reject(new TypeError('Network request failed'));
+	      };
+	
+	      xhr.open(request.method, request.url, true);
+	
+	      if (request.credentials === 'include') {
+	        xhr.withCredentials = true;
+	      }
+	
+	      if ('responseType' in xhr && support.blob) {
+	        xhr.responseType = 'blob';
+	      }
+	
+	      request.headers.forEach(function (value, name) {
+	        xhr.setRequestHeader(name, value);
+	      });
+	
+	      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
+	    });
+	  };
+	  self.fetch.polyfill = true;
+	})(typeof self !== 'undefined' ? self : undefined);
+
+/***/ }),
+/* 23 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.mutation = exports.query = undefined;
+	
+	var _query = __webpack_require__(24);
+	
+	var _query2 = _interopRequireDefault(_query);
+	
+	var _mutation = __webpack_require__(25);
+	
+	var _mutation2 = _interopRequireDefault(_mutation);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	exports.query = _query2.default;
+	exports.mutation = _mutation2.default;
+
+/***/ }),
+/* 24 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {
+	  users: "\n  {\n    users {\n      id,\n      login,\n      homeFloor,\n      avatarUrl\n    }\n  }",
+	  rooms: "\n  {\n    rooms {\n      id,\n      title,\n      capacity,\n      floor\n    }\n  }",
+	  events: "\n  {\n    events {\n      id,\n      title,\n      dateStart,\n      dateEnd,\n      users {\n        id\n      },\n      room {\n        id\n      }\n    }\n  }"
+	};
+
+/***/ }),
+/* 25 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.default = {
+	  createEvent: function createEvent(eventInput, usersIds, roomId) {
+	    return "\n    mutation {\n      createEvent(input: " + eventInput + ", usersIds: " + usersIds + ", roomId: " + roomId + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
+	  }
+	};
+
+/***/ }),
+/* 26 */
+/***/ (function(module, exports) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	var checkStatus = function checkStatus(response) {
+	  if (response.status >= 200 && response.status < 300) {
+	    return response;
+	  } else {
+	    throw new Error(response.status + ': ' + response.statusText);
+	  }
+	};
+	
+	var parseJSON = function parseJSON(response) {
+	  return response.json();
+	};
+	
+	exports.default = function (request) {
+	  return window.fetch('/graphql', {
+	    method: 'POST',
+	    headers: { 'Content-Type': 'application/json' },
+	    body: JSON.stringify({ query: request })
+	  }).then(checkStatus).then(parseJSON);
+	};
+
+/***/ }),
+/* 27 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -4638,7 +5376,7 @@
 	});
 
 /***/ }),
-/* 22 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -4678,7 +5416,7 @@
 	});
 
 /***/ }),
-/* 23 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -4692,7 +5430,7 @@
 	};
 
 /***/ }),
-/* 24 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -4708,7 +5446,7 @@
 	};
 
 /***/ }),
-/* 25 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -4730,7 +5468,7 @@
 	};
 
 /***/ }),
-/* 26 */
+/* 32 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4926,7 +5664,7 @@
 	exports.default = getRecommendation;
 
 /***/ }),
-/* 27 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4938,6 +5676,8 @@
 	var _application = __webpack_require__(1);
 	
 	var _application2 = _interopRequireDefault(_application);
+	
+	var _helpers = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -4983,11 +5723,11 @@
 	    }
 	  }
 	
-	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <div class="recommendation-tag__content">\n              <span class="recommendation-tag__time">\n                ' + time + '\n              </span>\n              <span class="recommendation-tag__room">\n                ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n              </span>\n            </div>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
+	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <div class="recommendation-tag__content">\n              <span class="recommendation-tag__time" \n                data-start-date="' + (0, _helpers.getDateValue)(eventStartDate).minute + '"\n                data-end-date="' + (0, _helpers.getDateValue)(eventEndDate).minute + '">\n                ' + time + '\n              </span>\n              <span class="recommendation-tag__room">\n                ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n              </span>\n            </div>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
 	};
 
 /***/ }),
-/* 28 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4997,15 +5737,15 @@
 	});
 	exports.autocompleteHandler = exports.getAutocompleteMarkup = undefined;
 	
-	var _field = __webpack_require__(25);
+	var _field = __webpack_require__(31);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUser = __webpack_require__(29);
+	var _getUser = __webpack_require__(35);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
-	var _getUserTag = __webpack_require__(30);
+	var _getUserTag = __webpack_require__(36);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
@@ -5183,7 +5923,7 @@
 	exports.autocompleteHandler = autocompleteHandler;
 
 /***/ }),
-/* 29 */
+/* 35 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5197,7 +5937,7 @@
 	};
 
 /***/ }),
-/* 30 */
+/* 36 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5206,7 +5946,7 @@
 	  value: true
 	});
 	
-	var _getUser = __webpack_require__(29);
+	var _getUser = __webpack_require__(35);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
@@ -5243,7 +5983,7 @@
 	};
 
 /***/ }),
-/* 31 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5264,39 +6004,39 @@
 	
 	var _router = __webpack_require__(16);
 	
-	var _flatpickr = __webpack_require__(21);
+	var _flatpickr = __webpack_require__(27);
 	
 	var _flatpickr2 = _interopRequireDefault(_flatpickr);
 	
-	var _ru = __webpack_require__(22);
+	var _ru = __webpack_require__(28);
 	
 	var _helpers = __webpack_require__(11);
 	
-	var _eventFormHeader = __webpack_require__(23);
+	var _eventFormHeader = __webpack_require__(29);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
 	
-	var _eventFormFooter = __webpack_require__(24);
+	var _eventFormFooter = __webpack_require__(30);
 	
 	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
 	
-	var _field = __webpack_require__(25);
+	var _field = __webpack_require__(31);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUserTag = __webpack_require__(30);
+	var _getUserTag = __webpack_require__(36);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
-	var _getRecomendation = __webpack_require__(26);
+	var _getRecomendation = __webpack_require__(32);
 	
 	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
 	
-	var _getRecomendationTag = __webpack_require__(27);
+	var _getRecomendationTag = __webpack_require__(33);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
-	var _fieldAutocomplete = __webpack_require__(28);
+	var _fieldAutocomplete = __webpack_require__(34);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -5452,6 +6192,10 @@
 	  }, {
 	    key: 'recommendationTagClickHandler',
 	    value: function recommendationTagClickHandler(recommendationTag) {
+	      var recommendationTagTime = recommendationTag.querySelector('.recommendation-tag__time');
+	      var startDate = recommendationTagTime.getAttribute('data-start-date');
+	      var endDate = recommendationTagTime.getAttribute('data-end-date');
+	
 	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
 	      recommendationTag.classList.add('recommendation-tag--selected');
 	
@@ -5485,6 +6229,9 @@
 	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
 	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 	      this.recomContainer.appendChild(recommendationTag);
+	
+	      this.eventTimeStartDatepickr.setDate(new Date(+startDate));
+	      this.eventTimeEndDatepickr.setDate(new Date(+endDate));
 	    }
 	  }, {
 	    key: 'recommendationTagDeleteBtnHandler',
@@ -5527,6 +6274,7 @@
 	      if (usersId.indexOf(event.detail.userId) === -1) {
 	        this.eventUsers.push({ id: event.detail.userId });
 	      }
+	      this.handleRecommendation();
 	    }
 	  }, {
 	    key: 'removeUserHandler',
@@ -5561,6 +6309,7 @@
 	      }
 	
 	      this.eventUsers = newArr;
+	      this.handleRecommendation();
 	    }
 	  }, {
 	    key: 'renderRecommendations',
@@ -5918,667 +6667,6 @@
 	}(_abstractView2.default);
 	
 	exports.default = EventNewView;
-
-/***/ }),
-/* 32 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-	
-	__webpack_require__(33);
-	
-	var _queries = __webpack_require__(34);
-	
-	var _grapnhqlRequest = __webpack_require__(37);
-	
-	var _grapnhqlRequest2 = _interopRequireDefault(_grapnhqlRequest);
-	
-	var _helpers = __webpack_require__(11);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-	
-	var ApiService = function () {
-	  function ApiService() {
-	    _classCallCheck(this, ApiService);
-	  }
-	
-	  _createClass(ApiService, [{
-	    key: 'getRooms',
-	    value: function getRooms() {
-	      return (0, _grapnhqlRequest2.default)(_queries.query.rooms);
-	    }
-	  }, {
-	    key: 'getEvents',
-	    value: function getEvents() {
-	      return (0, _grapnhqlRequest2.default)(_queries.query.events);
-	    }
-	  }, {
-	    key: 'getUsers',
-	    value: function getUsers() {
-	      return (0, _grapnhqlRequest2.default)(_queries.query.users);
-	    }
-	  }, {
-	    key: 'getAll',
-	    value: function getAll() {
-	      var _this = this;
-	
-	      var responseData = {};
-	      var getAllRequest = new Promise(function (resolve, reject) {
-	        resolve(_this.getRooms());
-	      });
-	      return getAllRequest.then(function (res) {
-	        responseData.rooms = res.data.rooms;
-	        return _this.getEvents();
-	      }).then(function (res) {
-	        /**
-	         * @typedef {Object} EventsSortedByDate
-	         * @property {Event[]} timestamp Встречи отсортированные по дате.
-	         */
-	        var eventsSortedByDate = {};
-	        var _iteratorNormalCompletion = true;
-	        var _didIteratorError = false;
-	        var _iteratorError = undefined;
-	
-	        try {
-	          for (var _iterator = res.data.events[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	            var event = _step.value;
-	
-	            var dateStart = new Date(event.dateStart);
-	            var dateStartDay = (0, _helpers.getDateValue)(dateStart).day;
-	
-	            if (!eventsSortedByDate.hasOwnProperty(dateStartDay)) {
-	              eventsSortedByDate[dateStartDay] = [event];
-	            } else {
-	              eventsSortedByDate[dateStartDay].push(event);
-	            }
-	          }
-	        } catch (err) {
-	          _didIteratorError = true;
-	          _iteratorError = err;
-	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion && _iterator.return) {
-	              _iterator.return();
-	            }
-	          } finally {
-	            if (_didIteratorError) {
-	              throw _iteratorError;
-	            }
-	          }
-	        }
-	
-	        responseData.events = eventsSortedByDate;
-	
-	        // console.log(eventsSortedByDate);
-	        return _this.getUsers();
-	      }).then(function (res) {
-	        responseData.users = res.data.users;
-	        return responseData;
-	      }).catch(function (error) {
-	        throw new Error('Rejected: ' + error);
-	      });
-	    }
-	  }]);
-	
-	  return ApiService;
-	}();
-	
-	exports.default = new ApiService();
-
-/***/ }),
-/* 33 */
-/***/ (function(module, exports) {
-
-	'use strict';
-	
-	(function (self) {
-	  'use strict';
-	
-	  if (self.fetch) {
-	    return;
-	  }
-	
-	  var support = {
-	    searchParams: 'URLSearchParams' in self,
-	    iterable: 'Symbol' in self && 'iterator' in Symbol,
-	    blob: 'FileReader' in self && 'Blob' in self && function () {
-	      try {
-	        new Blob();
-	        return true;
-	      } catch (e) {
-	        return false;
-	      }
-	    }(),
-	    formData: 'FormData' in self,
-	    arrayBuffer: 'ArrayBuffer' in self
-	  };
-	
-	  if (support.arrayBuffer) {
-	    var viewClasses = ['[object Int8Array]', '[object Uint8Array]', '[object Uint8ClampedArray]', '[object Int16Array]', '[object Uint16Array]', '[object Int32Array]', '[object Uint32Array]', '[object Float32Array]', '[object Float64Array]'];
-	
-	    var isDataView = function isDataView(obj) {
-	      return obj && DataView.prototype.isPrototypeOf(obj);
-	    };
-	
-	    var isArrayBufferView = ArrayBuffer.isView || function (obj) {
-	      return obj && viewClasses.indexOf(Object.prototype.toString.call(obj)) > -1;
-	    };
-	  }
-	
-	  function normalizeName(name) {
-	    if (typeof name !== 'string') {
-	      name = String(name);
-	    }
-	    if (/[^a-z0-9\-#$%&'*+.\^_`|~]/i.test(name)) {
-	      throw new TypeError('Invalid character in header field name');
-	    }
-	    return name.toLowerCase();
-	  }
-	
-	  function normalizeValue(value) {
-	    if (typeof value !== 'string') {
-	      value = String(value);
-	    }
-	    return value;
-	  }
-	
-	  // Build a destructive iterator for the value list
-	  function iteratorFor(items) {
-	    var iterator = {
-	      next: function next() {
-	        var value = items.shift();
-	        return { done: value === undefined, value: value };
-	      }
-	    };
-	
-	    if (support.iterable) {
-	      iterator[Symbol.iterator] = function () {
-	        return iterator;
-	      };
-	    }
-	
-	    return iterator;
-	  }
-	
-	  function Headers(headers) {
-	    this.map = {};
-	
-	    if (headers instanceof Headers) {
-	      headers.forEach(function (value, name) {
-	        this.append(name, value);
-	      }, this);
-	    } else if (Array.isArray(headers)) {
-	      headers.forEach(function (header) {
-	        this.append(header[0], header[1]);
-	      }, this);
-	    } else if (headers) {
-	      Object.getOwnPropertyNames(headers).forEach(function (name) {
-	        this.append(name, headers[name]);
-	      }, this);
-	    }
-	  }
-	
-	  Headers.prototype.append = function (name, value) {
-	    name = normalizeName(name);
-	    value = normalizeValue(value);
-	    var oldValue = this.map[name];
-	    this.map[name] = oldValue ? oldValue + ',' + value : value;
-	  };
-	
-	  Headers.prototype['delete'] = function (name) {
-	    delete this.map[normalizeName(name)];
-	  };
-	
-	  Headers.prototype.get = function (name) {
-	    name = normalizeName(name);
-	    return this.has(name) ? this.map[name] : null;
-	  };
-	
-	  Headers.prototype.has = function (name) {
-	    return this.map.hasOwnProperty(normalizeName(name));
-	  };
-	
-	  Headers.prototype.set = function (name, value) {
-	    this.map[normalizeName(name)] = normalizeValue(value);
-	  };
-	
-	  Headers.prototype.forEach = function (callback, thisArg) {
-	    for (var name in this.map) {
-	      if (this.map.hasOwnProperty(name)) {
-	        callback.call(thisArg, this.map[name], name, this);
-	      }
-	    }
-	  };
-	
-	  Headers.prototype.keys = function () {
-	    var items = [];
-	    this.forEach(function (value, name) {
-	      items.push(name);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  Headers.prototype.values = function () {
-	    var items = [];
-	    this.forEach(function (value) {
-	      items.push(value);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  Headers.prototype.entries = function () {
-	    var items = [];
-	    this.forEach(function (value, name) {
-	      items.push([name, value]);
-	    });
-	    return iteratorFor(items);
-	  };
-	
-	  if (support.iterable) {
-	    Headers.prototype[Symbol.iterator] = Headers.prototype.entries;
-	  }
-	
-	  function consumed(body) {
-	    if (body.bodyUsed) {
-	      return Promise.reject(new TypeError('Already read'));
-	    }
-	    body.bodyUsed = true;
-	  }
-	
-	  function fileReaderReady(reader) {
-	    return new Promise(function (resolve, reject) {
-	      reader.onload = function () {
-	        resolve(reader.result);
-	      };
-	      reader.onerror = function () {
-	        reject(reader.error);
-	      };
-	    });
-	  }
-	
-	  function readBlobAsArrayBuffer(blob) {
-	    var reader = new FileReader();
-	    var promise = fileReaderReady(reader);
-	    reader.readAsArrayBuffer(blob);
-	    return promise;
-	  }
-	
-	  function readBlobAsText(blob) {
-	    var reader = new FileReader();
-	    var promise = fileReaderReady(reader);
-	    reader.readAsText(blob);
-	    return promise;
-	  }
-	
-	  function readArrayBufferAsText(buf) {
-	    var view = new Uint8Array(buf);
-	    var chars = new Array(view.length);
-	
-	    for (var i = 0; i < view.length; i++) {
-	      chars[i] = String.fromCharCode(view[i]);
-	    }
-	    return chars.join('');
-	  }
-	
-	  function bufferClone(buf) {
-	    if (buf.slice) {
-	      return buf.slice(0);
-	    } else {
-	      var view = new Uint8Array(buf.byteLength);
-	      view.set(new Uint8Array(buf));
-	      return view.buffer;
-	    }
-	  }
-	
-	  function Body() {
-	    this.bodyUsed = false;
-	
-	    this._initBody = function (body) {
-	      this._bodyInit = body;
-	      if (!body) {
-	        this._bodyText = '';
-	      } else if (typeof body === 'string') {
-	        this._bodyText = body;
-	      } else if (support.blob && Blob.prototype.isPrototypeOf(body)) {
-	        this._bodyBlob = body;
-	      } else if (support.formData && FormData.prototype.isPrototypeOf(body)) {
-	        this._bodyFormData = body;
-	      } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-	        this._bodyText = body.toString();
-	      } else if (support.arrayBuffer && support.blob && isDataView(body)) {
-	        this._bodyArrayBuffer = bufferClone(body.buffer);
-	        // IE 10-11 can't handle a DataView body.
-	        this._bodyInit = new Blob([this._bodyArrayBuffer]);
-	      } else if (support.arrayBuffer && (ArrayBuffer.prototype.isPrototypeOf(body) || isArrayBufferView(body))) {
-	        this._bodyArrayBuffer = bufferClone(body);
-	      } else {
-	        throw new Error('unsupported BodyInit type');
-	      }
-	
-	      if (!this.headers.get('content-type')) {
-	        if (typeof body === 'string') {
-	          this.headers.set('content-type', 'text/plain;charset=UTF-8');
-	        } else if (this._bodyBlob && this._bodyBlob.type) {
-	          this.headers.set('content-type', this._bodyBlob.type);
-	        } else if (support.searchParams && URLSearchParams.prototype.isPrototypeOf(body)) {
-	          this.headers.set('content-type', 'application/x-www-form-urlencoded;charset=UTF-8');
-	        }
-	      }
-	    };
-	
-	    if (support.blob) {
-	      this.blob = function () {
-	        var rejected = consumed(this);
-	        if (rejected) {
-	          return rejected;
-	        }
-	
-	        if (this._bodyBlob) {
-	          return Promise.resolve(this._bodyBlob);
-	        } else if (this._bodyArrayBuffer) {
-	          return Promise.resolve(new Blob([this._bodyArrayBuffer]));
-	        } else if (this._bodyFormData) {
-	          throw new Error('could not read FormData body as blob');
-	        } else {
-	          return Promise.resolve(new Blob([this._bodyText]));
-	        }
-	      };
-	
-	      this.arrayBuffer = function () {
-	        if (this._bodyArrayBuffer) {
-	          return consumed(this) || Promise.resolve(this._bodyArrayBuffer);
-	        } else {
-	          return this.blob().then(readBlobAsArrayBuffer);
-	        }
-	      };
-	    }
-	
-	    this.text = function () {
-	      var rejected = consumed(this);
-	      if (rejected) {
-	        return rejected;
-	      }
-	
-	      if (this._bodyBlob) {
-	        return readBlobAsText(this._bodyBlob);
-	      } else if (this._bodyArrayBuffer) {
-	        return Promise.resolve(readArrayBufferAsText(this._bodyArrayBuffer));
-	      } else if (this._bodyFormData) {
-	        throw new Error('could not read FormData body as text');
-	      } else {
-	        return Promise.resolve(this._bodyText);
-	      }
-	    };
-	
-	    if (support.formData) {
-	      this.formData = function () {
-	        return this.text().then(decode);
-	      };
-	    }
-	
-	    this.json = function () {
-	      return this.text().then(JSON.parse);
-	    };
-	
-	    return this;
-	  }
-	
-	  // HTTP methods whose capitalization should be normalized
-	  var methods = ['DELETE', 'GET', 'HEAD', 'OPTIONS', 'POST', 'PUT'];
-	
-	  function normalizeMethod(method) {
-	    var upcased = method.toUpperCase();
-	    return methods.indexOf(upcased) > -1 ? upcased : method;
-	  }
-	
-	  function Request(input, options) {
-	    options = options || {};
-	    var body = options.body;
-	
-	    if (input instanceof Request) {
-	      if (input.bodyUsed) {
-	        throw new TypeError('Already read');
-	      }
-	      this.url = input.url;
-	      this.credentials = input.credentials;
-	      if (!options.headers) {
-	        this.headers = new Headers(input.headers);
-	      }
-	      this.method = input.method;
-	      this.mode = input.mode;
-	      if (!body && input._bodyInit != null) {
-	        body = input._bodyInit;
-	        input.bodyUsed = true;
-	      }
-	    } else {
-	      this.url = String(input);
-	    }
-	
-	    this.credentials = options.credentials || this.credentials || 'omit';
-	    if (options.headers || !this.headers) {
-	      this.headers = new Headers(options.headers);
-	    }
-	    this.method = normalizeMethod(options.method || this.method || 'GET');
-	    this.mode = options.mode || this.mode || null;
-	    this.referrer = null;
-	
-	    if ((this.method === 'GET' || this.method === 'HEAD') && body) {
-	      throw new TypeError('Body not allowed for GET or HEAD requests');
-	    }
-	    this._initBody(body);
-	  }
-	
-	  Request.prototype.clone = function () {
-	    return new Request(this, { body: this._bodyInit });
-	  };
-	
-	  function decode(body) {
-	    var form = new FormData();
-	    body.trim().split('&').forEach(function (bytes) {
-	      if (bytes) {
-	        var split = bytes.split('=');
-	        var name = split.shift().replace(/\+/g, ' ');
-	        var value = split.join('=').replace(/\+/g, ' ');
-	        form.append(decodeURIComponent(name), decodeURIComponent(value));
-	      }
-	    });
-	    return form;
-	  }
-	
-	  function parseHeaders(rawHeaders) {
-	    var headers = new Headers();
-	    rawHeaders.split(/\r?\n/).forEach(function (line) {
-	      var parts = line.split(':');
-	      var key = parts.shift().trim();
-	      if (key) {
-	        var value = parts.join(':').trim();
-	        headers.append(key, value);
-	      }
-	    });
-	    return headers;
-	  }
-	
-	  Body.call(Request.prototype);
-	
-	  function Response(bodyInit, options) {
-	    if (!options) {
-	      options = {};
-	    }
-	
-	    this.type = 'default';
-	    this.status = 'status' in options ? options.status : 200;
-	    this.ok = this.status >= 200 && this.status < 300;
-	    this.statusText = 'statusText' in options ? options.statusText : 'OK';
-	    this.headers = new Headers(options.headers);
-	    this.url = options.url || '';
-	    this._initBody(bodyInit);
-	  }
-	
-	  Body.call(Response.prototype);
-	
-	  Response.prototype.clone = function () {
-	    return new Response(this._bodyInit, {
-	      status: this.status,
-	      statusText: this.statusText,
-	      headers: new Headers(this.headers),
-	      url: this.url
-	    });
-	  };
-	
-	  Response.error = function () {
-	    var response = new Response(null, { status: 0, statusText: '' });
-	    response.type = 'error';
-	    return response;
-	  };
-	
-	  var redirectStatuses = [301, 302, 303, 307, 308];
-	
-	  Response.redirect = function (url, status) {
-	    if (redirectStatuses.indexOf(status) === -1) {
-	      throw new RangeError('Invalid status code');
-	    }
-	
-	    return new Response(null, { status: status, headers: { location: url } });
-	  };
-	
-	  self.Headers = Headers;
-	  self.Request = Request;
-	  self.Response = Response;
-	
-	  self.fetch = function (input, init) {
-	    return new Promise(function (resolve, reject) {
-	      var request = new Request(input, init);
-	      var xhr = new XMLHttpRequest();
-	
-	      xhr.onload = function () {
-	        var options = {
-	          status: xhr.status,
-	          statusText: xhr.statusText,
-	          headers: parseHeaders(xhr.getAllResponseHeaders() || '')
-	        };
-	        options.url = 'responseURL' in xhr ? xhr.responseURL : options.headers.get('X-Request-URL');
-	        var body = 'response' in xhr ? xhr.response : xhr.responseText;
-	        resolve(new Response(body, options));
-	      };
-	
-	      xhr.onerror = function () {
-	        reject(new TypeError('Network request failed'));
-	      };
-	
-	      xhr.ontimeout = function () {
-	        reject(new TypeError('Network request failed'));
-	      };
-	
-	      xhr.open(request.method, request.url, true);
-	
-	      if (request.credentials === 'include') {
-	        xhr.withCredentials = true;
-	      }
-	
-	      if ('responseType' in xhr && support.blob) {
-	        xhr.responseType = 'blob';
-	      }
-	
-	      request.headers.forEach(function (value, name) {
-	        xhr.setRequestHeader(name, value);
-	      });
-	
-	      xhr.send(typeof request._bodyInit === 'undefined' ? null : request._bodyInit);
-	    });
-	  };
-	  self.fetch.polyfill = true;
-	})(typeof self !== 'undefined' ? self : undefined);
-
-/***/ }),
-/* 34 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.mutation = exports.query = undefined;
-	
-	var _query = __webpack_require__(35);
-	
-	var _query2 = _interopRequireDefault(_query);
-	
-	var _mutation = __webpack_require__(36);
-	
-	var _mutation2 = _interopRequireDefault(_mutation);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	exports.query = _query2.default;
-	exports.mutation = _mutation2.default;
-
-/***/ }),
-/* 35 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = {
-	  users: "\n  {\n    users {\n      id,\n      login,\n      homeFloor,\n      avatarUrl\n    }\n  }",
-	  rooms: "\n  {\n    rooms {\n      id,\n      title,\n      capacity,\n      floor\n    }\n  }",
-	  events: "\n  {\n    events {\n      id,\n      title,\n      dateStart,\n      dateEnd,\n      users {\n        id\n      },\n      room {\n        id\n      }\n    }\n  }"
-	};
-
-/***/ }),
-/* 36 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.default = {
-	  createEvent: function createEvent(eventInput, usersIds, roomId) {
-	    return "\n    mutation {\n      createEvent(input: " + eventInput + ", usersIds: " + usersIds + ", roomId: " + roomId + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
-	  }
-	};
-
-/***/ }),
-/* 37 */
-/***/ (function(module, exports) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	var checkStatus = function checkStatus(response) {
-	  if (response.status >= 200 && response.status < 300) {
-	    return response;
-	  } else {
-	    throw new Error(response.status + ': ' + response.statusText);
-	  }
-	};
-	
-	var parseJSON = function parseJSON(response) {
-	  return response.json();
-	};
-	
-	exports.default = function (request) {
-	  return window.fetch('/graphql', {
-	    method: 'POST',
-	    headers: { 'Content-Type': 'application/json' },
-	    body: JSON.stringify({ query: request })
-	  }).then(checkStatus).then(parseJSON);
-	};
 
 /***/ }),
 /* 38 */

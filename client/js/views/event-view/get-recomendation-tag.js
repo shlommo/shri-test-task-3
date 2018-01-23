@@ -1,4 +1,5 @@
 import Application from './../../application';
+import {getDateValue} from '../../tools/helpers';
 
 export default (inputData, isSelected) => {
   const appData = Application.data;
@@ -23,7 +24,9 @@ export default (inputData, isSelected) => {
 
   return `<div class="recommendation-tag${(isSelected) ? ' recommendation-tag--selected' : ''}" data-room-id="${roomId}">
             <div class="recommendation-tag__content">
-              <span class="recommendation-tag__time">
+              <span class="recommendation-tag__time" 
+                data-start-date="${getDateValue(eventStartDate).minute}"
+                data-end-date="${getDateValue(eventEndDate).minute}">
                 ${time}
               </span>
               <span class="recommendation-tag__room">

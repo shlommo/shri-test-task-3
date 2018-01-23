@@ -1,6 +1,7 @@
 import AbstractView from './../abstract-view';
 import Application from './../../application';
 import {router} from './../../router';
+import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import {getDateValue, getNodeFromMarkup, checkEventTarget} from '../../tools/helpers';
@@ -11,6 +12,7 @@ import field from './field';
 import getRecommendation from './get-recomendation';
 import getRecommendationTagMarkup from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
+
 
 class EventNewView extends AbstractView {
 
@@ -144,11 +146,60 @@ class EventNewView extends AbstractView {
   }
 
   createEventHandler(event) {
-    console.log(this);
-    alert('click');
+    const eventTitle = this.element.querySelector('#eventTitle').value;
+    const userTagArr = this.element.querySelectorAll('.user-tag');
+    const recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
+    const roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+    const dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
+    const dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
+    const now = new Date();
+    const currentMinute = getDateValue(now).minute;
+
+    let users = [];
+    for (let userTag of Array.from(userTagArr)) {
+      let userId = userTag.getAttribute('data-user-id');
+      users.push(userId);
+    }
+
+    if (eventTitle.length === 0) {
+      throw new Error('Введите название мероприятия');
+      return false;
+    }
+
+    if (users.length === 0) {
+      throw new Error('Добавьте участников мероприятия');
+      return false;
+    }
+
+    if (roomId === null) {
+      throw new Error('Выберите комнату из рекомменадций');
+      return false;
+    }
+
+    if (currentMinute > getDateValue(dateStart).minute) {
+      throw new Error('Время вышло. Пожалуйста, обновите время');
+      return false;
+    }
+    const eventInput = `{
+      title: "${eventTitle}",
+      dateStart: "${dateStart.toISOString()}",
+      dateEnd: "${dateEnd.toISOString()}"
+    }`;
+    const usersInput = `"${users}"`;
+
+    ApiService.createEvent(eventInput, usersInput, roomId)
+      .then(() => {
+          location.reload();
+          router.navigate();
+        }
+      );
   }
 
   recommendationTagClickHandler(recommendationTag) {
+    const recommendationTagTime = recommendationTag.querySelector('.recommendation-tag__time');
+    const startDate = recommendationTagTime.getAttribute('data-start-date');
+    const endDate = recommendationTagTime.getAttribute('data-end-date');
+
     this.recomParentTitle.innerHTML = 'Ваша переговорка';
     recommendationTag.classList.add('recommendation-tag--selected');
 
@@ -163,6 +214,8 @@ class EventNewView extends AbstractView {
     this.recomContainer.appendChild(recommendationTag);
 
     this.createBtn.classList.remove('button--disabled');
+    this.eventTimeStartDatepickr.setDate(new Date(+startDate));
+    this.eventTimeEndDatepickr.setDate(new Date(+endDate));
     this.createBtn.addEventListener('click', this.createEventHandler)
   }
 
@@ -183,6 +236,7 @@ class EventNewView extends AbstractView {
     if (usersId.indexOf(event.detail.userId) === -1) {
       this.eventUsers.push({id: event.detail.userId});
     }
+    this.handleRecommendation();
   }
 
   removeUserHandler(event) { //Срабатывает при удалении участника события
@@ -193,6 +247,7 @@ class EventNewView extends AbstractView {
       }
     }
     this.eventUsers = newArr;
+    this.handleRecommendation();
   }
 
   renderRecommendations(recommendations) {

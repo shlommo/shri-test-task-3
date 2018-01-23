@@ -24,7 +24,7 @@ const activateRouter = () => {
 
       }
     })
-    .on('*', function () {
+    .on('/', function () {
       Application.showMeetingRooms();
     })
     .resolve();

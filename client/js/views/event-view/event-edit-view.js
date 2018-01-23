@@ -164,6 +164,10 @@ class EventNewView extends AbstractView {
   }
 
   recommendationTagClickHandler(recommendationTag) {
+    const recommendationTagTime = recommendationTag.querySelector('.recommendation-tag__time');
+    const startDate = recommendationTagTime.getAttribute('data-start-date');
+    const endDate = recommendationTagTime.getAttribute('data-end-date');
+
     this.recomParentTitle.innerHTML = 'Ваша переговорка';
     recommendationTag.classList.add('recommendation-tag--selected');
 
@@ -176,6 +180,9 @@ class EventNewView extends AbstractView {
     const deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
     deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
     this.recomContainer.appendChild(recommendationTag);
+
+    this.eventTimeStartDatepickr.setDate(new Date(+startDate));
+    this.eventTimeEndDatepickr.setDate(new Date(+endDate));
   }
 
   recommendationTagDeleteBtnHandler(event) {
@@ -193,6 +200,7 @@ class EventNewView extends AbstractView {
     if (usersId.indexOf(event.detail.userId) === -1) {
       this.eventUsers.push({id: event.detail.userId});
     }
+    this.handleRecommendation();
   }
 
   removeUserHandler(event) { //Срабатывает при удалении участника события
@@ -203,6 +211,7 @@ class EventNewView extends AbstractView {
       }
     }
     this.eventUsers = newArr;
+    this.handleRecommendation();
   }
 
   renderRecommendations(recommendations) {
