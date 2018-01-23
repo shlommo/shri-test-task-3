@@ -1903,7 +1903,9 @@
 	        var timeSlotCoords = (0, _helpers.getCoords)(timeSlot);
 	        var timeSlotTop = timeSlotCoords.top;
 	        var timeSlotLeft = timeSlotCoords.left;
-	        var body = document.querySelector('body');
+	        var diagramContent = parent.querySelector('.diagram__content');
+	        var diagramContentCoords = (0, _helpers.getCoords)(diagramContent);
+	        var diagramContentTopCoords = diagramContentCoords.top;
 	        var windowWidth = window.innerWidth;
 	        var timeSlotEventId = timeSlot.getAttribute('data-event-id');
 	        var timeSlotInfoTemplate = void 0;
@@ -1938,7 +1940,7 @@
 	        }
 	
 	        timeSlot.classList.add('focused');
-	        body.appendChild(timeSlotInfoNode);
+	        diagramContent.appendChild(timeSlotInfoNode);
 	
 	        setTimeout(function () {
 	          if (windowWidth < 1280) {
@@ -1949,7 +1951,7 @@
 	          } else {
 	            var timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
 	            var leftMoveValue = timeSlotLeft + timeSlotWidth / 2 - timeSlotNodeWidth / 2;
-	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop + timeSlotHeight) + 'px; left: ' + leftMoveValue + 'px';
+	            timeSlotInfoNode.style.cssText = 'top: ' + (timeSlotTop - diagramContentTopCoords + timeSlotHeight) + 'px; left: ' + leftMoveValue + 'px';
 	          }
 	          timeSlotInfoNode.classList.add('showed');
 	        }, 100);
@@ -1957,19 +1959,19 @@
 	        setTimeout(function () {
 	          (0, _hideOnClickOutside2.default)('#timeSlotInfoModal', function () {
 	            timeSlot.classList.remove('focused');
-	            if (body.contains(timeSlotInfoNode)) {
-	              body.removeChild(timeSlotInfoNode);
+	            if (diagramContent.contains(timeSlotInfoNode)) {
+	              diagramContent.removeChild(timeSlotInfoNode);
 	            }
 	          });
 	        }, 10);
 	
-	        var timeSlotInfoTrigger = body.querySelector('.time-slot-info__trigger');
+	        var timeSlotInfoTrigger = diagramContent.querySelector('.time-slot-info__trigger');
 	
 	        timeSlotInfoTrigger.addEventListener('click', function (e) {
 	          e.preventDefault();
 	          var eventHref = timeSlotInfoTrigger.getAttribute('href');
 	
-	          body.removeChild(timeSlotInfoNode);
+	          diagramContent.removeChild(timeSlotInfoNode);
 	          timeSlot.removeEventListener('click', timeSlotClickHandler);
 	          _router.router.navigate(eventHref);
 	        });

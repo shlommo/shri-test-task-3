@@ -104,7 +104,9 @@ export default (parent, events, rooms, users) => {
       const timeSlotCoords = getCoords(timeSlot);
       const timeSlotTop = timeSlotCoords.top;
       const timeSlotLeft = timeSlotCoords.left;
-      const body = document.querySelector('body');
+      const diagramContent = parent.querySelector('.diagram__content');
+      const diagramContentCoords = getCoords(diagramContent);
+      const diagramContentTopCoords = diagramContentCoords.top;
       const windowWidth = window.innerWidth;
       const timeSlotEventId = timeSlot.getAttribute('data-event-id');
       let timeSlotInfoTemplate;
@@ -118,18 +120,18 @@ export default (parent, events, rooms, users) => {
       }
 
       timeSlot.classList.add('focused');
-      body.appendChild(timeSlotInfoNode);
+      diagramContent.appendChild(timeSlotInfoNode);
 
       setTimeout(() => {
         if (windowWidth < 1280) {
           const timeSlotInfoMarker = document.querySelector('.time-slot-info__marker');
           const timeSlotInfoMarkerWidth = +getComputedStyle(timeSlotInfoMarker).width.slice(0, -2);
-          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop + timeSlotHeight}px;`;
+          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop  + timeSlotHeight}px;`;
           timeSlotInfoMarker.style.left = `${timeSlotLeft + timeSlotWidth / 2 - timeSlotInfoMarkerWidth / 2}px`;
         } else {
           const timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
           const leftMoveValue = timeSlotLeft + timeSlotWidth / 2 - timeSlotNodeWidth / 2;
-          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop + timeSlotHeight}px; left: ${leftMoveValue}px`;
+          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop - diagramContentTopCoords + timeSlotHeight}px; left: ${leftMoveValue}px`;
         }
         timeSlotInfoNode.classList.add('showed');
       }, 100);
@@ -137,19 +139,19 @@ export default (parent, events, rooms, users) => {
       setTimeout(() => {
         hideOnClickOutside('#timeSlotInfoModal', () => {
             timeSlot.classList.remove('focused');
-            if (body.contains(timeSlotInfoNode)) {
-              body.removeChild(timeSlotInfoNode);
+            if (diagramContent.contains(timeSlotInfoNode)) {
+              diagramContent.removeChild(timeSlotInfoNode);
             }
           });
       }, 10);
 
-      const timeSlotInfoTrigger = body.querySelector('.time-slot-info__trigger');
+      const timeSlotInfoTrigger = diagramContent.querySelector('.time-slot-info__trigger');
 
       timeSlotInfoTrigger.addEventListener('click', (e) => {
         e.preventDefault();
         const eventHref = timeSlotInfoTrigger.getAttribute('href');
 
-        body.removeChild(timeSlotInfoNode);
+        diagramContent.removeChild(timeSlotInfoNode);
         timeSlot.removeEventListener('click', timeSlotClickHandler);
         router.navigate(eventHref);
       })
