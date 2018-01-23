@@ -63,6 +63,10 @@ class ApiService {
     return grapnhQlRequest(mutation.createEvent(eventInput, usersIds, roomId));
   }
 
+  removeEvent(eventId) {
+    return grapnhQlRequest(mutation.removeEvent(eventId));
+  }
+
 }
 
 export default new ApiService();

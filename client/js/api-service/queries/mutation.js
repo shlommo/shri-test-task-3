@@ -15,5 +15,13 @@ export default {
         }
       }
     }`;
+  },
+  removeEvent: (eventId) => {
+    return `
+    mutation {
+      removeEvent(id: ${eventId}) {
+        id,
+      }
+    }`;
   }
 };

@@ -54,22 +54,13 @@
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _createSvgSprite = __webpack_require__(38);
+	var _createSvgSprite = __webpack_require__(39);
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
 	var _router = __webpack_require__(16);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	// import createMeetingRoom from './views/meeting-rooms-view';
-	
-	// const createEvent = mutation.createEvent(
-	//   `{
-	//     title: "Тестовый запрос",
-	//     dateStart: "${new Date().toISOString()}",
-	//     dateEnd: "${new Date().toISOString()}"}
-	//   `, `"${[1]}"`, 6);
 	
 	(0, _createSvgSprite2.default)();
 	
@@ -3076,6 +3067,11 @@
 	    value: function createEvent(eventInput, usersIds, roomId) {
 	      return (0, _grapnhqlRequest2.default)(_queries.mutation.createEvent(eventInput, usersIds, roomId));
 	    }
+	  }, {
+	    key: 'removeEvent',
+	    value: function removeEvent(eventId) {
+	      return (0, _grapnhqlRequest2.default)(_queries.mutation.removeEvent(eventId));
+	    }
 	  }]);
 	
 	  return ApiService;
@@ -3598,6 +3594,9 @@
 	exports.default = {
 	  createEvent: function createEvent(eventInput, usersIds, roomId) {
 	    return "\n    mutation {\n      createEvent(input: " + eventInput + ", usersIds: " + usersIds + ", roomId: " + roomId + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
+	  },
+	  removeEvent: function removeEvent(eventId) {
+	    return "\n    mutation {\n      removeEvent(id: " + eventId + ") {\n        id,\n      }\n    }";
 	  }
 	};
 
@@ -5440,7 +5439,7 @@
 	});
 	
 	exports.default = function (isEdit) {
-	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventPopupTrigger\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\" id=\"createBtn\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
+	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventBtn\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\" id=\"createBtn\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
 	
 	  return eventFormContent;
 	};
@@ -6004,6 +6003,10 @@
 	
 	var _router = __webpack_require__(16);
 	
+	var _apiService = __webpack_require__(21);
+	
+	var _apiService2 = _interopRequireDefault(_apiService);
+	
 	var _flatpickr = __webpack_require__(27);
 	
 	var _flatpickr2 = _interopRequireDefault(_flatpickr);
@@ -6037,6 +6040,10 @@
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
 	var _fieldAutocomplete = __webpack_require__(34);
+	
+	var _showPopup = __webpack_require__(38);
+	
+	var _showPopup2 = _interopRequireDefault(_showPopup);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -6104,6 +6111,7 @@
 	    _this.addUserHandler = _this.addUserHandler.bind(_this);
 	    _this.removeUserHandler = _this.removeUserHandler.bind(_this);
 	    _this.recommendationTagDeleteBtnHandler = _this.recommendationTagDeleteBtnHandler.bind(_this);
+	    _this.deleteEventBtnHandle = _this.deleteEventBtnHandle.bind(_this);
 	    return _this;
 	  }
 	
@@ -6365,6 +6373,18 @@
 	      }
 	    }
 	  }, {
+	    key: 'deleteEventBtnHandle',
+	    value: function deleteEventBtnHandle() {
+	      var _this3 = this;
+	
+	      (0, _showPopup2.default)('deletePopup', null, function () {
+	        _apiService2.default.removeEvent(_this3.eventInputData.eventId).then(function () {
+	          location.reload();
+	          _router.router.navigate();
+	        });
+	      });
+	    }
+	  }, {
 	    key: 'bindHandlers',
 	    value: function bindHandlers() {
 	      this.fieldResetBtn = this.element.querySelector('.field__reset');
@@ -6407,6 +6427,9 @@
 	
 	      document.addEventListener('addUserToEvent', this.addUserHandler);
 	      document.addEventListener('removeUserFromEvent', this.removeUserHandler);
+	
+	      this.deleteEventBtn = this.element.querySelector('#deleteEventBtn');
+	      this.deleteEventBtn.addEventListener('click', this.deleteEventBtnHandle);
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -6446,6 +6469,8 @@
 	      document.removeEventListener('addUserToEvent', this.addUserHandler);
 	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
 	      this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
+	
+	      this.deleteEventBtn.removeEventListener('click', this.deleteEventBtnHandle);
 	    }
 	  }, {
 	    key: 'handleRecommendation',
@@ -6563,7 +6588,7 @@
 	  }, {
 	    key: 'viewRendered',
 	    value: function viewRendered() {
-	      var _this3 = this;
+	      var _this4 = this;
 	
 	      this.eventDateDatepickr = new _flatpickr2.default('#date', {
 	        locale: _ru.Russian,
@@ -6574,12 +6599,12 @@
 	        disableMobile: 'true',
 	        onChange: function onChange(selectedDates) {
 	          var newDay = (0, _helpers.getDateValue)(new Date(selectedDates)).day;
-	          var eventDayMinute = (0, _helpers.getDateValue)(_this3.eventStartDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
-	          var eventEndDayMinute = (0, _helpers.getDateValue)(_this3.eventEndDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
-	          _this3.eventStartDate = new Date(newDay + eventDayMinute);
-	          _this3.eventEndDate = new Date(newDay + eventEndDayMinute);
-	          _this3.eventTimeStartDatepickr.setDate(_this3.eventStartDate);
-	          _this3.eventTimeEndDatepickr.setDate(_this3.eventEndDate);
+	          var eventDayMinute = (0, _helpers.getDateValue)(_this4.eventStartDate).minute - (0, _helpers.getDateValue)(_this4.eventStartDate).day;
+	          var eventEndDayMinute = (0, _helpers.getDateValue)(_this4.eventEndDate).minute - (0, _helpers.getDateValue)(_this4.eventStartDate).day;
+	          _this4.eventStartDate = new Date(newDay + eventDayMinute);
+	          _this4.eventEndDate = new Date(newDay + eventEndDayMinute);
+	          _this4.eventTimeStartDatepickr.setDate(_this4.eventStartDate);
+	          _this4.eventTimeEndDatepickr.setDate(_this4.eventEndDate);
 	        }
 	      });
 	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTimeInput', {
@@ -6590,8 +6615,8 @@
 	        defaultDate: this.eventStartDate,
 	        onChange: function onChange(selectedDates) {
 	          var start = new Date(selectedDates);
-	          _this3.eventDate.start = start.getTime();
-	          _this3.handleRecommendation();
+	          _this4.eventDate.start = start.getTime();
+	          _this4.handleRecommendation();
 	        }
 	      });
 	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTimeInput', {
@@ -6602,8 +6627,8 @@
 	        defaultDate: this.eventEndDate,
 	        onChange: function onChange(selectedDates) {
 	          var end = new Date(selectedDates);
-	          _this3.eventDate.end = end.getTime();
-	          _this3.handleRecommendation();
+	          _this4.eventDate.end = end.getTime();
+	          _this4.handleRecommendation();
 	        }
 	
 	      });
@@ -6670,6 +6695,54 @@
 
 /***/ }),
 /* 38 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
+	var _helpers = __webpack_require__(11);
+	
+	var deletePopupTemplate = function deletePopupTemplate() {
+	  return '<div class="popup" id="deleteEventPopup">\n            <div class="popup__content inform-popup">\n                <i class="inform-popup__icon inform-popup__icon--can-not"></i>\n                <span class="inform-popup__title">\n                    \u0412\u0441\u0442\u0440\u0435\u0447\u0430 \u0431\u0443\u0434\u0435\u0442\n                    \u0443\u0434\u0430\u043B\u0435\u043D\u0430&nbsp;\u0431\u0435\u0437\u0432\u043E\u0437\u0432\u0440\u0430\u0442\u043D\u043E\n                </span>\n        \n                <div class="inform-popup__buttons">\n                    <button class="button button--gray" data-close>\u041E\u0442\u043C\u0435\u043D\u0430</button>\n                    <button class="button button--gray" id="actionBtn">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>\n                </div>\n            </div>\n        </div>';
+	};
+	
+	exports.default = function (type, inputData, callback) {
+	  var popupMarkup = void 0;
+	  if (type === 'deletePopup') {
+	    popupMarkup = deletePopupTemplate();
+	  }
+	  var popup = (0, _helpers.getNodeFromMarkup)(popupMarkup);
+	  var body = document.querySelector('body');
+	  var closeBtn = popup.querySelector('[data-close]');
+	  var actionBtn = popup.querySelector('#actionBtn');
+	  var cb = callback || function () {};
+	
+	  body.classList.add('modal-is-opened');
+	  body.appendChild(popup);
+	  popup.classList.add('opened');
+	
+	  closeBtn.addEventListener('click', function () {
+	    closePopup(popup);
+	  });
+	  actionBtn.addEventListener('click', function () {
+	    cb();
+	    closePopup(popup);
+	  });
+	  return true;
+	};
+	
+	var closePopup = function closePopup(popup) {
+	  var body = document.querySelector('body');
+	
+	  body.classList.remove('modal-is-opened');
+	  body.removeChild(popup);
+	};
+
+/***/ }),
+/* 39 */
 /***/ (function(module, exports) {
 
 	'use strict';

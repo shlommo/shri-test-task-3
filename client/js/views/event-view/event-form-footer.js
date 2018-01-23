@@ -2,7 +2,7 @@ export default (isEdit) => {
   let eventFormContent = (isEdit) ?
       `<a href="#" class="button button--gray" data-cancel>Отмена</a>
       <div class="event-form__delete-btn">
-          <button class="button button--gray" id="deleteEventPopupTrigger">Удалить встречу</button>
+          <button class="button button--gray" id="deleteEventBtn">Удалить встречу</button>
       </div>
       <button class="button button--blue">Сохранить</button>`
     : `<a href="#" class="button button--gray" data-cancel>Отмена</a>

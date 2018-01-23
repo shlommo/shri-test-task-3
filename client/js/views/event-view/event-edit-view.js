@@ -1,6 +1,7 @@
 import AbstractView from './../abstract-view';
 import Application from './../../application';
 import {router} from './../../router';
+import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import {getDateValue, getNodeFromMarkup, checkEventTarget} from '../../tools/helpers';
@@ -13,6 +14,7 @@ import getUserTag from './get-user-tag';
 import getRecommendation from './get-recomendation';
 import getRecommendationTagMarkup from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
+import showPopup from './../showPopup';
 
 class EventNewView extends AbstractView {
 
@@ -68,6 +70,7 @@ class EventNewView extends AbstractView {
     this.addUserHandler = this.addUserHandler.bind(this);
     this.removeUserHandler = this.removeUserHandler.bind(this);
     this.recommendationTagDeleteBtnHandler = this.recommendationTagDeleteBtnHandler.bind(this);
+    this.deleteEventBtnHandle = this.deleteEventBtnHandle.bind(this);
   }
 
   getMarkup() {
@@ -239,6 +242,17 @@ class EventNewView extends AbstractView {
     }
   }
 
+  deleteEventBtnHandle() {
+    showPopup('deletePopup', null, () => {
+      ApiService.removeEvent(this.eventInputData.eventId)
+        .then(() => {
+            location.reload();
+            router.navigate();
+          }
+        )
+    });
+  }
+
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
@@ -258,6 +272,9 @@ class EventNewView extends AbstractView {
 
     document.addEventListener('addUserToEvent', this.addUserHandler);
     document.addEventListener('removeUserFromEvent', this.removeUserHandler);
+
+    this.deleteEventBtn = this.element.querySelector('#deleteEventBtn');
+    this.deleteEventBtn.addEventListener('click', this.deleteEventBtnHandle);
   }
 
   clearHandlers() {
@@ -274,6 +291,8 @@ class EventNewView extends AbstractView {
     document.removeEventListener('addUserToEvent', this.addUserHandler);
     document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
     this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
+
+    this.deleteEventBtn.removeEventListener('click', this.deleteEventBtnHandle);
   }
 
   handleRecommendation() {
