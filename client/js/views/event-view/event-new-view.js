@@ -162,22 +162,22 @@ class EventNewView extends AbstractView {
     }
 
     if (eventTitle.length === 0) {
-      throw new Error('Введите название мероприятия');
+      alert('Введите название мероприятия');
       return false;
     }
 
     if (users.length === 0) {
-      throw new Error('Добавьте участников мероприятия');
+      alert('Выберите участников события');
       return false;
     }
 
     if (roomId === null) {
-      throw new Error('Выберите комнату из рекомменадций');
+      alert('Выберите комнату из рекомменадций');
       return false;
     }
 
     if (currentMinute > getDateValue(dateStart).minute) {
-      throw new Error('Время вышло. Пожалуйста, обновите время');
+      alert('Время вышло. Пожалуйста, обновите время');
       return false;
     }
     const eventInput = `{
@@ -205,7 +205,6 @@ class EventNewView extends AbstractView {
           self.clearHandlers();
           Application.data = newData;
           router.navigate();
-          // Application.showMeetingRooms();
         }
       );
   }
@@ -329,11 +328,11 @@ class EventNewView extends AbstractView {
     let person = {};
 
     if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) { //Событие не может быть меньше 15 мин
-      throw new Error('Минимальная продолжительность события - 15 минут');
+      alert('Минимальная продолжительность события - 15 минут');
     }
 
     if (this.eventDateDay < this.initialAppDay) {
-      throw new Error('Нельзя редактировать события ушедших дней');
+      alert('Нельзя редактировать события ушедших дней');
     }
 
     for (let eventUser of this.eventUsers) { //
@@ -350,7 +349,7 @@ class EventNewView extends AbstractView {
     }
 
     if (this.members.length === 0) {
-      throw new Error('Выберите участников события');
+      alert('Выберите участников события');
     }
 
     // Удалить редактируемое событие из списка событий

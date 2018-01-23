@@ -71,6 +71,7 @@ class EventNewView extends AbstractView {
     this.removeUserHandler = this.removeUserHandler.bind(this);
     this.recommendationTagDeleteBtnHandler = this.recommendationTagDeleteBtnHandler.bind(this);
     this.deleteEventBtnHandle = this.deleteEventBtnHandle.bind(this);
+    this.editEventBtnHandle = this.editEventBtnHandle.bind(this);
   }
 
   getMarkup() {
@@ -257,9 +258,12 @@ class EventNewView extends AbstractView {
 
           Application.data = newData;
           router.navigate();
-          // window.location.href = '/';
         })
     });
+  }
+
+  editEventBtnHandle() {
+    alert('edit');
   }
 
   bindHandlers() {
@@ -284,6 +288,9 @@ class EventNewView extends AbstractView {
 
     this.deleteEventBtn = this.element.querySelector('#deleteEventBtn');
     this.deleteEventBtn.addEventListener('click', this.deleteEventBtnHandle);
+
+    this.editEventBtn = this.element.querySelector('#editEventBtn');
+    this.editEventBtn.addEventListener('click', this.editEventBtnHandle);
   }
 
   clearHandlers() {
@@ -302,6 +309,7 @@ class EventNewView extends AbstractView {
     this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
 
     this.deleteEventBtn.removeEventListener('click', this.deleteEventBtnHandle);
+    this.editEventBtn.removeEventListener('click', this.editEventBtnHandle);
   }
 
   handleRecommendation() {

@@ -289,8 +289,6 @@ class MeetingRoomsView extends AbstractView {
         const newData = this.inputData;
         delete newData.newEvent;
         Application.data = newData;
-        // window.location.href = '/';
-        // Application.showMeetingRooms();
       });
     }
   }

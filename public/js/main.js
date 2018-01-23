@@ -781,8 +781,6 @@
 	          var newData = _this3.inputData;
 	          delete newData.newEvent;
 	          _application2.default.data = newData;
-	          // window.location.href = '/';
-	          // Application.showMeetingRooms();
 	        });
 	      }
 	    }
@@ -2631,22 +2629,22 @@
 	      }
 	
 	      if (eventTitle.length === 0) {
-	        throw new Error('Введите название мероприятия');
+	        alert('Введите название мероприятия');
 	        return false;
 	      }
 	
 	      if (users.length === 0) {
-	        throw new Error('Добавьте участников мероприятия');
+	        alert('Выберите участников события');
 	        return false;
 	      }
 	
 	      if (roomId === null) {
-	        throw new Error('Выберите комнату из рекомменадций');
+	        alert('Выберите комнату из рекомменадций');
 	        return false;
 	      }
 	
 	      if (currentMinute > (0, _helpers.getDateValue)(dateStart).minute) {
-	        throw new Error('Время вышло. Пожалуйста, обновите время');
+	        alert('Время вышло. Пожалуйста, обновите время');
 	        return false;
 	      }
 	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
@@ -2667,7 +2665,6 @@
 	        self.clearHandlers();
 	        _application2.default.data = newData;
 	        _router.router.navigate();
-	        // Application.showMeetingRooms();
 	      });
 	    }
 	  }, {
@@ -2936,11 +2933,11 @@
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
 	        //Событие не может быть меньше 15 мин
-	        throw new Error('Минимальная продолжительность события - 15 минут');
+	        alert('Минимальная продолжительность события - 15 минут');
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
-	        throw new Error('Нельзя редактировать события ушедших дней');
+	        alert('Нельзя редактировать события ушедших дней');
 	      }
 	
 	      var _iteratorNormalCompletion8 = true;
@@ -2999,7 +2996,7 @@
 	      }
 	
 	      if (this.members.length === 0) {
-	        throw new Error('Выберите участников события');
+	        alert('Выберите участников события');
 	      }
 	
 	      // Удалить редактируемое событие из списка событий
@@ -5581,7 +5578,7 @@
 	});
 	
 	exports.default = function (isEdit) {
-	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventBtn\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\" id=\"createBtn\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
+	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventBtn\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\" id=\"editEventBtn\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\" id=\"createBtn\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
 	
 	  return eventFormContent;
 	};
@@ -6254,6 +6251,7 @@
 	    _this.removeUserHandler = _this.removeUserHandler.bind(_this);
 	    _this.recommendationTagDeleteBtnHandler = _this.recommendationTagDeleteBtnHandler.bind(_this);
 	    _this.deleteEventBtnHandle = _this.deleteEventBtnHandle.bind(_this);
+	    _this.editEventBtnHandle = _this.editEventBtnHandle.bind(_this);
 	    return _this;
 	  }
 	
@@ -6530,9 +6528,13 @@
 	
 	          _application2.default.data = newData;
 	          _router.router.navigate();
-	          // window.location.href = '/';
 	        });
 	      });
+	    }
+	  }, {
+	    key: 'editEventBtnHandle',
+	    value: function editEventBtnHandle() {
+	      alert('edit');
 	    }
 	  }, {
 	    key: 'bindHandlers',
@@ -6580,6 +6582,9 @@
 	
 	      this.deleteEventBtn = this.element.querySelector('#deleteEventBtn');
 	      this.deleteEventBtn.addEventListener('click', this.deleteEventBtnHandle);
+	
+	      this.editEventBtn = this.element.querySelector('#editEventBtn');
+	      this.editEventBtn.addEventListener('click', this.editEventBtnHandle);
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -6621,6 +6626,7 @@
 	      this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
 	
 	      this.deleteEventBtn.removeEventListener('click', this.deleteEventBtnHandle);
+	      this.editEventBtn.removeEventListener('click', this.editEventBtnHandle);
 	    }
 	  }, {
 	    key: 'handleRecommendation',
