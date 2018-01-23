@@ -69,6 +69,13 @@ class EventNewView extends AbstractView {
     this.initialAppDate = new Date();
     this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
     this.eventUsers = [];
+
+    this.cancelBtnHandler = this.cancelBtnHandler.bind(this);
+    this.getAutocompleteHandler = this.getAutocompleteHandler.bind(this);
+    this.addUserHandler = this.addUserHandler.bind(this);
+    this.removeUserHandler = this.removeUserHandler.bind(this);
+    this.createEventHandler = this.createEventHandler.bind(this);
+    this.recommendationTagDeleteBtnHandler = this.recommendationTagDeleteBtnHandler.bind(this);
   }
 
   getMarkup() {
@@ -136,6 +143,11 @@ class EventNewView extends AbstractView {
     autocompleteHandler(event, this.users);
   }
 
+  createEventHandler(event) {
+    console.log(this);
+    alert('click');
+  }
+
   recommendationTagClickHandler(recommendationTag) {
     this.recomParentTitle.innerHTML = 'Ваша переговорка';
     recommendationTag.classList.add('recommendation-tag--selected');
@@ -147,10 +159,11 @@ class EventNewView extends AbstractView {
     }
 
     const deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-    deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+    deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
     this.recomContainer.appendChild(recommendationTag);
 
     this.createBtn.classList.remove('button--disabled');
+    this.createBtn.addEventListener('click', this.createEventHandler)
   }
 
   recommendationTagDeleteBtnHandler(event) {
@@ -158,6 +171,7 @@ class EventNewView extends AbstractView {
     this.recomParent.classList.add('hidden');
     recommendationTag.parentNode.removeChild(recommendationTag);
     this.createBtn.classList.add('button--disabled');
+    this.createBtn.removeEventListener('click', this.createEventHandler);
     this.handleRecommendation();
   }
 
@@ -211,32 +225,33 @@ class EventNewView extends AbstractView {
     this.autocomplete = this.element.querySelector('[data-autocomplete]');
 
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this))
+      cancelBtn.addEventListener('click', this.cancelBtnHandler)
     }
 
-    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler);
 
     this.recomParent = this.element.querySelector('#recomParent');
     this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
     this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
 
-    document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
-    document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+    document.addEventListener('addUserToEvent', this.addUserHandler);
+    document.addEventListener('removeUserFromEvent', this.removeUserHandler);
 
     this.createBtn = this.element.querySelector('#createBtn');
   }
 
   clearHandlers() {
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this))
+      cancelBtn.removeEventListener('click', this.cancelBtnHandler)
     }
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
-    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler);
 
-    document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
-    document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+    document.removeEventListener('addUserToEvent', this.addUserHandler);
+    document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
+    this.createBtn.removeEventListener('click', this.createEventHandler)
   }
 
   handleRecommendation() {

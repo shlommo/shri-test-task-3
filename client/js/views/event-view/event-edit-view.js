@@ -62,6 +62,12 @@ class EventNewView extends AbstractView {
 
     this.initialAppDate = new Date();
     this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
+
+    this.cancelBtnHandler = this.cancelBtnHandler.bind(this);
+    this.getAutocompleteHandler = this.getAutocompleteHandler.bind(this);
+    this.addUserHandler = this.addUserHandler.bind(this);
+    this.removeUserHandler = this.removeUserHandler.bind(this);
+    this.recommendationTagDeleteBtnHandler = this.recommendationTagDeleteBtnHandler.bind(this);
   }
 
   getMarkup() {
@@ -168,7 +174,7 @@ class EventNewView extends AbstractView {
     }
 
     const deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-    deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+    deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
     this.recomContainer.appendChild(recommendationTag);
   }
 
@@ -231,34 +237,34 @@ class EventNewView extends AbstractView {
     this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this))
+      cancelBtn.addEventListener('click', this.cancelBtnHandler)
     }
-    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+    this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler);
 
     this.recomParent = this.element.querySelector('#recomParent');
     this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
     this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
     this.recommendationTagDeleteBtn = this.recomParent.querySelector('.recommendation-tag .recommendation-tag__delete');
-    this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+    this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 
-    document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
-    document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+    document.addEventListener('addUserToEvent', this.addUserHandler);
+    document.addEventListener('removeUserFromEvent', this.removeUserHandler);
   }
 
   clearHandlers() {
     this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
 
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this))
+      cancelBtn.removeEventListener('click', this.cancelBtnHandler)
     }
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
     this.eventTimeEndDatepickr.destroy();
-    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+    this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler);
 
-    document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
-    document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
-    this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+    document.removeEventListener('addUserToEvent', this.addUserHandler);
+    document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
+    this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
   }
 
   handleRecommendation() {

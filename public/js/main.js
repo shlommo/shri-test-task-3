@@ -2424,6 +2424,13 @@
 	    _this.initialAppDate = new Date();
 	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; //день инициализации приложения
 	    _this.eventUsers = [];
+	
+	    _this.cancelBtnHandler = _this.cancelBtnHandler.bind(_this);
+	    _this.getAutocompleteHandler = _this.getAutocompleteHandler.bind(_this);
+	    _this.addUserHandler = _this.addUserHandler.bind(_this);
+	    _this.removeUserHandler = _this.removeUserHandler.bind(_this);
+	    _this.createEventHandler = _this.createEventHandler.bind(_this);
+	    _this.recommendationTagDeleteBtnHandler = _this.recommendationTagDeleteBtnHandler.bind(_this);
 	    return _this;
 	  }
 	
@@ -2462,6 +2469,12 @@
 	      (0, _fieldAutocomplete.autocompleteHandler)(event, this.users);
 	    }
 	  }, {
+	    key: 'createEventHandler',
+	    value: function createEventHandler(event) {
+	      console.log(this);
+	      alert('click');
+	    }
+	  }, {
 	    key: 'recommendationTagClickHandler',
 	    value: function recommendationTagClickHandler(recommendationTag) {
 	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
@@ -2495,10 +2508,11 @@
 	      }
 	
 	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 	      this.recomContainer.appendChild(recommendationTag);
 	
 	      this.createBtn.classList.remove('button--disabled');
+	      this.createBtn.addEventListener('click', this.createEventHandler);
 	    }
 	  }, {
 	    key: 'recommendationTagDeleteBtnHandler',
@@ -2507,6 +2521,7 @@
 	      this.recomParent.classList.add('hidden');
 	      recommendationTag.parentNode.removeChild(recommendationTag);
 	      this.createBtn.classList.add('button--disabled');
+	      this.createBtn.removeEventListener('click', this.createEventHandler);
 	      this.handleRecommendation();
 	    }
 	  }, {
@@ -2644,7 +2659,7 @@
 	        for (var _iterator5 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
 	          var cancelBtn = _step5.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
 	        _didIteratorError5 = true;
@@ -2661,14 +2676,14 @@
 	        }
 	      }
 	
-	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler);
 	
 	      this.recomParent = this.element.querySelector('#recomParent');
 	      this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
 	      this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
 	
-	      document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	      document.addEventListener('addUserToEvent', this.addUserHandler);
+	      document.addEventListener('removeUserFromEvent', this.removeUserHandler);
 	
 	      this.createBtn = this.element.querySelector('#createBtn');
 	    }
@@ -2683,7 +2698,7 @@
 	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	          var cancelBtn = _step6.value;
 	
-	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -2703,10 +2718,11 @@
 	      this.eventDateDatepickr.destroy();
 	      this.eventTimeStartDatepickr.destroy();
 	      this.eventTimeEndDatepickr.destroy();
-	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler);
 	
-	      document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	      document.removeEventListener('addUserToEvent', this.addUserHandler);
+	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
+	      this.createBtn.removeEventListener('click', this.createEventHandler);
 	    }
 	  }, {
 	    key: 'handleRecommendation',
@@ -5342,6 +5358,12 @@
 	
 	    _this.initialAppDate = new Date();
 	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; //день инициализации приложения
+	
+	    _this.cancelBtnHandler = _this.cancelBtnHandler.bind(_this);
+	    _this.getAutocompleteHandler = _this.getAutocompleteHandler.bind(_this);
+	    _this.addUserHandler = _this.addUserHandler.bind(_this);
+	    _this.removeUserHandler = _this.removeUserHandler.bind(_this);
+	    _this.recommendationTagDeleteBtnHandler = _this.recommendationTagDeleteBtnHandler.bind(_this);
 	    return _this;
 	  }
 	
@@ -5461,7 +5483,7 @@
 	      }
 	
 	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 	      this.recomContainer.appendChild(recommendationTag);
 	    }
 	  }, {
@@ -5609,7 +5631,7 @@
 	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	          var cancelBtn = _step6.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -5626,16 +5648,16 @@
 	        }
 	      }
 	
-	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler);
 	
 	      this.recomParent = this.element.querySelector('#recomParent');
 	      this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
 	      this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
 	      this.recommendationTagDeleteBtn = this.recomParent.querySelector('.recommendation-tag .recommendation-tag__delete');
-	      this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler);
 	
-	      document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	      document.addEventListener('addUserToEvent', this.addUserHandler);
+	      document.addEventListener('removeUserFromEvent', this.removeUserHandler);
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -5650,7 +5672,7 @@
 	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
 	          var cancelBtn = _step7.value;
 	
-	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
 	        _didIteratorError7 = true;
@@ -5670,11 +5692,11 @@
 	      this.eventDateDatepickr.destroy();
 	      this.eventTimeStartDatepickr.destroy();
 	      this.eventTimeEndDatepickr.destroy();
-	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler);
 	
-	      document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
-	      this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      document.removeEventListener('addUserToEvent', this.addUserHandler);
+	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
+	      this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler);
 	    }
 	  }, {
 	    key: 'handleRecommendation',
