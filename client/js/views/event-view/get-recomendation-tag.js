@@ -3,7 +3,7 @@ import Application from './../../application';
 export default (inputData, isSelected) => {
   const appData = Application.data;
   const dbRooms = appData.rooms || {};
-  const eventDate = inputData.eventDate;
+  const eventDate = inputData.date;
   const eventStartDate = new Date(eventDate.start);
   const eventEndDate = new Date(eventDate.end);
   const roomId = inputData.room;
@@ -22,12 +22,14 @@ export default (inputData, isSelected) => {
   }
 
   return `<div class="recommendation-tag${(isSelected) ? ' recommendation-tag--selected' : ''}" data-room-id="${roomId}">
-            <span class="recommendation-tag__time">
-              ${time}
-            </span>
-            <span class="recommendation-tag__room">
-              ${roomTitle} · ${roomFloor} этаж
-            </span>
+            <div class="recommendation-tag__content">
+              <span class="recommendation-tag__time">
+                ${time}
+              </span>
+              <span class="recommendation-tag__room">
+                ${roomTitle} · ${roomFloor} этаж
+              </span>
+            </div>
             <button class="recommendation-tag__delete">
               <i>
                   <svg width="10" height="10">

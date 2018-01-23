@@ -6,7 +6,7 @@ export default (isEdit) => {
       </div>
       <button class="button button--blue">Сохранить</button>`
     : `<a href="#" class="button button--gray" data-cancel>Отмена</a>
-      <button class="button button--blue button--disabled">Создать встречу</button>`;
+      <button class="button button--blue button--disabled" id="createBtn">Создать встречу</button>`;
 
   return  eventFormContent;
 }

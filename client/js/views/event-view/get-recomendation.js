@@ -52,12 +52,6 @@ import {getDateValue} from '../../tools/helpers';
  * @returns {Recommendation[]}
  */
 
-// this.eventStartDate = new Date(+this.eventInputData.startTime);
-// this.eventDateDay = getDateValue(this.eventStartDate).day; //день в который происходят все события
-//
-// this.initialAppDate = new Date();
-// this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
-
 function getRecommendation(date, members, db) {
   const eventStart = date.start;
   const eventEnd = date.end;
@@ -76,13 +70,17 @@ function getRecommendation(date, members, db) {
   const eventStartDate = new Date(date.start);
   const eventStartDay = getDateValue(eventStartDate).day;
 
+  let swapArr = [];
+
   if (today === eventStartDay) {
     if (currentMinute > eventStart || currentMinute > eventEnd) {//если время предпологаемого события меньше текущего времени
       return [];
     }
+  } else if (today > eventStartDay) {
+    return [];
   }
 
-  roomLoop: for (let dbRoom of dbRooms) {
+ roomLoop: for (let dbRoom of dbRooms) {
     let dbRoomId = dbRoom.id;
     if (dbRoom.capacity < numberOfMembers) { //если вместимость комнаты меньше участников события
       continue roomLoop;
@@ -93,47 +91,44 @@ function getRecommendation(date, members, db) {
       let tStart = t, //Время начала предпологаемого события
           tEnd = tStart + eventDuration; //Время окончания предпологаемого события
 
+      let isTimeHasnotEvent = true;
+
       eventLoop: for (let dbEvent of dbEvents) {
-        let dbEventStart = new Date(dbEvent.dateStart).getTime(),
-            dbEventEnd = new Date(dbEvent.dateEnd).getTime();
+        let dbEventStart = getDateValue(new Date(dbEvent.dateStart)).minute,
+            dbEventEnd = getDateValue(new Date(dbEvent.dateEnd)).minute;
 
         if (currentMinute > dbEventEnd) {
           continue eventLoop;
         }
 
         if (dbEvent.room.id === dbRoomId) { //если в этой комнате есть события
-          // console.log('В этой комнате есть события', dbRoom.title, new Date(dbEventEnd), new Date(t));
-
-          if (dbEventStart >= tStart && dbEventEnd <= tEnd
-              || dbEventStart >= tStart && dbEventEnd > tEnd && dbEventStart !== tEnd
-              || dbEventStart <= tStart && dbEventEnd > tStart && dbEventEnd <= tEnd) {
-
-            t = dbEventEnd - eventDuration;
-
-            continue timeLoop;
+          if (dbEventStart < tStart && dbEventEnd < tStart) {
+            continue eventLoop;
           }
 
-          recommendation = {
-            date: {
-              start: tStart,
-              end: tEnd
-            },
-            room: dbRoomId
-          };
-          console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
-          continue roomLoop;
+          if (tStart <= dbEventStart && tEnd > dbEventEnd
+              || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart
+              || tStart > dbEventStart && tEnd <= dbEventEnd) { //если на этот промежуток времени запланировано событие
+            isTimeHasnotEvent = false;
+          }
+
+          if (tStart > dbEventStart && tEnd > dbEventEnd && tStart < dbEventEnd) {
+            t = dbEventEnd - eventDuration;
+            continue timeLoop;
+          }
         }
       }
-      // console.log('В этой комнате нет событий', dbRoom.title, new Date(t), dbRoomId);
-      recommendation = {
-        date: {
-          start: tStart,
-          end: tEnd
-        },
-        room: dbRoomId
-      };
-      console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
-      continue roomLoop;
+      if (isTimeHasnotEvent) {
+        recommendation = {
+          date: {
+            start: tStart,
+            end: tEnd
+          },
+          room: dbRoomId
+        };
+        recommendationArr.push(recommendation);
+        continue roomLoop;
+      }
     }
   }
 

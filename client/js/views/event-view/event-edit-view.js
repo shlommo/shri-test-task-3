@@ -3,7 +3,7 @@ import Application from './../../application';
 import {router} from './../../router';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
-import {getDateValue} from '../../tools/helpers';
+import {getDateValue, getNodeFromMarkup, checkEventTarget} from '../../tools/helpers';
 
 
 import eventFormHeader from './event-form-header';
@@ -79,6 +79,7 @@ class EventNewView extends AbstractView {
     for (let event of events) {
       if (eventInputId === event.id) {
         eventName = event.title;
+        this.currentId = event.id;
         this.eventUsers = event.users;
         this.eventRoomId = event.room.id;
       }
@@ -94,7 +95,7 @@ class EventNewView extends AbstractView {
     };
 
     this.recommendation = {
-      eventDate: this.eventDate,
+      date: this.eventDate,
       room: this.eventRoomId
     };
 
@@ -124,7 +125,7 @@ class EventNewView extends AbstractView {
                   </div>
                   
                   <div class="event-form__col">
-                    <div class="recommendations">
+                    <div class="recommendations" id="recomParent" data-type="room-selected">
                       <div class="recommendations__title">Ваша переговорка</div>
                       <div class="recomendations__cnt">
                         ${getRecommendationTagMarkup(this.recommendation, true)}
@@ -157,33 +158,25 @@ class EventNewView extends AbstractView {
   }
 
   recommendationTagClickHandler(recommendationTag) {
-    const click = () => {
-      recommendationTag.classList.add('recommendation-tag--selected');
-      removeClickHandler();
-    };
-    const removeClickHandler = () => {
-      recommendationTag.removeEventListener('click', click);
-    };
-    recommendationTag.addEventListener('click', click);
+    this.recomParentTitle.innerHTML = 'Ваша переговорка';
+    recommendationTag.classList.add('recommendation-tag--selected');
+
+    const recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
+
+    for (let item of Array.from(recomTagArr)) {
+      this.recomContainer.removeChild(item)
+    }
+
+    const deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
+    deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+    this.recomContainer.appendChild(recommendationTag);
   }
 
-  recommendationTagHandlers() {
-    this.recommendationTagArr = this.element.querySelectorAll('.recommendation-tag');
-
-    for (let recommendationTag of Array.from(this.recommendationTagArr)) {
-      const recommendationTagDeleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-
-      if (!recommendationTag.classList.contains('recommendation-tag--selected')) {
-        this.recommendationTagClickHandler(recommendationTag);
-      }
-
-      recommendationTagDeleteBtn.addEventListener('click', () => {
-        recommendationTag.classList.remove('recommendation-tag--selected');
-        setTimeout(() => {
-          this.recommendationTagClickHandler(recommendationTag);
-        }, 10);
-      });
-    }
+  recommendationTagDeleteBtnHandler(event) {
+    const recommendationTag = event.target.parents('.recommendation-tag')[0];
+    this.recomParent.classList.add('hidden');
+    recommendationTag.parentNode.removeChild(recommendationTag);
+    this.handleRecommendation();
   }
 
   addUserHandler(event) { //Срабатывает при добавление участника события
@@ -206,6 +199,31 @@ class EventNewView extends AbstractView {
     this.eventUsers = newArr;
   }
 
+  renderRecommendations(recommendations) {
+    this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
+    this.recomParent.classList.remove('hidden');
+
+    if (recommendations.length === 0) {
+      this.recomContainer.innerHTML = 'Нет рекомендаций';
+    } else {
+      this.recomContainer.innerHTML = '';
+    }
+
+    for (let recom of recommendations) {
+      let recomMarkup = getRecommendationTagMarkup(recom, false);
+      let recomNode = getNodeFromMarkup(recomMarkup);
+
+      recomNode.addEventListener('click', (event) => {
+        let recomContent = recomNode.querySelector('.recommendation-tag__content');
+        let recomContentChildsIsTarget = checkEventTarget(event, recomContent);
+        if (event.target === recomContent || recomContentChildsIsTarget) {
+          this.recommendationTagClickHandler(recomNode);
+        }
+      });
+      this.recomContainer.appendChild(recomNode);
+    }
+  }
+
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
@@ -217,7 +235,11 @@ class EventNewView extends AbstractView {
     }
     this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 
-    this.recommendationTagHandlers();
+    this.recomParent = this.element.querySelector('#recomParent');
+    this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
+    this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
+    this.recommendationTagDeleteBtn = this.recomParent.querySelector('.recommendation-tag .recommendation-tag__delete');
+    this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
 
     document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
     document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
@@ -236,6 +258,7 @@ class EventNewView extends AbstractView {
 
     document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
     document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+    this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
   }
 
   handleRecommendation() {
@@ -267,14 +290,22 @@ class EventNewView extends AbstractView {
       throw new Error('Выберите участников события');
     }
 
-
+    // Удалить редактируемое событие из списка событий
+    let newEventsArr = [];
+    for (let event of this.appData.events[this.eventDateDay]) {
+      if (event.id !== this.currentId) {
+        newEventsArr.push(event);
+      }
+    }
     const db = {
-      events: this.appData.events[this.eventDateDay] || [],
+      events: newEventsArr,
       rooms: this.appData.rooms,
       persons: this.appData.users
     };
 
     this.recommendationArr = getRecommendation(this.eventDate, this.members, db);
+
+    this.renderRecommendations(this.recommendationArr);
   }
 
   viewRendered() {
@@ -284,7 +315,16 @@ class EventNewView extends AbstractView {
       altFormat: 'j F, Y',
       defaultDate: this.eventStartDate,
       wrap: true,
-      disableMobile: 'true'
+      disableMobile: 'true',
+      onChange: (selectedDates) => {
+        const newDay = getDateValue(new Date(selectedDates)).day;
+        const eventDayMinute = getDateValue(this.eventStartDate).minute - getDateValue(this.eventStartDate).day;
+        const eventEndDayMinute = getDateValue(this.eventEndDate).minute - getDateValue(this.eventStartDate).day;
+        this.eventStartDate = new Date(newDay + eventDayMinute);
+        this.eventEndDate = new Date(newDay + eventEndDayMinute);
+        this.eventTimeStartDatepickr.setDate(this.eventStartDate);
+        this.eventTimeEndDatepickr.setDate(this.eventEndDate);
+      }
     });
     this.eventTimeStartDatepickr = new Flatpickr('#eventStartTimeInput', {
       enableTime: true,

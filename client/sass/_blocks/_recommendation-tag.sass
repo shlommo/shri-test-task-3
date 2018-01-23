@@ -1,16 +1,19 @@
 .recommendation-tag
   position: relative
-  display: flex
-  padding: 11px 40px 10px 10px
   border-radius: 4px
   font-size: 13px
   line-height: 17px
   background-color: #E9ECEF
   color: #000
   box-sizing: border-box
+  overflow: hidden
   cursor: pointer
 
-.field .recommendation-tag
+.recommendation-tag__content
+  display: flex
+  padding: 11px 40px 10px 10px
+
+.recommendations .recommendation-tag
   margin-bottom: 8px
 
 .recommendation-tag__time
@@ -39,6 +42,7 @@
   border: none
   background-color: transparent
   transform: translateY(-50%)
+  z-index: 2
 
 .recommendation-tag__delete i
   position: absolute

@@ -911,7 +911,7 @@
 	    var clickCallback = callback || function () {};
 	    var elemChildIsTarget = false;
 	    if (elem !== null) {
-	      elemChildIsTarget = checkEventTarget(event, selector);
+	      elemChildIsTarget = (0, _helpers.checkEventTarget)(event, elem);
 	    }
 	
 	    if (event.target !== elem && !elemChildIsTarget) {
@@ -926,42 +926,6 @@
 	
 	  (0, _helpers.addListenerMulti)(document, 'click touchstart', outsideClickListener);
 	};
-	
-	function checkEventTarget(event, selector) {
-	  var elem = document.querySelector(selector);
-	  var isTarget = false;
-	
-	  for (var i = 0; i < elem.childNodes.length; i++) {
-	    var children = elem.childNodes[i];
-	
-	    if (event.target === children) {
-	      isTarget = true;
-	      return isTarget;
-	    } else {
-	      checkNode(children);
-	    }
-	  }
-	
-	  function checkNode(node) {
-	    if (node.hasChildNodes()) {
-	      for (var _i = 0; _i < node.childNodes.length; _i++) {
-	        var recuChildren = node.childNodes[_i];
-	        if (event.target === node) {
-	          isTarget = true;
-	          return true;
-	        }
-	        checkNode(recuChildren);
-	      }
-	    } else if (event.target === node) {
-	      isTarget = true;
-	      return true;
-	    } else {
-	      return false;
-	    }
-	    return true;
-	  }
-	  return isTarget;
-	}
 
 /***/ }),
 /* 11 */
@@ -1091,6 +1055,41 @@
 	    }
 	  }
 	  return object;
+	};
+	
+	var checkEventTarget = exports.checkEventTarget = function checkEventTarget(event, elem) {
+	  var isTarget = false;
+	
+	  for (var i = 0; i < elem.childNodes.length; i++) {
+	    var children = elem.childNodes[i];
+	
+	    if (event.target === children) {
+	      isTarget = true;
+	      return isTarget;
+	    } else {
+	      checkNode(children);
+	    }
+	  }
+	
+	  function checkNode(node) {
+	    if (node.hasChildNodes()) {
+	      for (var _i = 0; _i < node.childNodes.length; _i++) {
+	        var recuChildren = node.childNodes[_i];
+	        if (event.target === node) {
+	          isTarget = true;
+	          return true;
+	        }
+	        checkNode(recuChildren);
+	      }
+	    } else if (event.target === node) {
+	      isTarget = true;
+	      return true;
+	    } else {
+	      return false;
+	    }
+	    return true;
+	  }
+	  return isTarget;
 	};
 
 /***/ }),
@@ -2291,7 +2290,7 @@
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
-	var _eventEditView = __webpack_require__(30);
+	var _eventEditView = __webpack_require__(31);
 	
 	var _eventEditView2 = _interopRequireDefault(_eventEditView);
 	
@@ -2332,6 +2331,8 @@
 	
 	var _ru = __webpack_require__(22);
 	
+	var _helpers = __webpack_require__(11);
+	
 	var _eventFormHeader = __webpack_require__(23);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
@@ -2344,9 +2345,15 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getRecomendationTag = __webpack_require__(26);
+	var _getRecomendation = __webpack_require__(26);
 	
-	var _fieldAutocomplete = __webpack_require__(27);
+	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
+	
+	var _getRecomendationTag = __webpack_require__(27);
+	
+	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
+	
+	var _fieldAutocomplete = __webpack_require__(28);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2407,7 +2414,16 @@
 	        isDate: false
 	      }
 	    };
-	    _this.users = _application2.default.data.users || {};
+	    _this.appData = _application2.default.data;
+	    _this.users = _this.appData.users || {};
+	    _this.rooms = _this.appData.rooms || {};
+	
+	    _this.eventStartDate = new Date(+_this.eventInputData.startTime);
+	    _this.eventDateDay = (0, _helpers.getDateValue)(_this.eventStartDate).day; //день в который происходят все события
+	
+	    _this.initialAppDate = new Date();
+	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; //день инициализации приложения
+	    _this.eventUsers = [];
 	    return _this;
 	  }
 	
@@ -2415,6 +2431,8 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
+	      var events = this.appData.events[this.eventDateDay]; //события происходящие в этот день
+	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	
 	      if (this.eventInputData.hasOwnProperty('startTime')) {
 	        this.eventStartDate = new Date(+this.eventInputData.startTime);
@@ -2424,7 +2442,12 @@
 	        this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
 	      }
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations hidden">\n                      <div class="recommendations__title">\u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0438</div>\n                      <div class="recomendations__cnt"></div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	      this.eventDate = {
+	        start: (0, _helpers.getDateValue)(this.eventStartDate).minute,
+	        end: (0, _helpers.getDateValue)(this.eventEndDate).minute
+	      };
+	
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations hidden" id="recomParent">\n                      <div class="recommendations__title">\u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0438</div>\n                      <div class="recomendations__cnt"></div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -2439,20 +2462,22 @@
 	      (0, _fieldAutocomplete.autocompleteHandler)(event, this.users);
 	    }
 	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	    key: 'recommendationTagClickHandler',
+	    value: function recommendationTagClickHandler(recommendationTag) {
+	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
+	      recommendationTag.classList.add('recommendation-tag--selected');
+	
+	      var recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
 	
 	      var _iteratorNormalCompletion = true;
 	      var _didIteratorError = false;
 	      var _iteratorError = undefined;
 	
 	      try {
-	        for (var _iterator = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	          var cancelBtn = _step.value;
+	        for (var _iterator = Array.from(recomTagArr)[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	          var item = _step.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	          this.recomContainer.removeChild(item);
 	        }
 	      } catch (err) {
 	        _didIteratorError = true;
@@ -2469,20 +2494,35 @@
 	        }
 	      }
 	
-	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
+	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      this.recomContainer.appendChild(recommendationTag);
+	
+	      this.createBtn.classList.remove('button--disabled');
 	    }
 	  }, {
-	    key: 'clearHandlers',
-	    value: function clearHandlers() {
+	    key: 'recommendationTagDeleteBtnHandler',
+	    value: function recommendationTagDeleteBtnHandler(event) {
+	      var recommendationTag = event.target.parents('.recommendation-tag')[0];
+	      this.recomParent.classList.add('hidden');
+	      recommendationTag.parentNode.removeChild(recommendationTag);
+	      this.createBtn.classList.add('button--disabled');
+	      this.handleRecommendation();
+	    }
+	  }, {
+	    key: 'addUserHandler',
+	    value: function addUserHandler(event) {
+	      //Срабатывает при добавление участника события
+	      var usersId = [];
 	      var _iteratorNormalCompletion2 = true;
 	      var _didIteratorError2 = false;
 	      var _iteratorError2 = undefined;
 	
 	      try {
-	        for (var _iterator2 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var cancelBtn = _step2.value;
+	        for (var _iterator2 = this.eventUsers[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var eventUser = _step2.value;
 	
-	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	          usersId.push(eventUser.id);
 	        }
 	      } catch (err) {
 	        _didIteratorError2 = true;
@@ -2499,35 +2539,334 @@
 	        }
 	      }
 	
+	      if (usersId.indexOf(event.detail.userId) === -1) {
+	        this.eventUsers.push({ id: event.detail.userId });
+	      }
+	    }
+	  }, {
+	    key: 'removeUserHandler',
+	    value: function removeUserHandler(event) {
+	      //Срабатывает при удалении участника события
+	      var newArr = [];
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
+	
+	      try {
+	        for (var _iterator3 = this.eventUsers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var eventUser = _step3.value;
+	
+	          if (eventUser.id !== event.detail.userId) {
+	            newArr.push(eventUser);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
+	          }
+	        } finally {
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
+	          }
+	        }
+	      }
+	
+	      this.eventUsers = newArr;
+	    }
+	  }, {
+	    key: 'renderRecommendations',
+	    value: function renderRecommendations(recommendations) {
+	      var _this2 = this;
+	
+	      this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
+	      this.recomParent.classList.remove('hidden');
+	
+	      if (recommendations.length === 0) {
+	        this.recomContainer.innerHTML = 'Нет рекомендаций';
+	      } else {
+	        this.recomContainer.innerHTML = '';
+	      }
+	
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
+	
+	      try {
+	        var _loop = function _loop() {
+	          var recom = _step4.value;
+	
+	          var recomMarkup = (0, _getRecomendationTag2.default)(recom, false);
+	          var recomNode = (0, _helpers.getNodeFromMarkup)(recomMarkup);
+	
+	          recomNode.addEventListener('click', function (event) {
+	            var recomContent = recomNode.querySelector('.recommendation-tag__content');
+	            var recomContentChildsIsTarget = (0, _helpers.checkEventTarget)(event, recomContent);
+	            if (event.target === recomContent || recomContentChildsIsTarget) {
+	              _this2.recommendationTagClickHandler(recomNode);
+	            }
+	          });
+	          _this2.recomContainer.appendChild(recomNode);
+	        };
+	
+	        for (var _iterator4 = recommendations[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          _loop();
+	        }
+	      } catch (err) {
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
+	          }
+	        } finally {
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
+	
+	      try {
+	        for (var _iterator5 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var cancelBtn = _step5.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
+	          }
+	        } finally {
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
+	          }
+	        }
+	      }
+	
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	
+	      this.recomParent = this.element.querySelector('#recomParent');
+	      this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
+	      this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
+	
+	      document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
+	      document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	
+	      this.createBtn = this.element.querySelector('#createBtn');
+	    }
+	  }, {
+	    key: 'clearHandlers',
+	    value: function clearHandlers() {
+	      var _iteratorNormalCompletion6 = true;
+	      var _didIteratorError6 = false;
+	      var _iteratorError6 = undefined;
+	
+	      try {
+	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	          var cancelBtn = _step6.value;
+	
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	        }
+	      } catch (err) {
+	        _didIteratorError6 = true;
+	        _iteratorError6 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	            _iterator6.return();
+	          }
+	        } finally {
+	          if (_didIteratorError6) {
+	            throw _iteratorError6;
+	          }
+	        }
+	      }
+	
 	      this.eventDateDatepickr.destroy();
 	      this.eventTimeStartDatepickr.destroy();
 	      this.eventTimeEndDatepickr.destroy();
 	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	
+	      document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
+	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	    }
+	  }, {
+	    key: 'handleRecommendation',
+	    value: function handleRecommendation() {
+	      this.members = [];
+	      var person = {};
+	
+	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
+	        //Событие не может быть меньше 15 мин
+	        throw new Error('Минимальная продолжительность события - 15 минут');
+	      }
+	
+	      if (this.eventDateDay < this.initialAppDay) {
+	        throw new Error('Нельзя редактировать события ушедших дней');
+	      }
+	
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
+	
+	      try {
+	        for (var _iterator7 = this.eventUsers[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var eventUser = _step7.value;
+	          //
+	          var _iteratorNormalCompletion9 = true;
+	          var _didIteratorError9 = false;
+	          var _iteratorError9 = undefined;
+	
+	          try {
+	            for (var _iterator9 = this.users[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	              var user = _step9.value;
+	
+	              if (eventUser.id === user.id) {
+	                person = {
+	                  login: user.login,
+	                  floor: user.homeFloor,
+	                  avatarUrl: user.avatarUrl
+	                };
+	                this.members.push(person);
+	              }
+	            }
+	          } catch (err) {
+	            _didIteratorError9 = true;
+	            _iteratorError9 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion9 && _iterator9.return) {
+	                _iterator9.return();
+	              }
+	            } finally {
+	              if (_didIteratorError9) {
+	                throw _iteratorError9;
+	              }
+	            }
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
+	          }
+	        } finally {
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
+	          }
+	        }
+	      }
+	
+	      if (this.members.length === 0) {
+	        throw new Error('Выберите участников события');
+	      }
+	
+	      // Удалить редактируемое событие из списка событий
+	      var newEventsArr = [];
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
+	
+	      try {
+	        for (var _iterator8 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var event = _step8.value;
+	
+	          if (event.id !== this.currentId) {
+	            newEventsArr.push(event);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError8 = true;
+	        _iteratorError8 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	            _iterator8.return();
+	          }
+	        } finally {
+	          if (_didIteratorError8) {
+	            throw _iteratorError8;
+	          }
+	        }
+	      }
+	
+	      var db = {
+	        events: newEventsArr,
+	        rooms: this.appData.rooms,
+	        persons: this.appData.users
+	      };
+	
+	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
+	
+	      this.renderRecommendations(this.recommendationArr);
 	    }
 	  }, {
 	    key: 'viewRendered',
 	    value: function viewRendered() {
+	      var _this3 = this;
+	
 	      this.eventDateDatepickr = new _flatpickr2.default('#date', {
 	        locale: _ru.Russian,
 	        altInput: true,
 	        altFormat: 'j F, Y',
 	        defaultDate: this.eventStartDate,
 	        wrap: true,
-	        disableMobile: 'true'
+	        disableMobile: 'true',
+	        onChange: function onChange(selectedDates) {
+	          var newDay = (0, _helpers.getDateValue)(new Date(selectedDates)).day;
+	          var eventDayMinute = (0, _helpers.getDateValue)(_this3.eventStartDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
+	          var eventEndDayMinute = (0, _helpers.getDateValue)(_this3.eventEndDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
+	          _this3.eventStartDate = new Date(newDay + eventDayMinute);
+	          _this3.eventEndDate = new Date(newDay + eventEndDayMinute);
+	          _this3.eventTimeStartDatepickr.setDate(_this3.eventStartDate);
+	          _this3.eventTimeEndDatepickr.setDate(_this3.eventEndDate);
+	        }
 	      });
 	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTimeInput', {
 	        enableTime: true,
 	        noCalendar: true,
 	        dateFormat: 'H:i',
 	        time_24hr: true,
-	        defaultDate: this.eventStartDate
+	        defaultDate: this.eventStartDate,
+	        onChange: function onChange(selectedDates) {
+	          var start = new Date(selectedDates);
+	          _this3.eventDate.start = start.getTime();
+	          _this3.handleRecommendation();
+	        }
 	      });
 	      this.eventTimeEndDatepickr = new _flatpickr2.default('#eventEndTimeInput', {
 	        enableTime: true,
 	        noCalendar: true,
 	        dateFormat: 'H:i',
 	        time_24hr: true,
-	        defaultDate: this.eventEndDate
+	        defaultDate: this.eventEndDate,
+	        onChange: function onChange(selectedDates) {
+	          var end = new Date(selectedDates);
+	          _this3.eventDate.end = end.getTime();
+	          _this3.handleRecommendation();
+	        }
+	
 	      });
 	    }
 	  }]);
@@ -2541,14 +2880,14 @@
 /* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
 	
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
-	/* flatpickr v4.2.3, @license MIT */
+	/* flatpickr v4.1.4, @license MIT */
 	(function (global, factory) {
-	    ( false ? 'undefined' : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? factory(exports) :  true ? !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : factory(global.flatpickr = {});
-	})(undefined, function (exports) {
+	    ( false ? 'undefined' : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? module.exports = factory() :  true ? !(__WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.call(exports, __webpack_require__, exports, module)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : global.flatpickr = factory();
+	})(undefined, function () {
 	    'use strict';
 	
 	    /*! *****************************************************************************
@@ -2575,6 +2914,108 @@
 	            }
 	        }
 	        return t;
+	    };
+	
+	    function compareDates(date1, date2, timeless) {
+	        if (timeless !== false) {
+	            return new Date(date1.getTime()).setHours(0, 0, 0, 0) - new Date(date2.getTime()).setHours(0, 0, 0, 0);
+	        }
+	        return date1.getTime() - date2.getTime();
+	    }
+	    var monthToStr = function monthToStr(monthNumber, shorthand, locale) {
+	        return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber];
+	    };
+	    var getWeek = function getWeek(givenDate) {
+	        var onejan = new Date(givenDate.getFullYear(), 0, 1);
+	        return Math.ceil(((givenDate.getTime() - onejan.getTime()) / 86400000 + onejan.getDay() + 1) / 7);
+	    };
+	    var duration = {
+	        DAY: 86400000
+	    };
+	
+	    var defaults = {
+	        _disable: [],
+	        _enable: [],
+	        allowInput: false,
+	        altFormat: "F j, Y",
+	        altInput: false,
+	        altInputClass: "form-control input",
+	        animate: (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === "object" && window.navigator.userAgent.indexOf("MSIE") === -1,
+	        ariaDateFormat: "F j, Y",
+	        clickOpens: true,
+	        closeOnSelect: true,
+	        conjunction: ", ",
+	        dateFormat: "Y-m-d",
+	        defaultHour: 12,
+	        defaultMinute: 0,
+	        defaultSeconds: 0,
+	        disable: [],
+	        disableMobile: false,
+	        enable: [],
+	        enableSeconds: false,
+	        enableTime: false,
+	        errorHandler: console.warn,
+	        getWeek: getWeek,
+	        hourIncrement: 1,
+	        ignoredFocusElements: [],
+	        inline: false,
+	        locale: "default",
+	        minuteIncrement: 5,
+	        mode: "single",
+	        nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
+	        noCalendar: false,
+	        onChange: [],
+	        onClose: [],
+	        onDayCreate: [],
+	        onDestroy: [],
+	        onKeyDown: [],
+	        onMonthChange: [],
+	        onOpen: [],
+	        onParseConfig: [],
+	        onReady: [],
+	        onValueUpdate: [],
+	        onYearChange: [],
+	        plugins: [],
+	        position: "auto",
+	        positionElement: undefined,
+	        prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
+	        shorthandCurrentMonth: false,
+	        static: false,
+	        time_24hr: false,
+	        weekNumbers: false,
+	        wrap: false
+	    };
+	
+	    var english = {
+	        weekdays: {
+	            shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
+	            longhand: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
+	        },
+	        months: {
+	            shorthand: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+	            longhand: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+	        },
+	        daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
+	        firstDayOfWeek: 0,
+	        ordinal: function ordinal(nth) {
+	            var s = nth % 100;
+	            if (s > 3 && s < 21) return "th";
+	            switch (s % 10) {
+	                case 1:
+	                    return "st";
+	                case 2:
+	                    return "nd";
+	                case 3:
+	                    return "rd";
+	                default:
+	                    return "th";
+	            }
+	        },
+	        rangeSeparator: " to ",
+	        weekAbbreviation: "Wk",
+	        scrollTitle: "Scroll to increment",
+	        toggleTitle: "Click to toggle",
+	        amPM: ["AM", "PM"]
 	    };
 	
 	    var pad = function pad(number) {
@@ -2605,6 +3046,40 @@
 	    function mouseDelta(e) {
 	        var delta = e.wheelDelta || -e.deltaY;
 	        return delta >= 0 ? 1 : -1;
+	    }
+	
+	    function toggleClass(elem, className, bool) {
+	        if (bool === true) return elem.classList.add(className);
+	        elem.classList.remove(className);
+	    }
+	    function createElement(tag, className, content) {
+	        var e = window.document.createElement(tag);
+	        className = className || "";
+	        content = content || "";
+	        e.className = className;
+	        if (content !== undefined) e.textContent = content;
+	        return e;
+	    }
+	    function clearNode(node) {
+	        while (node.firstChild) {
+	            node.removeChild(node.firstChild);
+	        }
+	    }
+	    function findParent(node, condition) {
+	        if (condition(node)) return node;else if (node.parentNode) return findParent(node.parentNode, condition);
+	        return undefined;
+	    }
+	    function createNumberInput(inputClassName) {
+	        var wrapper = createElement("div", "numInputWrapper"),
+	            numInput = createElement("input", "numInput " + inputClassName),
+	            arrowUp = createElement("span", "arrowUp"),
+	            arrowDown = createElement("span", "arrowDown");
+	        numInput.type = "text";
+	        numInput.pattern = "\\d*";
+	        wrapper.appendChild(numInput);
+	        wrapper.appendChild(arrowUp);
+	        wrapper.appendChild(arrowDown);
+	        return wrapper;
 	    }
 	
 	    var do_nothing = function do_nothing() {
@@ -2766,214 +3241,6 @@
 	        }
 	    };
 	
-	    var english = {
-	        weekdays: {
-	            shorthand: ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"],
-	            longhand: ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"]
-	        },
-	        months: {
-	            shorthand: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
-	            longhand: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
-	        },
-	        daysInMonth: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31],
-	        firstDayOfWeek: 0,
-	        ordinal: function ordinal(nth) {
-	            var s = nth % 100;
-	            if (s > 3 && s < 21) return "th";
-	            switch (s % 10) {
-	                case 1:
-	                    return "st";
-	                case 2:
-	                    return "nd";
-	                case 3:
-	                    return "rd";
-	                default:
-	                    return "th";
-	            }
-	        },
-	        rangeSeparator: " to ",
-	        weekAbbreviation: "Wk",
-	        scrollTitle: "Scroll to increment",
-	        toggleTitle: "Click to toggle",
-	        amPM: ["AM", "PM"]
-	    };
-	
-	    var createDateFormatter = function createDateFormatter(_a) {
-	        var _b = _a.config,
-	            config = _b === void 0 ? defaults : _b,
-	            _c = _a.l10n,
-	            l10n = _c === void 0 ? english : _c;
-	        return function (dateObj, frmt) {
-	            if (config.formatDate !== undefined) return config.formatDate(dateObj, frmt);
-	            return frmt.split("").map(function (c, i, arr) {
-	                return formats[c] && arr[i - 1] !== "\\" ? formats[c](dateObj, l10n, config) : c !== "\\" ? c : "";
-	            }).join("");
-	        };
-	    };
-	    var createDateParser = function createDateParser(_a) {
-	        var _b = _a.config,
-	            config = _b === void 0 ? defaults : _b,
-	            _c = _a.l10n,
-	            l10n = _c === void 0 ? english : _c;
-	        return function (date, givenFormat, timeless) {
-	            if (date !== 0 && !date) return undefined;
-	            var parsedDate;
-	            var date_orig = date;
-	            if (date instanceof Date) parsedDate = new Date(date.getTime());else if (typeof date !== "string" && date.toFixed !== undefined) parsedDate = new Date(date);else if (typeof date === "string") {
-	                var format = givenFormat || (config || defaults).dateFormat;
-	                var datestr = String(date).trim();
-	                if (datestr === "today") {
-	                    parsedDate = new Date();
-	                    timeless = true;
-	                } else if (/Z$/.test(datestr) || /GMT$/.test(datestr)) parsedDate = new Date(date);else if (config && config.parseDate) parsedDate = config.parseDate(date, format);else {
-	                    parsedDate = !config || !config.noCalendar ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0) : new Date(new Date().setHours(0, 0, 0, 0));
-	                    var matched = void 0,
-	                        ops = [];
-	                    for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
-	                        var token = format[i];
-	                        var isBackSlash = token === "\\";
-	                        var escaped = format[i - 1] === "\\" || isBackSlash;
-	                        if (tokenRegex[token] && !escaped) {
-	                            regexStr += tokenRegex[token];
-	                            var match = new RegExp(regexStr).exec(date);
-	                            if (match && (matched = true)) {
-	                                ops[token !== "Y" ? "push" : "unshift"]({
-	                                    fn: revFormat[token],
-	                                    val: match[++matchIndex]
-	                                });
-	                            }
-	                        } else if (!isBackSlash) regexStr += ".";
-	                        ops.forEach(function (_a) {
-	                            var fn = _a.fn,
-	                                val = _a.val;
-	                            return parsedDate = fn(parsedDate, val, l10n) || parsedDate;
-	                        });
-	                    }
-	                    parsedDate = matched ? parsedDate : undefined;
-	                }
-	            }
-	            if (!(parsedDate instanceof Date)) {
-	                config.errorHandler(new Error("Invalid date provided: " + date_orig));
-	                return undefined;
-	            }
-	            if (timeless === true) parsedDate.setHours(0, 0, 0, 0);
-	            return parsedDate;
-	        };
-	    };
-	    function compareDates(date1, date2, timeless) {
-	        if (timeless === void 0) {
-	            timeless = true;
-	        }
-	        if (timeless !== false) {
-	            return new Date(date1.getTime()).setHours(0, 0, 0, 0) - new Date(date2.getTime()).setHours(0, 0, 0, 0);
-	        }
-	        return date1.getTime() - date2.getTime();
-	    }
-	
-	    var monthToStr = function monthToStr(monthNumber, shorthand, locale) {
-	        return locale.months[shorthand ? "shorthand" : "longhand"][monthNumber];
-	    };
-	    var getWeek = function getWeek(givenDate) {
-	        var date = new Date(givenDate.getTime());
-	        date.setHours(0, 0, 0, 0);
-	        date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
-	        var week1 = new Date(date.getFullYear(), 0, 4);
-	        return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-	    };
-	    var duration = {
-	        DAY: 86400000
-	    };
-	
-	    var defaults = {
-	        _disable: [],
-	        _enable: [],
-	        allowInput: false,
-	        altFormat: "F j, Y",
-	        altInput: false,
-	        altInputClass: "form-control input",
-	        animate: (typeof window === 'undefined' ? 'undefined' : _typeof(window)) === "object" && window.navigator.userAgent.indexOf("MSIE") === -1,
-	        ariaDateFormat: "F j, Y",
-	        clickOpens: true,
-	        closeOnSelect: true,
-	        conjunction: ", ",
-	        dateFormat: "Y-m-d",
-	        defaultHour: 12,
-	        defaultMinute: 0,
-	        defaultSeconds: 0,
-	        disable: [],
-	        disableMobile: false,
-	        enable: [],
-	        enableSeconds: false,
-	        enableTime: false,
-	        errorHandler: console.warn,
-	        getWeek: getWeek,
-	        hourIncrement: 1,
-	        ignoredFocusElements: [],
-	        inline: false,
-	        locale: "default",
-	        minuteIncrement: 5,
-	        mode: "single",
-	        nextArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M13.207 8.472l-7.854 7.854-0.707-0.707 7.146-7.146-7.146-7.148 0.707-0.707 7.854 7.854z' /></svg>",
-	        noCalendar: false,
-	        onChange: [],
-	        onClose: [],
-	        onDayCreate: [],
-	        onDestroy: [],
-	        onKeyDown: [],
-	        onMonthChange: [],
-	        onOpen: [],
-	        onParseConfig: [],
-	        onReady: [],
-	        onValueUpdate: [],
-	        onYearChange: [],
-	        onPreCalendarPosition: [],
-	        plugins: [],
-	        position: "auto",
-	        positionElement: undefined,
-	        prevArrow: "<svg version='1.1' xmlns='http://www.w3.org/2000/svg' xmlns:xlink='http://www.w3.org/1999/xlink' viewBox='0 0 17 17'><g></g><path d='M5.207 8.471l7.146 7.147-0.707 0.707-7.853-7.854 7.854-7.853 0.707 0.707-7.147 7.146z' /></svg>",
-	        shorthandCurrentMonth: false,
-	        static: false,
-	        time_24hr: false,
-	        weekNumbers: false,
-	        wrap: false
-	    };
-	
-	    function toggleClass(elem, className, bool) {
-	        if (bool === true) return elem.classList.add(className);
-	        elem.classList.remove(className);
-	    }
-	    function createElement(tag, className, content) {
-	        var e = window.document.createElement(tag);
-	        className = className || "";
-	        content = content || "";
-	        e.className = className;
-	        if (content !== undefined) e.textContent = content;
-	        return e;
-	    }
-	    function clearNode(node) {
-	        while (node.firstChild) {
-	            node.removeChild(node.firstChild);
-	        }
-	    }
-	    function findParent(node, condition) {
-	        if (condition(node)) return node;else if (node.parentNode) return findParent(node.parentNode, condition);
-	        return undefined;
-	    }
-	    function createNumberInput(inputClassName, opts) {
-	        var wrapper = createElement("div", "numInputWrapper"),
-	            numInput = createElement("input", "numInput " + inputClassName),
-	            arrowUp = createElement("span", "arrowUp"),
-	            arrowDown = createElement("span", "arrowDown");
-	        numInput.type = "text";
-	        numInput.pattern = "\\d*";
-	        if (opts !== undefined) for (var key in opts) {
-	            numInput.setAttribute(key, opts[key]);
-	        }wrapper.appendChild(numInput);
-	        wrapper.appendChild(arrowUp);
-	        wrapper.appendChild(arrowDown);
-	        return wrapper;
-	    }
-	
 	    if (typeof Object.assign !== "function") {
 	        Object.assign = function (target) {
 	            var args = [];
@@ -2998,10 +3265,10 @@
 	        };
 	    }
 	
-	    var DEBOUNCED_CHANGE_MS = 300;
 	    function FlatpickrInstance(element, instanceConfig) {
 	        var self = {};
-	        self.parseDate = createDateParser(self);
+	        self.parseDate = parseDate;
+	        self.formatDate = formatDate;
 	        self._animationLoop = [];
 	        self._handlers = [];
 	        self._bind = bind;
@@ -3053,10 +3320,7 @@
 	            if (self.weekWrapper !== undefined && self.daysContainer !== undefined) {
 	                self.calendarContainer.style.width = self.daysContainer.offsetWidth + self.weekWrapper.offsetWidth + "px";
 	            }
-	            var isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-	            if (!self.isMobile && isSafari) {
-	                positionCalendar();
-	            }
+	            if (!self.isMobile) positionCalendar();
 	            triggerEvent("onReady");
 	        }
 	        function bindToInstance(fn) {
@@ -3064,20 +3328,21 @@
 	        }
 	        function updateTime(e) {
 	            if (self.config.noCalendar && self.selectedDates.length === 0) {
-	                self.setDate(self.config.minDate !== undefined ? new Date(self.config.minDate.getTime()) : new Date().setHours(self.config.defaultHour, self.config.defaultMinute, self.config.defaultSeconds, 0), false);
+	                var minDate = self.config.minDate;
+	                self.setDate(new Date().setHours(!minDate ? self.config.defaultHour : minDate.getHours(), !minDate ? self.config.defaultMinute : minDate.getMinutes(), !minDate || !self.config.enableSeconds ? self.config.defaultSeconds : minDate.getSeconds()), false);
 	                setHoursFromInputs();
 	                updateValue();
 	            }
 	            timeWrapper(e);
 	            if (self.selectedDates.length === 0) return;
-	            if (e.type !== "input") {
+	            if (!self.minDateHasTime || e.type !== "input" || e.target.value.length >= 2) {
 	                setHoursFromInputs();
 	                updateValue();
 	            } else {
 	                setTimeout(function () {
 	                    setHoursFromInputs();
 	                    updateValue();
-	                }, DEBOUNCED_CHANGE_MS);
+	                }, 1000);
 	            }
 	        }
 	        function ampm2military(hour, amPM) {
@@ -3098,17 +3363,13 @@
 	                minutes = (parseInt(self.minuteElement.value, 10) || 0) % 60,
 	                seconds = self.secondElement !== undefined ? (parseInt(self.secondElement.value, 10) || 0) % 60 : 0;
 	            if (self.amPM !== undefined) hours = ampm2military(hours, self.amPM.textContent);
-	            var limitMinHours = self.config.minTime !== undefined || self.config.minDate && self.minDateHasTime && self.latestSelectedDateObj && compareDates(self.latestSelectedDateObj, self.config.minDate, true) === 0;
-	            var limitMaxHours = self.config.maxTime !== undefined || self.config.maxDate && self.maxDateHasTime && self.latestSelectedDateObj && compareDates(self.latestSelectedDateObj, self.config.maxDate, true) === 0;
-	            if (limitMaxHours) {
-	                var maxTime = self.config.maxTime !== undefined ? self.config.maxTime : self.config.maxDate;
-	                hours = Math.min(hours, maxTime.getHours());
-	                if (hours === maxTime.getHours()) minutes = Math.min(minutes, maxTime.getMinutes());
+	            if (self.config.minDate && self.minDateHasTime && self.latestSelectedDateObj && compareDates(self.latestSelectedDateObj, self.config.minDate) === 0) {
+	                hours = Math.max(hours, self.config.minDate.getHours());
+	                if (hours === self.config.minDate.getHours()) minutes = Math.max(minutes, self.config.minDate.getMinutes());
 	            }
-	            if (limitMinHours) {
-	                var minTime = self.config.minTime !== undefined ? self.config.minTime : self.config.minDate;
-	                hours = Math.max(hours, minTime.getHours());
-	                if (hours === minTime.getHours()) minutes = Math.max(minutes, minTime.getMinutes());
+	            if (self.config.maxDate && self.maxDateHasTime && self.latestSelectedDateObj && compareDates(self.latestSelectedDateObj, self.config.maxDate) === 0) {
+	                hours = Math.min(hours, self.config.maxDate.getHours());
+	                if (hours === self.config.maxDate.getHours()) minutes = Math.min(minutes, self.config.maxDate.getMinutes());
 	            }
 	            setHours(hours, minutes, seconds);
 	        }
@@ -3133,14 +3394,14 @@
 	                if (!/[^\d]/.test(year.toString())) changeYear(year);
 	            }
 	        }
-	        function bind(element, event, handler, options) {
+	        function bind(element, event, handler) {
 	            if (event instanceof Array) return event.forEach(function (ev) {
-	                return bind(element, ev, handler, options);
+	                return bind(element, ev, handler);
 	            });
 	            if (element instanceof Array) return element.forEach(function (el) {
-	                return bind(el, event, handler, options);
+	                return bind(el, event, handler);
 	            });
-	            element.addEventListener(event, handler, options);
+	            element.addEventListener(event, handler);
 	            self._handlers.push({ element: element, event: event, handler: handler });
 	        }
 	        function onClick(handler) {
@@ -3164,7 +3425,7 @@
 	                return;
 	            }
 	            var debouncedResize = debounce(onResize, 50);
-	            self._debouncedChange = debounce(triggerChange, DEBOUNCED_CHANGE_MS);
+	            self._debouncedChange = debounce(triggerChange, 300);
 	            if (self.config.mode === "range" && self.daysContainer && !/iPhone|iPad|iPod/i.test(navigator.userAgent)) bind(self.daysContainer, "mouseover", function (e) {
 	                return onMouseOver(e.target);
 	            });
@@ -3173,13 +3434,16 @@
 	            if (!self.config.inline && !self.config.static) bind(window, "resize", debouncedResize);
 	            if (window.ontouchstart !== undefined) bind(window.document.body, "touchstart", documentClick);
 	            bind(window.document.body, "mousedown", onClick(documentClick));
-	            bind(window.document.body, "focus", documentClick, { capture: true });
+	            bind(self._input, "blur", documentClick);
 	            if (self.config.clickOpens === true) {
 	                bind(self._input, "focus", self.open);
 	                bind(self._input, "mousedown", onClick(self.open));
 	            }
 	            if (self.daysContainer !== undefined) {
-	                bind(self.monthNav, "wheel", onMonthNavScroll);
+	                self.monthNav.addEventListener("wheel", function (e) {
+	                    return e.preventDefault();
+	                });
+	                bind(self.monthNav, "wheel", debounce(onMonthNavScroll, 10));
 	                bind(self.monthNav, "mousedown", onClick(onMonthNavClick));
 	                bind(self.monthNav, ["keyup", "increment"], onYearInput);
 	                bind(self.daysContainer, "mousedown", onClick(selectDate));
@@ -3194,7 +3458,8 @@
 	                };
 	                bind(self.timeContainer, ["wheel", "input", "increment"], updateTime);
 	                bind(self.timeContainer, "mousedown", onClick(timeIncrement));
-	                bind(self.timeContainer, ["wheel", "input", "increment"], self._debouncedChange, { passive: true });
+	                bind(self.timeContainer, ["wheel", "increment"], self._debouncedChange);
+	                bind(self.timeContainer, "input", triggerChange);
 	                bind([self.hourElement, self.minuteElement], ["focus", "click"], selText);
 	                if (self.secondElement !== undefined) bind(self.secondElement, "focus", function () {
 	                    return self.secondElement && self.secondElement.select();
@@ -3249,7 +3514,7 @@
 	            }
 	        }
 	        function jumpToDate(jumpDate) {
-	            var jumpTo = jumpDate !== undefined ? self.parseDate(jumpDate) : self.latestSelectedDateObj || (self.config.minDate && self.config.minDate > self.now ? self.config.minDate : self.config.maxDate && self.config.maxDate < self.now ? self.config.maxDate : self.now);
+	            var jumpTo = jumpDate !== undefined ? parseDate(jumpDate) : self.latestSelectedDateObj || (self.config.minDate && self.config.minDate > self.now ? self.config.minDate : self.config.maxDate && self.config.maxDate < self.now ? self.config.maxDate : self.now);
 	            try {
 	                if (jumpTo !== undefined) {
 	                    self.currentYear = jumpTo.getFullYear();
@@ -3348,7 +3613,7 @@
 	                if (self.selectedDates.length === 1 && self.minRangeDate !== undefined && self.maxRangeDate !== undefined && (date < self.minRangeDate || date > self.maxRangeDate)) dayElement.classList.add("notAllowed");
 	            }
 	            if (self.weekNumbers && className !== "prevMonthDay" && dayNumber % 7 === 1) {
-	                self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='flatpickr-day'>" + self.config.getWeek(date) + "</span>");
+	                self.weekNumbers.insertAdjacentHTML("beforeend", "<span class='disabled flatpickr-day'>" + self.config.getWeek(date) + "</span>");
 	            }
 	            triggerEvent("onDayCreate", dayElement);
 	            return dayElement;
@@ -3422,12 +3687,12 @@
 	            self.prevMonthNav.innerHTML = self.config.prevArrow;
 	            self.currentMonthElement = createElement("span", "cur-month");
 	            self.currentMonthElement.title = self.l10n.scrollTitle;
-	            var yearInput = createNumberInput("cur-year", { tabindex: "-1" });
+	            var yearInput = createNumberInput("cur-year");
 	            self.currentYearElement = yearInput.childNodes[0];
 	            self.currentYearElement.title = self.l10n.scrollTitle;
-	            if (self.config.minDate) self.currentYearElement.setAttribute("data-min", self.config.minDate.getFullYear().toString());
+	            if (self.config.minDate) self.currentYearElement.min = self.config.minDate.getFullYear().toString();
 	            if (self.config.maxDate) {
-	                self.currentYearElement.setAttribute("data-max", self.config.maxDate.getFullYear().toString());
+	                self.currentYearElement.max = self.config.maxDate.getFullYear().toString();
 	                self.currentYearElement.disabled = !!self.config.minDate && self.config.minDate.getFullYear() === self.config.maxDate.getFullYear();
 	            }
 	            self.nextMonthNav = createElement("span", "flatpickr-next-month");
@@ -3473,12 +3738,12 @@
 	            self.hourElement.tabIndex = self.minuteElement.tabIndex = -1;
 	            self.hourElement.value = pad(self.latestSelectedDateObj ? self.latestSelectedDateObj.getHours() : self.config.time_24hr ? self.config.defaultHour : military2ampm(self.config.defaultHour));
 	            self.minuteElement.value = pad(self.latestSelectedDateObj ? self.latestSelectedDateObj.getMinutes() : self.config.defaultMinute);
-	            self.hourElement.setAttribute("data-step", self.config.hourIncrement.toString());
-	            self.minuteElement.setAttribute("data-step", self.config.minuteIncrement.toString());
-	            self.hourElement.setAttribute("data-min", self.config.time_24hr ? "0" : "1");
-	            self.hourElement.setAttribute("data-max", self.config.time_24hr ? "23" : "12");
-	            self.minuteElement.setAttribute("data-min", "0");
-	            self.minuteElement.setAttribute("data-max", "59");
+	            self.hourElement.step = self.config.hourIncrement.toString();
+	            self.minuteElement.step = self.config.minuteIncrement.toString();
+	            self.hourElement.min = self.config.time_24hr ? "0" : "1";
+	            self.hourElement.max = self.config.time_24hr ? "23" : "12";
+	            self.minuteElement.min = "0";
+	            self.minuteElement.max = "59";
 	            self.hourElement.title = self.minuteElement.title = self.l10n.scrollTitle;
 	            self.timeContainer.appendChild(hourInput);
 	            self.timeContainer.appendChild(separator);
@@ -3489,9 +3754,9 @@
 	                var secondInput = createNumberInput("flatpickr-second");
 	                self.secondElement = secondInput.childNodes[0];
 	                self.secondElement.value = pad(self.latestSelectedDateObj ? self.latestSelectedDateObj.getSeconds() : self.config.defaultSeconds);
-	                self.secondElement.setAttribute("data-step", self.minuteElement.getAttribute("data-step"));
-	                self.secondElement.setAttribute("data-min", self.minuteElement.getAttribute("data-min"));
-	                self.secondElement.setAttribute("data-max", self.minuteElement.getAttribute("data-max"));
+	                self.secondElement.step = self.minuteElement.step;
+	                self.secondElement.min = self.minuteElement.min;
+	                self.secondElement.max = self.minuteElement.max;
 	                self.timeContainer.appendChild(createElement("span", "flatpickr-time-separator", ":"));
 	                self.timeContainer.appendChild(secondInput);
 	            }
@@ -3597,9 +3862,6 @@
 	            self.selectedDates = [];
 	            self.latestSelectedDateObj = undefined;
 	            self.showTimeInput = false;
-	            if (self.config.enableTime) {
-	                if (self.config.minDate !== undefined) setHoursFromDate(self.config.minDate);else setHours(self.config.defaultHour, self.config.defaultMinute, self.config.defaultSeconds);
-	            }
 	            self.redraw();
 	            if (triggerChangeEvent) triggerEvent("onChange");
 	        }
@@ -3648,10 +3910,7 @@
 	                var isCalendarElement = isCalendarElem(e.target);
 	                var isInput = e.target === self.input || e.target === self.altInput || self.element.contains(e.target) || e.path && e.path.indexOf && (~e.path.indexOf(self.input) || ~e.path.indexOf(self.altInput));
 	                var lostFocus = e.type === "blur" ? isInput && e.relatedTarget && !isCalendarElem(e.relatedTarget) : !isInput && !isCalendarElement;
-	                var isIgnored = !self.config.ignoredFocusElements.some(function (elem) {
-	                    return elem.contains(e.target);
-	                });
-	                if (lostFocus && isIgnored) {
+	                if (lostFocus && self.config.ignoredFocusElements.indexOf(e.target) === -1) {
 	                    self.close();
 	                    if (self.config.mode === "range" && self.selectedDates.length === 1) {
 	                        self.clear(false);
@@ -3661,7 +3920,7 @@
 	            }
 	        }
 	        function changeYear(newYear) {
-	            if (!newYear || self.currentYearElement.getAttribute("data-min") && newYear < parseInt(self.currentYearElement.getAttribute("data-min")) || self.currentYearElement.getAttribute("data-max") && newYear > parseInt(self.currentYearElement.getAttribute("data-max"))) return;
+	            if (!newYear || self.currentYearElement.min && newYear < parseInt(self.currentYearElement.min) || self.currentYearElement.max && newYear > parseInt(self.currentYearElement.max)) return;
 	            var newYearNum = newYear,
 	                isNewYear = self.currentYear !== newYearNum;
 	            self.currentYear = newYearNum || self.currentYear;
@@ -3700,39 +3959,39 @@
 	            var allowInput = self.config.allowInput;
 	            var allowKeydown = self.isOpen && (!allowInput || !isInput);
 	            var allowInlineKeydown = self.config.inline && isInput && !allowInput;
-	            if (e.keyCode === 13 && isInput) {
+	            if (e.key === "Enter" && isInput) {
 	                if (allowInput) {
 	                    self.setDate(self._input.value, true, e.target === self.altInput ? self.config.altFormat : self.config.dateFormat);
 	                    return e.target.blur();
 	                } else self.open();
 	            } else if (calendarElem || allowKeydown || allowInlineKeydown) {
 	                var isTimeObj = !!self.timeContainer && self.timeContainer.contains(e.target);
-	                switch (e.keyCode) {
-	                    case 13:
+	                switch (e.key) {
+	                    case "Enter":
 	                        if (isTimeObj) updateValue();else selectDate(e);
 	                        break;
-	                    case 27:
+	                    case "Escape":
 	                        e.preventDefault();
 	                        self.close();
 	                        break;
-	                    case 8:
-	                    case 46:
+	                    case "Backspace":
+	                    case "Delete":
 	                        if (isInput && !self.config.allowInput) self.clear();
 	                        break;
-	                    case 37:
-	                    case 39:
+	                    case "ArrowLeft":
+	                    case "ArrowRight":
 	                        if (!isTimeObj) {
 	                            e.preventDefault();
 	                            if (self.daysContainer) {
-	                                var delta_1 = e.keyCode === 39 ? 1 : -1;
+	                                var delta_1 = e.key === "ArrowRight" ? 1 : -1;
 	                                if (!e.ctrlKey) focusOnDay(e.target.$i, delta_1);else changeMonth(delta_1, true, undefined, true);
 	                            }
 	                        } else if (self.hourElement) self.hourElement.focus();
 	                        break;
-	                    case 38:
-	                    case 40:
+	                    case "ArrowUp":
+	                    case "ArrowDown":
 	                        e.preventDefault();
-	                        var delta = e.keyCode === 40 ? 1 : -1;
+	                        var delta = e.key === "ArrowDown" ? 1 : -1;
 	                        if (self.daysContainer && e.target.$i !== undefined) {
 	                            if (e.ctrlKey) {
 	                                changeYear(self.currentYear - delta);
@@ -3744,7 +4003,7 @@
 	                            self._debouncedChange();
 	                        }
 	                        break;
-	                    case 9:
+	                    case "Tab":
 	                        if (e.target === self.hourElement) {
 	                            e.preventDefault();
 	                            self.minuteElement.select();
@@ -3756,10 +4015,6 @@
 	                            self.amPM.focus();
 	                        }
 	                        break;
-	                    default:
-	                        break;
-	                }
-	                switch (e.key) {
 	                    case self.l10n.amPM[0].charAt(0):
 	                        if (self.amPM !== undefined && e.target === self.amPM) {
 	                            self.amPM.textContent = self.l10n.amPM[0];
@@ -3781,7 +4036,7 @@
 	            }
 	        }
 	        function onMouseOver(elem) {
-	            if (self.selectedDates.length !== 1 || !elem.classList.contains("flatpickr-day") || elem.classList.contains("disabled") || self.minRangeDate === undefined || self.maxRangeDate === undefined) return;
+	            if (self.selectedDates.length !== 1 || !elem.classList.contains("flatpickr-day") || self.minRangeDate === undefined || self.maxRangeDate === undefined) return;
 	            var hoverDate = elem.dateObj,
 	                initialDate = self.parseDate(self.selectedDates[0], undefined, true),
 	                rangeStartDate = Math.min(hoverDate.getTime(), self.selectedDates[0].getTime()),
@@ -3838,16 +4093,14 @@
 	            if (self._input.disabled || self.config.inline) return;
 	            var wasOpen = self.isOpen;
 	            self.isOpen = true;
-	            if (!wasOpen) {
-	                self.calendarContainer.classList.add("open");
-	                self._input.classList.add("active");
-	                triggerEvent("onOpen");
-	                positionCalendar(positionElement);
-	            }
+	            positionCalendar(positionElement);
+	            self.calendarContainer.classList.add("open");
+	            self._input.classList.add("active");
+	            !wasOpen && triggerEvent("onOpen");
 	        }
 	        function minMaxDateSetter(type) {
 	            return function (date) {
-	                var dateObj = self.config["_" + type + "Date"] = self.parseDate(date, self.config.dateFormat);
+	                var dateObj = self.config["_" + type + "Date"] = self.parseDate(date);
 	                var inverseDateObj = self.config["_" + (type === "min" ? "max" : "min") + "Date"];
 	                if (dateObj !== undefined) {
 	                    self[type === "min" ? "minDateHasTime" : "maxDateHasTime"] = dateObj.getHours() > 0 || dateObj.getMinutes() > 0 || dateObj.getSeconds() > 0;
@@ -3868,12 +4121,10 @@
 	        }
 	        function parseConfig() {
 	            var boolOpts = ["wrap", "weekNumbers", "allowInput", "clickOpens", "time_24hr", "enableTime", "noCalendar", "altInput", "shorthandCurrentMonth", "inline", "static", "enableSeconds", "disableMobile"];
-	            var hooks = ["onChange", "onClose", "onDayCreate", "onDestroy", "onKeyDown", "onMonthChange", "onOpen", "onParseConfig", "onReady", "onValueUpdate", "onYearChange", "onPreCalendarPosition"];
+	            var hooks = ["onChange", "onClose", "onDayCreate", "onDestroy", "onKeyDown", "onMonthChange", "onOpen", "onParseConfig", "onReady", "onValueUpdate", "onYearChange"];
 	            self.config = __assign({}, flatpickr.defaultConfig);
 	            var userConfig = __assign({}, instanceConfig, JSON.parse(JSON.stringify(element.dataset || {})));
 	            var formats$$1 = {};
-	            self.config.parseDate = userConfig.parseDate;
-	            self.config.formatDate = userConfig.formatDate;
 	            Object.defineProperty(self.config, "enable", {
 	                get: function get() {
 	                    return self.config._enable || [];
@@ -3908,23 +4159,6 @@
 	                },
 	                set: minMaxDateSetter("max")
 	            });
-	            var minMaxTimeSetter = function minMaxTimeSetter(type) {
-	                return function (val) {
-	                    self.config[type === "min" ? "_minTime" : "_maxTime"] = self.parseDate(val, "H:i");
-	                };
-	            };
-	            Object.defineProperty(self.config, "minTime", {
-	                get: function get() {
-	                    return self.config._minTime;
-	                },
-	                set: minMaxTimeSetter("min")
-	            });
-	            Object.defineProperty(self.config, "maxTime", {
-	                get: function get() {
-	                    return self.config._maxTime;
-	                },
-	                set: minMaxTimeSetter("max")
-	            });
 	            Object.assign(self.config, formats$$1, userConfig);
 	            for (var i = 0; i < boolOpts.length; i++) {
 	                self.config[boolOpts[i]] = self.config[boolOpts[i]] === true || self.config[boolOpts[i]] === "true";
@@ -3948,15 +4182,13 @@
 	            if (_typeof(self.config.locale) !== "object" && typeof flatpickr.l10ns[self.config.locale] === "undefined") self.config.errorHandler(new Error("flatpickr: invalid locale " + self.config.locale));
 	            self.l10n = __assign({}, flatpickr.l10ns.default, _typeof(self.config.locale) === "object" ? self.config.locale : self.config.locale !== "default" ? flatpickr.l10ns[self.config.locale] : undefined);
 	            tokenRegex.K = "(" + self.l10n.amPM[0] + "|" + self.l10n.amPM[1] + "|" + self.l10n.amPM[0].toLowerCase() + "|" + self.l10n.amPM[1].toLowerCase() + ")";
-	            self.formatDate = createDateFormatter(self);
 	        }
-	        function positionCalendar(customPositionElement) {
+	        function positionCalendar(positionElement) {
+	            if (positionElement === void 0) {
+	                positionElement = self._positionElement;
+	            }
 	            if (self.calendarContainer === undefined) return;
-	            triggerEvent("onPreCalendarPosition");
-	            var positionElement = customPositionElement || self._positionElement;
-	            var calendarHeight = Array.prototype.reduce.call(self.calendarContainer.children, function (acc, child) {
-	                return acc + child.offsetHeight;
-	            }, 0),
+	            var calendarHeight = self.calendarContainer.offsetHeight,
 	                calendarWidth = self.calendarContainer.offsetWidth,
 	                configPos = self.config.position,
 	                inputBounds = positionElement.getBoundingClientRect(),
@@ -3985,10 +4217,6 @@
 	            buildWeekdays();
 	            updateNavigationCurrentMonth();
 	            buildDays();
-	        }
-	        function focusAndClose() {
-	            self._input.focus();
-	            if (window.navigator.userAgent.indexOf("MSIE") === -1) self.close();else setTimeout(self.close, 0);
 	        }
 	        function selectDate(e) {
 	            e.preventDefault();
@@ -4033,6 +4261,7 @@
 	                    self._hideNextMonthArrow = self._hideNextMonthArrow || self.maxRangeDate !== undefined && self.maxRangeDate < new Date(self.currentYear, self.currentMonth + 1, 1);
 	                } else updateNavigationCurrentMonth();
 	            }
+	            triggerEvent("onChange");
 	            if (!shouldChangeMonth) focusOnDay(target.$i, 0);else afterDayAnim(function () {
 	                return self.selectedDateElem && self.selectedDateElem.focus();
 	            });
@@ -4042,22 +4271,11 @@
 	            if (self.config.closeOnSelect) {
 	                var single = self.config.mode === "single" && !self.config.enableTime;
 	                var range = self.config.mode === "range" && self.selectedDates.length === 2 && !self.config.enableTime;
-	                if (single || range) {
-	                    focusAndClose();
-	                }
+	                if (single || range) self.close();
 	            }
-	            triggerChange();
 	        }
-	        var CALLBACKS = {
-	            locale: [setupLocale]
-	        };
 	        function set(option, value) {
-	            if (option !== null && (typeof option === 'undefined' ? 'undefined' : _typeof(option)) === "object") Object.assign(self.config, option);else {
-	                self.config[option] = value;
-	                if (CALLBACKS[option] !== undefined) CALLBACKS[option].forEach(function (x) {
-	                    return x();
-	                });
-	            }
+	            if (option !== null && (typeof option === 'undefined' ? 'undefined' : _typeof(option)) === "object") Object.assign(self.config, option);else self.config[option] = value;
 	            self.redraw();
 	            jumpToDate();
 	        }
@@ -4095,9 +4313,6 @@
 	            if (triggerChange === void 0) {
 	                triggerChange = false;
 	            }
-	            if (format === void 0) {
-	                format = self.config.dateFormat;
-	            }
 	            if (date !== 0 && !date) return self.clear(triggerChange);
 	            setSelectedDate(date, format);
 	            self.showTimeInput = self.selectedDates.length > 0;
@@ -4130,8 +4345,6 @@
 	            self.currentYear = initialDate.getFullYear();
 	            self.currentMonth = initialDate.getMonth();
 	            if (self.selectedDates.length) self.latestSelectedDateObj = self.selectedDates[0];
-	            if (self.config.minTime !== undefined) self.config.minTime = self.parseDate(self.config.minTime, "H:i");
-	            if (self.config.maxTime !== undefined) self.config.maxTime = self.parseDate(self.config.maxTime, "H:i");
 	            self.minDateHasTime = !!self.config.minDate && (self.config.minDate.getHours() > 0 || self.config.minDate.getMinutes() > 0 || self.config.minDate.getSeconds() > 0);
 	            self.maxDateHasTime = !!self.config.maxDate && (self.config.maxDate.getHours() > 0 || self.config.maxDate.getMinutes() > 0 || self.config.maxDate.getSeconds() > 0);
 	            Object.defineProperty(self, "showTimeInput", {
@@ -4141,9 +4354,59 @@
 	                set: function set(bool) {
 	                    self._showTimeInput = bool;
 	                    if (self.calendarContainer) toggleClass(self.calendarContainer, "showTimeInput", bool);
-	                    self.isOpen && positionCalendar();
+	                    positionCalendar();
 	                }
 	            });
+	        }
+	        function formatDate(dateObj, frmt) {
+	            if (self.config !== undefined && self.config.formatDate !== undefined) return self.config.formatDate(dateObj, frmt);
+	            return frmt.split("").map(function (c, i, arr) {
+	                return formats[c] && arr[i - 1] !== "\\" ? formats[c](dateObj, self.l10n, self.config) : c !== "\\" ? c : "";
+	            }).join("");
+	        }
+	        function parseDate(date, givenFormat, timeless) {
+	            if (date !== 0 && !date) return undefined;
+	            var parsedDate;
+	            var date_orig = date;
+	            if (date instanceof Date) parsedDate = new Date(date.getTime());else if (typeof date !== "string" && date.toFixed !== undefined) parsedDate = new Date(date);else if (typeof date === "string") {
+	                var format = givenFormat || (self.config || flatpickr.defaultConfig).dateFormat;
+	                var datestr = String(date).trim();
+	                if (datestr === "today") {
+	                    parsedDate = new Date();
+	                    timeless = true;
+	                } else if (/Z$/.test(datestr) || /GMT$/.test(datestr)) parsedDate = new Date(date);else if (self.config && self.config.parseDate) parsedDate = self.config.parseDate(date, format);else {
+	                    parsedDate = !self.config || !self.config.noCalendar ? new Date(new Date().getFullYear(), 0, 1, 0, 0, 0, 0) : new Date(new Date().setHours(0, 0, 0, 0));
+	                    var matched = void 0,
+	                        ops = [];
+	                    for (var i = 0, matchIndex = 0, regexStr = ""; i < format.length; i++) {
+	                        var token = format[i];
+	                        var isBackSlash = token === "\\";
+	                        var escaped = format[i - 1] === "\\" || isBackSlash;
+	                        if (tokenRegex[token] && !escaped) {
+	                            regexStr += tokenRegex[token];
+	                            var match = new RegExp(regexStr).exec(date);
+	                            if (match && (matched = true)) {
+	                                ops[token !== "Y" ? "push" : "unshift"]({
+	                                    fn: revFormat[token],
+	                                    val: match[++matchIndex]
+	                                });
+	                            }
+	                        } else if (!isBackSlash) regexStr += ".";
+	                        ops.forEach(function (_a) {
+	                            var fn = _a.fn,
+	                                val = _a.val;
+	                            return parsedDate = fn(parsedDate, val, self.l10n) || parsedDate;
+	                        });
+	                    }
+	                    parsedDate = matched ? parsedDate : undefined;
+	                }
+	            }
+	            if (!(parsedDate instanceof Date)) {
+	                self.config.errorHandler(new Error("Invalid date provided: " + date_orig));
+	                return undefined;
+	            }
+	            if (timeless === true) parsedDate.setHours(0, 0, 0, 0);
+	            return parsedDate;
 	        }
 	        function setupInputs() {
 	            self.input = self.config.wrap ? element.querySelector("[data-input]") : element;
@@ -4276,9 +4539,9 @@
 	            if (self.amPM !== undefined && e.target === self.amPM) {
 	                self.amPM.textContent = self.l10n.amPM[int(self.amPM.textContent === self.l10n.amPM[0])];
 	            }
-	            var min = parseFloat(input.getAttribute("data-min")),
-	                max = parseFloat(input.getAttribute("data-max")),
-	                step = parseFloat(input.getAttribute("data-step")),
+	            var min = Number(input.min),
+	                max = Number(input.max),
+	                step = Number(input.step),
 	                curValue = parseInt(input.value, 10),
 	                delta = e.delta || (isKeyDown ? e.which === 38 ? 1 : -1 : Math.max(-1, Math.min(1, e.wheelDelta || -e.deltaY)) || 0);
 	            var newValue = curValue + step * delta;
@@ -4345,9 +4608,6 @@
 	    flatpickr.setDefaults = function (config) {
 	        flatpickr.defaultConfig = __assign({}, flatpickr.defaultConfig, config);
 	    };
-	    flatpickr.parseDate = createDateParser({});
-	    flatpickr.formatDate = createDateFormatter({});
-	    flatpickr.compareDates = compareDates;
 	    if (typeof jQuery !== "undefined") {
 	        jQuery.fn.flatpickr = function (config) {
 	            return _flatpickr(this, config);
@@ -4358,9 +4618,7 @@
 	    };
 	    var flatpickr$1 = flatpickr;
 	
-	    exports['default'] = flatpickr$1;
-	
-	    Object.defineProperty(exports, '__esModule', { value: true });
+	    return flatpickr$1;
 	});
 
 /***/ }),
@@ -4371,7 +4629,7 @@
 	
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
-	/* flatpickr v4.2.3, @license MIT */
+	/* flatpickr v4.1.4, @license MIT */
 	(function (global, factory) {
 	    ( false ? 'undefined' : _typeof(exports)) === 'object' && typeof module !== 'undefined' ? factory(exports) :  true ? !(__WEBPACK_AMD_DEFINE_ARRAY__ = [exports], __WEBPACK_AMD_DEFINE_FACTORY__ = (factory), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : factory(global.ru = {});
 	})(undefined, function (exports) {
@@ -4428,7 +4686,7 @@
 	});
 	
 	exports.default = function (isEdit) {
-	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventPopupTrigger\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
+	  var eventFormContent = isEdit ? "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <div class=\"event-form__delete-btn\">\n          <button class=\"button button--gray\" id=\"deleteEventPopupTrigger\">\u0423\u0434\u0430\u043B\u0438\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>\n      </div>\n      <button class=\"button button--blue\">\u0421\u043E\u0445\u0440\u0430\u043D\u0438\u0442\u044C</button>" : "<a href=\"#\" class=\"button button--gray\" data-cancel>\u041E\u0442\u043C\u0435\u043D\u0430</a>\n      <button class=\"button button--blue button--disabled\" id=\"createBtn\">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</button>";
 	
 	  return eventFormContent;
 	};
@@ -4465,6 +4723,202 @@
 	  value: true
 	});
 	
+	var _helpers = __webpack_require__(11);
+	
+	/**
+	 * @typedef {Object} Person
+	 * @property {String} login Идентификатор сотрудника.
+	 * @property {Number} floor "Домашний" этаж сотрудника.
+	 * @property {String} avatar Ссылка на аватар.
+	 */
+	
+	/**
+	 * @typedef {Object} Room
+	 * @property {Number} id Идентификатор переговорки.
+	 * @property {String} title Название переговорки.
+	 * @property {Number} capacity Вместимость (количество человек).
+	 * @property {Number} floor Этаж, на котором расположена переговорка.
+	 */
+	
+	/**
+	 * @typedef {Object} EventDate
+	 * @property {Number} start Timestamp начала встречи.
+	 * @property {Number} end Timestamp окончания встречи.
+	 */
+	
+	/**
+	 * @typedef {Object} Event
+	 * @property {String} id Идентификатор встречи.
+	 * @property {String} title Название встречи.
+	 * @property {String[]} members Логины участников встречи.
+	 * @property {EventDate} date Дата и время проведения встречи.
+	 * @property {Number} room Идентификатор переговорки.
+	 */
+	
+	/**
+	 * @typedef {Object} RoomsSwap
+	 * @property {string} event Идентификатор встречи.
+	 * @property {String} room Новый идентификатор переговорки.
+	 */
+	
+	/**
+	 * @typedef {Object} Recommendation
+	 * @property {EventDate} date Дата и время проведения встречи.
+	 * @property {String} room Идентификатор переговорки.
+	 * @property {RoomsSwap[]} [swap] Необходимые замены переговорк для реализации рекомендации.
+	 */
+	
+	/**
+	 * @param {EventDate} date Дата планируемой встречи.
+	 * @param {Person[]} members Участники планируемой встречи.
+	 * @param {Object} db
+	 * @param {Event[]} db.events Список все встреч.
+	 * @param {Room[]} db.rooms Список всех переговорок.
+	 * @param {Person[]} db.persons Список всех сотрудников.
+	 * @returns {Recommendation[]}
+	 */
+	
+	function getRecommendation(date, members, db) {
+	  var eventStart = date.start;
+	  var eventEnd = date.end;
+	  var eventDuration = eventEnd - eventStart;
+	  var dayEnd = new Date(eventStart).setHours(23, 0, 0);
+	  var dbEvents = db.events;
+	  var dbRooms = db.rooms;
+	  var dbPersons = db.persons;
+	  var numberOfMembers = members.length;
+	  var recommendation = {},
+	      recommendationArr = [];
+	
+	  var now = new Date();
+	  var today = (0, _helpers.getDateValue)(now).day;
+	  var currentMinute = (0, _helpers.getDateValue)(now).minute;
+	  var eventStartDate = new Date(date.start);
+	  var eventStartDay = (0, _helpers.getDateValue)(eventStartDate).day;
+	
+	  var swapArr = [];
+	
+	  if (today === eventStartDay) {
+	    if (currentMinute > eventStart || currentMinute > eventEnd) {
+	      //если время предпологаемого события меньше текущего времени
+	      return [];
+	    }
+	  } else if (today > eventStartDay) {
+	    return [];
+	  }
+	
+	  var _iteratorNormalCompletion = true;
+	  var _didIteratorError = false;
+	  var _iteratorError = undefined;
+	
+	  try {
+	    roomLoop: for (var _iterator = dbRooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	      var dbRoom = _step.value;
+	
+	      var dbRoomId = dbRoom.id;
+	      if (dbRoom.capacity < numberOfMembers) {
+	        //если вместимость комнаты меньше участников события
+	        continue roomLoop;
+	      }
+	
+	      //Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
+	      timeLoop: for (var t = eventStart; t <= dayEnd - eventDuration; t += eventDuration) {
+	        var tStart = t,
+	            //Время начала предпологаемого события
+	        tEnd = tStart + eventDuration; //Время окончания предпологаемого события
+	
+	        var isTimeHasnotEvent = true;
+	
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	
+	        try {
+	          eventLoop: for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	            var dbEvent = _step2.value;
+	
+	            var dbEventStart = (0, _helpers.getDateValue)(new Date(dbEvent.dateStart)).minute,
+	                dbEventEnd = (0, _helpers.getDateValue)(new Date(dbEvent.dateEnd)).minute;
+	
+	            if (currentMinute > dbEventEnd) {
+	              continue eventLoop;
+	            }
+	
+	            if (dbEvent.room.id === dbRoomId) {
+	              //если в этой комнате есть события
+	              if (dbEventStart < tStart && dbEventEnd < tStart) {
+	                continue eventLoop;
+	              }
+	
+	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd) {
+	                //если на этот промежуток времени запланировано событие
+	                isTimeHasnotEvent = false;
+	              }
+	
+	              if (tStart > dbEventStart && tEnd > dbEventEnd && tStart < dbEventEnd) {
+	                t = dbEventEnd - eventDuration;
+	                continue timeLoop;
+	              }
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError2 = true;
+	          _iteratorError2 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	              _iterator2.return();
+	            }
+	          } finally {
+	            if (_didIteratorError2) {
+	              throw _iteratorError2;
+	            }
+	          }
+	        }
+	
+	        if (isTimeHasnotEvent) {
+	          recommendation = {
+	            date: {
+	              start: tStart,
+	              end: tEnd
+	            },
+	            room: dbRoomId
+	          };
+	          recommendationArr.push(recommendation);
+	          continue roomLoop;
+	        }
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError = true;
+	    _iteratorError = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion && _iterator.return) {
+	        _iterator.return();
+	      }
+	    } finally {
+	      if (_didIteratorError) {
+	        throw _iteratorError;
+	      }
+	    }
+	  }
+	
+	  return recommendationArr;
+	}
+	
+	exports.default = getRecommendation;
+
+/***/ }),
+/* 27 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	
 	var _application = __webpack_require__(1);
 	
 	var _application2 = _interopRequireDefault(_application);
@@ -4474,7 +4928,7 @@
 	exports.default = function (inputData, isSelected) {
 	  var appData = _application2.default.data;
 	  var dbRooms = appData.rooms || {};
-	  var eventDate = inputData.eventDate;
+	  var eventDate = inputData.date;
 	  var eventStartDate = new Date(eventDate.start);
 	  var eventEndDate = new Date(eventDate.end);
 	  var roomId = inputData.room;
@@ -4513,11 +4967,11 @@
 	    }
 	  }
 	
-	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <span class="recommendation-tag__time">\n              ' + time + '\n            </span>\n            <span class="recommendation-tag__room">\n              ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n            </span>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
+	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <div class="recommendation-tag__content">\n              <span class="recommendation-tag__time">\n                ' + time + '\n              </span>\n              <span class="recommendation-tag__room">\n                ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n              </span>\n            </div>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4531,11 +4985,11 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUser = __webpack_require__(28);
+	var _getUser = __webpack_require__(29);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
-	var _getUserTag = __webpack_require__(29);
+	var _getUserTag = __webpack_require__(30);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
@@ -4713,7 +5167,7 @@
 	exports.autocompleteHandler = autocompleteHandler;
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -4727,7 +5181,7 @@
 	};
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4736,7 +5190,7 @@
 	  value: true
 	});
 	
-	var _getUser = __webpack_require__(28);
+	var _getUser = __webpack_require__(29);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
@@ -4773,7 +5227,7 @@
 	};
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -4814,19 +5268,19 @@
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUserTag = __webpack_require__(29);
+	var _getUserTag = __webpack_require__(30);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
-	var _getRecomendation = __webpack_require__(31);
+	var _getRecomendation = __webpack_require__(26);
 	
 	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
 	
-	var _getRecomendationTag = __webpack_require__(26);
+	var _getRecomendationTag = __webpack_require__(27);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
-	var _fieldAutocomplete = __webpack_require__(27);
+	var _fieldAutocomplete = __webpack_require__(28);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -4915,6 +5369,7 @@
 	
 	          if (eventInputId === event.id) {
 	            eventName = event.title;
+	            this.currentId = event.id;
 	            this.eventUsers = event.users;
 	            this.eventRoomId = event.room.id;
 	          }
@@ -4944,11 +5399,11 @@
 	      };
 	
 	      this.recommendation = {
-	        eventDate: this.eventDate,
+	        date: this.eventDate,
 	        room: this.eventRoomId
 	      };
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations">\n                      <div class="recommendations__title">\u0412\u0430\u0448\u0430 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0430</div>\n                      <div class="recomendations__cnt">\n                        ' + (0, _getRecomendationTag2.default)(this.recommendation, true) + '\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations" id="recomParent" data-type="room-selected">\n                      <div class="recommendations__title">\u0412\u0430\u0448\u0430 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0430</div>\n                      <div class="recomendations__cnt">\n                        ' + (0, _getRecomendationTag2.default)(this.recommendation, true) + '\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -4975,46 +5430,20 @@
 	  }, {
 	    key: 'recommendationTagClickHandler',
 	    value: function recommendationTagClickHandler(recommendationTag) {
-	      var click = function click() {
-	        recommendationTag.classList.add('recommendation-tag--selected');
-	        removeClickHandler();
-	      };
-	      var removeClickHandler = function removeClickHandler() {
-	        recommendationTag.removeEventListener('click', click);
-	      };
-	      recommendationTag.addEventListener('click', click);
-	    }
-	  }, {
-	    key: 'recommendationTagHandlers',
-	    value: function recommendationTagHandlers() {
-	      var _this2 = this;
+	      this.recomParentTitle.innerHTML = 'Ваша переговорка';
+	      recommendationTag.classList.add('recommendation-tag--selected');
 	
-	      this.recommendationTagArr = this.element.querySelectorAll('.recommendation-tag');
+	      var recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
 	
 	      var _iteratorNormalCompletion2 = true;
 	      var _didIteratorError2 = false;
 	      var _iteratorError2 = undefined;
 	
 	      try {
-	        var _loop = function _loop() {
-	          var recommendationTag = _step2.value;
+	        for (var _iterator2 = Array.from(recomTagArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          var item = _step2.value;
 	
-	          var recommendationTagDeleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
-	
-	          if (!recommendationTag.classList.contains('recommendation-tag--selected')) {
-	            _this2.recommendationTagClickHandler(recommendationTag);
-	          }
-	
-	          recommendationTagDeleteBtn.addEventListener('click', function () {
-	            recommendationTag.classList.remove('recommendation-tag--selected');
-	            setTimeout(function () {
-	              _this2.recommendationTagClickHandler(recommendationTag);
-	            }, 10);
-	          });
-	        };
-	
-	        for (var _iterator2 = Array.from(this.recommendationTagArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          _loop();
+	          this.recomContainer.removeChild(item);
 	        }
 	      } catch (err) {
 	        _didIteratorError2 = true;
@@ -5030,6 +5459,18 @@
 	          }
 	        }
 	      }
+	
+	      var deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
+	      deleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	      this.recomContainer.appendChild(recommendationTag);
+	    }
+	  }, {
+	    key: 'recommendationTagDeleteBtnHandler',
+	    value: function recommendationTagDeleteBtnHandler(event) {
+	      var recommendationTag = event.target.parents('.recommendation-tag')[0];
+	      this.recomParent.classList.add('hidden');
+	      recommendationTag.parentNode.removeChild(recommendationTag);
+	      this.handleRecommendation();
 	    }
 	  }, {
 	    key: 'addUserHandler',
@@ -5100,22 +5541,42 @@
 	      this.eventUsers = newArr;
 	    }
 	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.fieldResetBtn = this.element.querySelector('.field__reset');
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
-	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
+	    key: 'renderRecommendations',
+	    value: function renderRecommendations(recommendations) {
+	      var _this2 = this;
+	
+	      this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
+	      this.recomParent.classList.remove('hidden');
+	
+	      if (recommendations.length === 0) {
+	        this.recomContainer.innerHTML = 'Нет рекомендаций';
+	      } else {
+	        this.recomContainer.innerHTML = '';
+	      }
 	
 	      var _iteratorNormalCompletion5 = true;
 	      var _didIteratorError5 = false;
 	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator5 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
-	          var cancelBtn = _step5.value;
+	        var _loop = function _loop() {
+	          var recom = _step5.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
+	          var recomMarkup = (0, _getRecomendationTag2.default)(recom, false);
+	          var recomNode = (0, _helpers.getNodeFromMarkup)(recomMarkup);
+	
+	          recomNode.addEventListener('click', function (event) {
+	            var recomContent = recomNode.querySelector('.recommendation-tag__content');
+	            var recomContentChildsIsTarget = (0, _helpers.checkEventTarget)(event, recomContent);
+	            if (event.target === recomContent || recomContentChildsIsTarget) {
+	              _this2.recommendationTagClickHandler(recomNode);
+	            }
+	          });
+	          _this2.recomContainer.appendChild(recomNode);
+	        };
+	
+	        for (var _iterator5 = recommendations[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          _loop();
 	        }
 	      } catch (err) {
 	        _didIteratorError5 = true;
@@ -5131,18 +5592,14 @@
 	          }
 	        }
 	      }
-	
-	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
-	
-	      this.recommendationTagHandlers();
-	
-	      document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
 	    }
 	  }, {
-	    key: 'clearHandlers',
-	    value: function clearHandlers() {
-	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.fieldResetBtn = this.element.querySelector('.field__reset');
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 	
 	      var _iteratorNormalCompletion6 = true;
 	      var _didIteratorError6 = false;
@@ -5152,7 +5609,7 @@
 	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	          var cancelBtn = _step6.value;
 	
-	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler.bind(this));
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -5169,68 +5626,31 @@
 	        }
 	      }
 	
-	      this.eventDateDatepickr.destroy();
-	      this.eventTimeStartDatepickr.destroy();
-	      this.eventTimeEndDatepickr.destroy();
-	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	      this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler.bind(this));
 	
-	      document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
-	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	      this.recomParent = this.element.querySelector('#recomParent');
+	      this.recomParentTitle = this.recomParent.querySelector('.recommendations__title');
+	      this.recomContainer = this.recomParent.querySelector('.recomendations__cnt');
+	      this.recommendationTagDeleteBtn = this.recomParent.querySelector('.recommendation-tag .recommendation-tag__delete');
+	      this.recommendationTagDeleteBtn.addEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	
+	      document.addEventListener('addUserToEvent', this.addUserHandler.bind(this));
+	      document.addEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
 	    }
 	  }, {
-	    key: 'handleRecommendation',
-	    value: function handleRecommendation() {
-	      this.members = [];
-	      var person = {};
-	
-	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-	        //Событие не может быть меньше 15 мин
-	        throw new Error('Минимальная продолжительность события - 15 минут');
-	      }
-	
-	      if (this.eventDateDay < this.initialAppDay) {
-	        throw new Error('Нельзя редактировать события ушедших дней');
-	      }
+	    key: 'clearHandlers',
+	    value: function clearHandlers() {
+	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
 	
 	      var _iteratorNormalCompletion7 = true;
 	      var _didIteratorError7 = false;
 	      var _iteratorError7 = undefined;
 	
 	      try {
-	        for (var _iterator7 = this.eventUsers[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	          var eventUser = _step7.value;
-	          //
-	          var _iteratorNormalCompletion8 = true;
-	          var _didIteratorError8 = false;
-	          var _iteratorError8 = undefined;
+	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var cancelBtn = _step7.value;
 	
-	          try {
-	            for (var _iterator8 = this.users[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	              var user = _step8.value;
-	
-	              if (eventUser.id === user.id) {
-	                person = {
-	                  login: user.login,
-	                  floor: user.homeFloor,
-	                  avatarUrl: user.avatarUrl
-	                };
-	                this.members.push(person);
-	              }
-	            }
-	          } catch (err) {
-	            _didIteratorError8 = true;
-	            _iteratorError8 = err;
-	          } finally {
-	            try {
-	              if (!_iteratorNormalCompletion8 && _iterator8.return) {
-	                _iterator8.return();
-	              }
-	            } finally {
-	              if (_didIteratorError8) {
-	                throw _iteratorError8;
-	              }
-	            }
-	          }
+	          cancelBtn.removeEventListener('click', this.cancelBtnHandler.bind(this));
 	        }
 	      } catch (err) {
 	        _didIteratorError7 = true;
@@ -5247,17 +5667,127 @@
 	        }
 	      }
 	
+	      this.eventDateDatepickr.destroy();
+	      this.eventTimeStartDatepickr.destroy();
+	      this.eventTimeEndDatepickr.destroy();
+	      this.autocomplete.removeEventListener('keyup', this.getAutocompleteHandler.bind(this));
+	
+	      document.removeEventListener('addUserToEvent', this.addUserHandler.bind(this));
+	      document.removeEventListener('removeUserFromEvent', this.removeUserHandler.bind(this));
+	      this.recommendationTagDeleteBtn.removeEventListener('click', this.recommendationTagDeleteBtnHandler.bind(this));
+	    }
+	  }, {
+	    key: 'handleRecommendation',
+	    value: function handleRecommendation() {
+	      this.members = [];
+	      var person = {};
+	
+	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
+	        //Событие не может быть меньше 15 мин
+	        throw new Error('Минимальная продолжительность события - 15 минут');
+	      }
+	
+	      if (this.eventDateDay < this.initialAppDay) {
+	        throw new Error('Нельзя редактировать события ушедших дней');
+	      }
+	
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
+	
+	      try {
+	        for (var _iterator8 = this.eventUsers[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var eventUser = _step8.value;
+	          //
+	          var _iteratorNormalCompletion10 = true;
+	          var _didIteratorError10 = false;
+	          var _iteratorError10 = undefined;
+	
+	          try {
+	            for (var _iterator10 = this.users[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+	              var user = _step10.value;
+	
+	              if (eventUser.id === user.id) {
+	                person = {
+	                  login: user.login,
+	                  floor: user.homeFloor,
+	                  avatarUrl: user.avatarUrl
+	                };
+	                this.members.push(person);
+	              }
+	            }
+	          } catch (err) {
+	            _didIteratorError10 = true;
+	            _iteratorError10 = err;
+	          } finally {
+	            try {
+	              if (!_iteratorNormalCompletion10 && _iterator10.return) {
+	                _iterator10.return();
+	              }
+	            } finally {
+	              if (_didIteratorError10) {
+	                throw _iteratorError10;
+	              }
+	            }
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError8 = true;
+	        _iteratorError8 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	            _iterator8.return();
+	          }
+	        } finally {
+	          if (_didIteratorError8) {
+	            throw _iteratorError8;
+	          }
+	        }
+	      }
+	
 	      if (this.members.length === 0) {
 	        throw new Error('Выберите участников события');
 	      }
 	
+	      // Удалить редактируемое событие из списка событий
+	      var newEventsArr = [];
+	      var _iteratorNormalCompletion9 = true;
+	      var _didIteratorError9 = false;
+	      var _iteratorError9 = undefined;
+	
+	      try {
+	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	          var event = _step9.value;
+	
+	          if (event.id !== this.currentId) {
+	            newEventsArr.push(event);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError9 = true;
+	        _iteratorError9 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion9 && _iterator9.return) {
+	            _iterator9.return();
+	          }
+	        } finally {
+	          if (_didIteratorError9) {
+	            throw _iteratorError9;
+	          }
+	        }
+	      }
+	
 	      var db = {
-	        events: this.appData.events[this.eventDateDay] || [],
+	        events: newEventsArr,
 	        rooms: this.appData.rooms,
 	        persons: this.appData.users
 	      };
 	
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
+	
+	      this.renderRecommendations(this.recommendationArr);
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -5270,7 +5800,16 @@
 	        altFormat: 'j F, Y',
 	        defaultDate: this.eventStartDate,
 	        wrap: true,
-	        disableMobile: 'true'
+	        disableMobile: 'true',
+	        onChange: function onChange(selectedDates) {
+	          var newDay = (0, _helpers.getDateValue)(new Date(selectedDates)).day;
+	          var eventDayMinute = (0, _helpers.getDateValue)(_this3.eventStartDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
+	          var eventEndDayMinute = (0, _helpers.getDateValue)(_this3.eventEndDate).minute - (0, _helpers.getDateValue)(_this3.eventStartDate).day;
+	          _this3.eventStartDate = new Date(newDay + eventDayMinute);
+	          _this3.eventEndDate = new Date(newDay + eventEndDayMinute);
+	          _this3.eventTimeStartDatepickr.setDate(_this3.eventStartDate);
+	          _this3.eventTimeEndDatepickr.setDate(_this3.eventEndDate);
+	        }
 	      });
 	      this.eventTimeStartDatepickr = new _flatpickr2.default('#eventStartTimeInput', {
 	        enableTime: true,
@@ -5301,20 +5840,20 @@
 	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
 	
 	      var userTag = void 0;
-	      var _iteratorNormalCompletion9 = true;
-	      var _didIteratorError9 = false;
-	      var _iteratorError9 = undefined;
+	      var _iteratorNormalCompletion11 = true;
+	      var _didIteratorError11 = false;
+	      var _iteratorError11 = undefined;
 	
 	      try {
-	        for (var _iterator9 = this.eventUsers[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	          var eventUser = _step9.value;
-	          var _iteratorNormalCompletion10 = true;
-	          var _didIteratorError10 = false;
-	          var _iteratorError10 = undefined;
+	        for (var _iterator11 = this.eventUsers[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+	          var eventUser = _step11.value;
+	          var _iteratorNormalCompletion12 = true;
+	          var _didIteratorError12 = false;
+	          var _iteratorError12 = undefined;
 	
 	          try {
-	            for (var _iterator10 = this.users[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-	              var user = _step10.value;
+	            for (var _iterator12 = this.users[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+	              var user = _step12.value;
 	
 	              if (eventUser.id === user.id) {
 	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
@@ -5322,31 +5861,31 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError10 = true;
-	            _iteratorError10 = err;
+	            _didIteratorError12 = true;
+	            _iteratorError12 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion10 && _iterator10.return) {
-	                _iterator10.return();
+	              if (!_iteratorNormalCompletion12 && _iterator12.return) {
+	                _iterator12.return();
 	              }
 	            } finally {
-	              if (_didIteratorError10) {
-	                throw _iteratorError10;
+	              if (_didIteratorError12) {
+	                throw _iteratorError12;
 	              }
 	            }
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError9 = true;
-	        _iteratorError9 = err;
+	        _didIteratorError11 = true;
+	        _iteratorError11 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion9 && _iterator9.return) {
-	            _iterator9.return();
+	          if (!_iteratorNormalCompletion11 && _iterator11.return) {
+	            _iterator11.return();
 	          }
 	        } finally {
-	          if (_didIteratorError9) {
-	            throw _iteratorError9;
+	          if (_didIteratorError11) {
+	            throw _iteratorError11;
 	          }
 	        }
 	      }
@@ -5357,207 +5896,6 @@
 	}(_abstractView2.default);
 	
 	exports.default = EventNewView;
-
-/***/ }),
-/* 31 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _helpers = __webpack_require__(11);
-	
-	/**
-	 * @typedef {Object} Person
-	 * @property {String} login Идентификатор сотрудника.
-	 * @property {Number} floor "Домашний" этаж сотрудника.
-	 * @property {String} avatar Ссылка на аватар.
-	 */
-	
-	/**
-	 * @typedef {Object} Room
-	 * @property {Number} id Идентификатор переговорки.
-	 * @property {String} title Название переговорки.
-	 * @property {Number} capacity Вместимость (количество человек).
-	 * @property {Number} floor Этаж, на котором расположена переговорка.
-	 */
-	
-	/**
-	 * @typedef {Object} EventDate
-	 * @property {Number} start Timestamp начала встречи.
-	 * @property {Number} end Timestamp окончания встречи.
-	 */
-	
-	/**
-	 * @typedef {Object} Event
-	 * @property {String} id Идентификатор встречи.
-	 * @property {String} title Название встречи.
-	 * @property {String[]} members Логины участников встречи.
-	 * @property {EventDate} date Дата и время проведения встречи.
-	 * @property {Number} room Идентификатор переговорки.
-	 */
-	
-	/**
-	 * @typedef {Object} RoomsSwap
-	 * @property {string} event Идентификатор встречи.
-	 * @property {String} room Новый идентификатор переговорки.
-	 */
-	
-	/**
-	 * @typedef {Object} Recommendation
-	 * @property {EventDate} date Дата и время проведения встречи.
-	 * @property {String} room Идентификатор переговорки.
-	 * @property {RoomsSwap[]} [swap] Необходимые замены переговорк для реализации рекомендации.
-	 */
-	
-	/**
-	 * @param {EventDate} date Дата планируемой встречи.
-	 * @param {Person[]} members Участники планируемой встречи.
-	 * @param {Object} db
-	 * @param {Event[]} db.events Список все встреч.
-	 * @param {Room[]} db.rooms Список всех переговорок.
-	 * @param {Person[]} db.persons Список всех сотрудников.
-	 * @returns {Recommendation[]}
-	 */
-	
-	// this.eventStartDate = new Date(+this.eventInputData.startTime);
-	// this.eventDateDay = getDateValue(this.eventStartDate).day; //день в который происходят все события
-	//
-	// this.initialAppDate = new Date();
-	// this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
-	
-	function getRecommendation(date, members, db) {
-	  var eventStart = date.start;
-	  var eventEnd = date.end;
-	  var eventDuration = eventEnd - eventStart;
-	  var dayEnd = new Date(eventStart).setHours(23, 0, 0);
-	  var dbEvents = db.events;
-	  var dbRooms = db.rooms;
-	  var dbPersons = db.persons;
-	  var numberOfMembers = members.length;
-	  var recommendation = {},
-	      recommendationArr = [];
-	
-	  var now = new Date();
-	  var today = (0, _helpers.getDateValue)(now).day;
-	  var currentMinute = (0, _helpers.getDateValue)(now).minute;
-	  var eventStartDate = new Date(date.start);
-	  var eventStartDay = (0, _helpers.getDateValue)(eventStartDate).day;
-	
-	  if (today === eventStartDay) {
-	    if (currentMinute > eventStart || currentMinute > eventEnd) {
-	      //если время предпологаемого события меньше текущего времени
-	      return [];
-	    }
-	  }
-	
-	  var _iteratorNormalCompletion = true;
-	  var _didIteratorError = false;
-	  var _iteratorError = undefined;
-	
-	  try {
-	    roomLoop: for (var _iterator = dbRooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	      var dbRoom = _step.value;
-	
-	      var dbRoomId = dbRoom.id;
-	      if (dbRoom.capacity < numberOfMembers) {
-	        //если вместимость комнаты меньше участников события
-	        continue roomLoop;
-	      }
-	
-	      //Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
-	      timeLoop: for (var t = eventStart; t <= dayEnd - eventDuration; t += eventDuration) {
-	        var tStart = t,
-	            //Время начала предпологаемого события
-	        tEnd = tStart + eventDuration; //Время окончания предпологаемого события
-	
-	        var _iteratorNormalCompletion2 = true;
-	        var _didIteratorError2 = false;
-	        var _iteratorError2 = undefined;
-	
-	        try {
-	          eventLoop: for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	            var dbEvent = _step2.value;
-	
-	            var dbEventStart = new Date(dbEvent.dateStart).getTime(),
-	                dbEventEnd = new Date(dbEvent.dateEnd).getTime();
-	
-	            if (currentMinute > dbEventEnd) {
-	              continue eventLoop;
-	            }
-	
-	            if (dbEvent.room.id === dbRoomId) {
-	              //если в этой комнате есть события
-	              // console.log('В этой комнате есть события', dbRoom.title, new Date(dbEventEnd), new Date(t));
-	
-	              if (dbEventStart >= tStart && dbEventEnd <= tEnd || dbEventStart >= tStart && dbEventEnd > tEnd && dbEventStart !== tEnd || dbEventStart <= tStart && dbEventEnd > tStart && dbEventEnd <= tEnd) {
-	
-	                t = dbEventEnd - eventDuration;
-	
-	                continue timeLoop;
-	              }
-	
-	              recommendation = {
-	                date: {
-	                  start: tStart,
-	                  end: tEnd
-	                },
-	                room: dbRoomId
-	              };
-	              console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
-	              continue roomLoop;
-	            }
-	          }
-	        } catch (err) {
-	          _didIteratorError2 = true;
-	          _iteratorError2 = err;
-	        } finally {
-	          try {
-	            if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	              _iterator2.return();
-	            }
-	          } finally {
-	            if (_didIteratorError2) {
-	              throw _iteratorError2;
-	            }
-	          }
-	        }
-	        // console.log('В этой комнате нет событий', dbRoom.title, new Date(t), dbRoomId);
-	
-	
-	        recommendation = {
-	          date: {
-	            start: tStart,
-	            end: tEnd
-	          },
-	          room: dbRoomId
-	        };
-	        console.log(new Date(recommendation.date.start), new Date(recommendation.date.end));
-	        continue roomLoop;
-	      }
-	    }
-	  } catch (err) {
-	    _didIteratorError = true;
-	    _iteratorError = err;
-	  } finally {
-	    try {
-	      if (!_iteratorNormalCompletion && _iterator.return) {
-	        _iterator.return();
-	      }
-	    } finally {
-	      if (_didIteratorError) {
-	        throw _iteratorError;
-	      }
-	    }
-	  }
-	
-	  return recommendationArr;
-	}
-	
-	exports.default = getRecommendation;
 
 /***/ }),
 /* 32 */
