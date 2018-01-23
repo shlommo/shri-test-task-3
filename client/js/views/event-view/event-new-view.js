@@ -145,7 +145,7 @@ class EventNewView extends AbstractView {
     autocompleteHandler(event, this.users);
   }
 
-  createEventHandler(event) {
+  createEventHandler() {
     const eventTitle = this.element.querySelector('#eventTitle').value;
     const userTagArr = this.element.querySelectorAll('.user-tag');
     const recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');

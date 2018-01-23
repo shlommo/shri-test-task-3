@@ -67,6 +67,24 @@ class ApiService {
     return grapnhQlRequest(mutation.removeEvent(eventId));
   }
 
+  updateEvent(eventId, eventInput) {
+    return grapnhQlRequest(mutation.updateEvent(eventId, eventInput));
+  }
+
+  editEvent(eventId, eventInput, usersInput, roomId) {
+    let editEvent = new Promise((resolve, reject) => {
+        resolve(this.removeEvent(eventId));
+      }
+    );
+    return editEvent
+      .then(() => {
+        return this.createEvent(eventInput, usersInput, roomId);
+      })
+      .catch((error) => {
+        throw new Error(`Rejected: ${error}`)
+      });
+  }
+
 }
 
 export default new ApiService();

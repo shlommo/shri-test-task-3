@@ -2591,7 +2591,7 @@
 	    }
 	  }, {
 	    key: 'createEventHandler',
-	    value: function createEventHandler(event) {
+	    value: function createEventHandler() {
 	      var eventTitle = this.element.querySelector('#eventTitle').value;
 	      var userTagArr = this.element.querySelectorAll('.user-tag');
 	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
@@ -3211,6 +3211,25 @@
 	    value: function removeEvent(eventId) {
 	      return (0, _grapnhqlRequest2.default)(_queries.mutation.removeEvent(eventId));
 	    }
+	  }, {
+	    key: 'updateEvent',
+	    value: function updateEvent(eventId, eventInput) {
+	      return (0, _grapnhqlRequest2.default)(_queries.mutation.updateEvent(eventId, eventInput));
+	    }
+	  }, {
+	    key: 'editEvent',
+	    value: function editEvent(eventId, eventInput, usersInput, roomId) {
+	      var _this2 = this;
+	
+	      var editEvent = new Promise(function (resolve, reject) {
+	        resolve(_this2.removeEvent(eventId));
+	      });
+	      return editEvent.then(function () {
+	        return _this2.createEvent(eventInput, usersInput, roomId);
+	      }).catch(function (error) {
+	        throw new Error('Rejected: ' + error);
+	      });
+	    }
 	  }]);
 	
 	  return ApiService;
@@ -3736,6 +3755,9 @@
 	  },
 	  removeEvent: function removeEvent(eventId) {
 	    return "\n    mutation {\n      removeEvent(id: " + eventId + ") {\n        id,\n      }\n    }";
+	  },
+	  updateEvent: function updateEvent(id, eventInput) {
+	    return "\n    mutation {\n      updateEvent(id: " + id + ", input: " + eventInput + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
 	  }
 	};
 
@@ -6526,6 +6548,7 @@
 	            date: self.eventStartDate
 	          });
 	
+	          self.clearHandlers();
 	          _application2.default.data = newData;
 	          _router.router.navigate();
 	        });
@@ -6534,25 +6557,32 @@
 	  }, {
 	    key: 'editEventBtnHandle',
 	    value: function editEventBtnHandle() {
-	      alert('edit');
-	    }
-	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.fieldResetBtn = this.element.querySelector('.field__reset');
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
-	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
+	      var eventId = this.eventInputData.eventId;
+	      var eventTitle = this.element.querySelector('#eventTitle').value;
+	      var userTagArr = this.element.querySelectorAll('.user-tag');
+	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
 	
+	      if (recommendationTagSelected === null) {
+	        alert('Вы не выбрали комнату. И вероятнее всего вы пытаетесь редактировать событие прошлого. Не стоит');
+	        return false;
+	      }
+	      var roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
+	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
+	      var now = new Date();
+	      var currentMinute = (0, _helpers.getDateValue)(now).minute;
+	
+	      var users = [];
 	      var _iteratorNormalCompletion6 = true;
 	      var _didIteratorError6 = false;
 	      var _iteratorError6 = undefined;
 	
 	      try {
-	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var cancelBtn = _step6.value;
+	        for (var _iterator6 = Array.from(userTagArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	          var userTag = _step6.value;
 	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
+	          var userId = userTag.getAttribute('data-user-id');
+	          users.push(userId);
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -6565,6 +6595,75 @@
 	        } finally {
 	          if (_didIteratorError6) {
 	            throw _iteratorError6;
+	          }
+	        }
+	      }
+	
+	      if (eventTitle.length === 0) {
+	        alert('Введите название мероприятия');
+	        return false;
+	      }
+	
+	      if (users.length === 0) {
+	        alert('Выберите участников события');
+	        return false;
+	      }
+	
+	      if (roomId === null) {
+	        alert('Выберите комнату из рекомменадций');
+	        return false;
+	      }
+	
+	      if (currentMinute > (0, _helpers.getDateValue)(dateStart).minute) {
+	        alert('Время вышло. Пожалуйста, обновите время');
+	        return false;
+	      }
+	
+	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
+	      var usersInput = '[' + users + ']';
+	      var self = this;
+	
+	      _apiService2.default.editEvent(eventId, eventInput, usersInput, roomId).then(function () {
+	        return _apiService2.default.getAll();
+	      }).then(function (data) {
+	        var newData = Object.assign(data, {
+	          date: self.eventStartDate
+	        });
+	
+	        self.clearHandlers();
+	        _application2.default.data = newData;
+	        _router.router.navigate();
+	      });
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.fieldResetBtn = this.element.querySelector('.field__reset');
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
+	
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
+	
+	      try {
+	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var cancelBtn = _step7.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
+	        }
+	      } catch (err) {
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
+	          }
+	        } finally {
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
 	          }
 	        }
 	      }
@@ -6591,27 +6690,27 @@
 	    value: function clearHandlers() {
 	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
 	
-	      var _iteratorNormalCompletion7 = true;
-	      var _didIteratorError7 = false;
-	      var _iteratorError7 = undefined;
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
 	
 	      try {
-	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	          var cancelBtn = _step7.value;
+	        for (var _iterator8 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var cancelBtn = _step8.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
-	        _didIteratorError7 = true;
-	        _iteratorError7 = err;
+	        _didIteratorError8 = true;
+	        _iteratorError8 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
-	            _iterator7.return();
+	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	            _iterator8.return();
 	          }
 	        } finally {
-	          if (_didIteratorError7) {
-	            throw _iteratorError7;
+	          if (_didIteratorError8) {
+	            throw _iteratorError8;
 	          }
 	        }
 	      }
@@ -6636,28 +6735,28 @@
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
 	        //Событие не может быть меньше 15 мин
-	        throw new Error('Минимальная продолжительность события - 15 минут');
+	        alert('Минимальная продолжительность события - 15 минут');
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
-	        throw new Error('Нельзя редактировать события ушедших дней');
+	        alert('Нельзя редактировать события ушедших дней');
 	      }
 	
-	      var _iteratorNormalCompletion8 = true;
-	      var _didIteratorError8 = false;
-	      var _iteratorError8 = undefined;
+	      var _iteratorNormalCompletion9 = true;
+	      var _didIteratorError9 = false;
+	      var _iteratorError9 = undefined;
 	
 	      try {
-	        for (var _iterator8 = this.eventUsers[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	          var eventUser = _step8.value;
+	        for (var _iterator9 = this.eventUsers[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	          var eventUser = _step9.value;
 	          //
-	          var _iteratorNormalCompletion10 = true;
-	          var _didIteratorError10 = false;
-	          var _iteratorError10 = undefined;
+	          var _iteratorNormalCompletion11 = true;
+	          var _didIteratorError11 = false;
+	          var _iteratorError11 = undefined;
 	
 	          try {
-	            for (var _iterator10 = this.users[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-	              var user = _step10.value;
+	            for (var _iterator11 = this.users[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+	              var user = _step11.value;
 	
 	              if (eventUser.id === user.id) {
 	                person = {
@@ -6669,51 +6768,18 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError10 = true;
-	            _iteratorError10 = err;
+	            _didIteratorError11 = true;
+	            _iteratorError11 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion10 && _iterator10.return) {
-	                _iterator10.return();
+	              if (!_iteratorNormalCompletion11 && _iterator11.return) {
+	                _iterator11.return();
 	              }
 	            } finally {
-	              if (_didIteratorError10) {
-	                throw _iteratorError10;
+	              if (_didIteratorError11) {
+	                throw _iteratorError11;
 	              }
 	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError8 = true;
-	        _iteratorError8 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
-	            _iterator8.return();
-	          }
-	        } finally {
-	          if (_didIteratorError8) {
-	            throw _iteratorError8;
-	          }
-	        }
-	      }
-	
-	      if (this.members.length === 0) {
-	        throw new Error('Выберите участников события');
-	      }
-	
-	      // Удалить редактируемое событие из списка событий
-	      var newEventsArr = [];
-	      var _iteratorNormalCompletion9 = true;
-	      var _didIteratorError9 = false;
-	      var _iteratorError9 = undefined;
-	
-	      try {
-	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	          var event = _step9.value;
-	
-	          if (event.id !== this.currentId) {
-	            newEventsArr.push(event);
 	          }
 	        }
 	      } catch (err) {
@@ -6727,6 +6793,39 @@
 	        } finally {
 	          if (_didIteratorError9) {
 	            throw _iteratorError9;
+	          }
+	        }
+	      }
+	
+	      if (this.members.length === 0) {
+	        alert('Выберите участников события');
+	      }
+	
+	      // Удалить редактируемое событие из списка событий
+	      var newEventsArr = [];
+	      var _iteratorNormalCompletion10 = true;
+	      var _didIteratorError10 = false;
+	      var _iteratorError10 = undefined;
+	
+	      try {
+	        for (var _iterator10 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+	          var event = _step10.value;
+	
+	          if (event.id !== this.currentId) {
+	            newEventsArr.push(event);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError10 = true;
+	        _iteratorError10 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion10 && _iterator10.return) {
+	            _iterator10.return();
+	          }
+	        } finally {
+	          if (_didIteratorError10) {
+	            throw _iteratorError10;
 	          }
 	        }
 	      }
@@ -6792,20 +6891,20 @@
 	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
 	
 	      var userTag = void 0;
-	      var _iteratorNormalCompletion11 = true;
-	      var _didIteratorError11 = false;
-	      var _iteratorError11 = undefined;
+	      var _iteratorNormalCompletion12 = true;
+	      var _didIteratorError12 = false;
+	      var _iteratorError12 = undefined;
 	
 	      try {
-	        for (var _iterator11 = this.eventUsers[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-	          var eventUser = _step11.value;
-	          var _iteratorNormalCompletion12 = true;
-	          var _didIteratorError12 = false;
-	          var _iteratorError12 = undefined;
+	        for (var _iterator12 = this.eventUsers[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+	          var eventUser = _step12.value;
+	          var _iteratorNormalCompletion13 = true;
+	          var _didIteratorError13 = false;
+	          var _iteratorError13 = undefined;
 	
 	          try {
-	            for (var _iterator12 = this.users[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-	              var user = _step12.value;
+	            for (var _iterator13 = this.users[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+	              var user = _step13.value;
 	
 	              if (eventUser.id === user.id) {
 	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
@@ -6813,31 +6912,31 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError12 = true;
-	            _iteratorError12 = err;
+	            _didIteratorError13 = true;
+	            _iteratorError13 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion12 && _iterator12.return) {
-	                _iterator12.return();
+	              if (!_iteratorNormalCompletion13 && _iterator13.return) {
+	                _iterator13.return();
 	              }
 	            } finally {
-	              if (_didIteratorError12) {
-	                throw _iteratorError12;
+	              if (_didIteratorError13) {
+	                throw _iteratorError13;
 	              }
 	            }
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError11 = true;
-	        _iteratorError11 = err;
+	        _didIteratorError12 = true;
+	        _iteratorError12 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion11 && _iterator11.return) {
-	            _iterator11.return();
+	          if (!_iteratorNormalCompletion12 && _iterator12.return) {
+	            _iterator12.return();
 	          }
 	        } finally {
-	          if (_didIteratorError11) {
-	            throw _iteratorError11;
+	          if (_didIteratorError12) {
+	            throw _iteratorError12;
 	          }
 	        }
 	      }

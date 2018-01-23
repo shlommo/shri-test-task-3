@@ -256,6 +256,7 @@ class EventNewView extends AbstractView {
             date: self.eventStartDate
           });
 
+          self.clearHandlers();
           Application.data = newData;
           router.navigate();
         })
@@ -263,7 +264,69 @@ class EventNewView extends AbstractView {
   }
 
   editEventBtnHandle() {
-    alert('edit');
+    const eventId = this.eventInputData.eventId;
+    const eventTitle = this.element.querySelector('#eventTitle').value;
+    const userTagArr = this.element.querySelectorAll('.user-tag');
+    const recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
+
+    if (recommendationTagSelected === null) {
+      alert('Вы не выбрали комнату. И вероятнее всего вы пытаетесь редактировать событие прошлого. Не стоит');
+      return false;
+    }
+    const roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+    const dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
+    const dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
+    const now = new Date();
+    const currentMinute = getDateValue(now).minute;
+
+    let users = [];
+    for (let userTag of Array.from(userTagArr)) {
+      let userId = userTag.getAttribute('data-user-id');
+      users.push(userId);
+    }
+
+    if (eventTitle.length === 0) {
+      alert('Введите название мероприятия');
+      return false;
+    }
+
+    if (users.length === 0) {
+      alert('Выберите участников события');
+      return false;
+    }
+
+    if (roomId === null) {
+      alert('Выберите комнату из рекомменадций');
+      return false;
+    }
+
+    if (currentMinute > getDateValue(dateStart).minute) {
+      alert('Время вышло. Пожалуйста, обновите время');
+      return false;
+    }
+
+    const eventInput = `{
+      title: "${eventTitle}",
+      dateStart: "${dateStart.toISOString()}",
+      dateEnd: "${dateEnd.toISOString()}"
+    }`;
+    const usersInput = `[${users}]`;
+    const self = this;
+
+    ApiService.editEvent(eventId, eventInput, usersInput, roomId)
+      .then(() => {
+          return ApiService.getAll()
+        }
+      )
+      .then((data) => {
+        const newData = Object.assign(data, {
+          date: self.eventStartDate
+        });
+
+        self.clearHandlers();
+        Application.data = newData;
+        router.navigate();
+      });
   }
 
   bindHandlers() {
@@ -317,11 +380,11 @@ class EventNewView extends AbstractView {
     let person = {};
 
     if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) { //Событие не может быть меньше 15 мин
-      throw new Error('Минимальная продолжительность события - 15 минут');
+      alert('Минимальная продолжительность события - 15 минут');
     }
 
     if (this.eventDateDay < this.initialAppDay) {
-      throw new Error('Нельзя редактировать события ушедших дней');
+      alert('Нельзя редактировать события ушедших дней');
     }
 
     for (let eventUser of this.eventUsers) { //
@@ -338,7 +401,7 @@ class EventNewView extends AbstractView {
     }
 
     if (this.members.length === 0) {
-      throw new Error('Выберите участников события');
+      alert('Выберите участников события');
     }
 
     // Удалить редактируемое событие из списка событий

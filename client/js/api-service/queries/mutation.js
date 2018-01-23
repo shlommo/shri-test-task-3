@@ -23,5 +23,22 @@ export default {
         id,
       }
     }`;
-  }
+  },
+  updateEvent: (id, eventInput) => {
+    return `
+    mutation {
+      updateEvent(id: ${id}, input: ${eventInput}) {
+        id,
+        title,
+        dateStart,
+        dateEnd,
+        users {
+          id
+        },
+        room {
+          id
+        }
+      }
+    }`;
+  },
 };
