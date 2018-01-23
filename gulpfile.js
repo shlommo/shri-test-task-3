@@ -75,16 +75,22 @@ gulp.task('clean-js', function () {
   return del('public/js');
 });
 
-gulp.task('copy', ['scripts', 'style']);
+gulp.task('copy-html', function () {
+  gulp.src('client/*.html')
+    .pipe(gulp.dest('public'))
+    .pipe(server.stream());
+})
+
+gulp.task('copy', ['copy-html', 'scripts', 'style']);
 
 gulp.task('serve', ['assemble'], function () {
-  // server.init({
-  //   server: './client',
-  //   notify: false,
-  //   open: true,
-  //   port: 3501,
-  //   ui: false
-  // });
+  server.init({
+    server: './public',
+    notify: false,
+    open: true,
+    port: 3501,
+    ui: false
+  });
 
   gulp.watch('client/sass/**/*.{scss,sass}', ['style']);
   gulp.watch('client/js/**/*.js', ['scripts']).on('change', server.reload);

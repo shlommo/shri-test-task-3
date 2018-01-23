@@ -1,4 +1,3 @@
-import RoomsPresenter from './rooms-presenter';
 import {TYPES} from './data/data';
 import view from './view';
 

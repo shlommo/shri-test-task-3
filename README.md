@@ -1,16 +1,18 @@
 # Приложение для создания и редактирования информации о встречах сотрудников
 
-## Запуск
-http://localhost:3000
-```
-npm i
-npm run dev
-```
-
 ## Запуск клиента
 ```
 npm run client
 ```
+[http://localhost:3501](http://localhost:3501)
+
+
+## Запуск сервера
+```
+npm i
+npm run dev
+```
+[http://localhost:3000](http://localhost:3000)
 
 Для сброса данных в базе:
 ```
