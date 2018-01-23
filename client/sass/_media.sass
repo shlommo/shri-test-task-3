@@ -41,11 +41,9 @@
 
   .diagram__content-wrapper
     width: 100%
-    height: calc(100vh - 32px - 48px)
 
   .diagram__content-wrapper::before
     left: 180px
-    height: calc(100vh - 32px - 48px)
 
   .diagram__floor
     padding-top: 16px
@@ -71,6 +69,11 @@
     padding-left: 52px
     box-sizing: border-box
 
+  .diagram__cell-grid .diagram__cell::before,
+  .diagram__cell-grid .diagram__cell:last-child::after,
+  .diagram__cell-grid .diagram__sidebar::before
+    height: calc(100vh - 46px - 48px)
+
   .diagram__cell--example
     min-width: 132px
 
@@ -93,9 +96,6 @@
     width: 49px
     height: 20px
     line-height: 20px
-
-  .diagram__time--now::before
-    height: calc(100vh - 33px - 48px)
 
   .diagram__floor-title
     margin-bottom: 0
@@ -386,8 +386,10 @@
     height: 32px
 
   .recommendation-tag
-    padding: 13px 12px 14px 12px
     font-size: 15px
+
+  .recommendation-tag__content
+    padding: 13px 12px 14px 12px
 
   .recommendation-tag__time
     flex: 0 0 auto
