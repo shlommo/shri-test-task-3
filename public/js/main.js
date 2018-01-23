@@ -50,7 +50,7 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _apiService = __webpack_require__(21);
+	var _apiService = __webpack_require__(22);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
@@ -245,7 +245,7 @@
 	
 	var _meetingRoomsView2 = _interopRequireDefault(_meetingRoomsView);
 	
-	var _eventView = __webpack_require__(19);
+	var _eventView = __webpack_require__(20);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -289,6 +289,10 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
 	var _abstractView = __webpack_require__(8);
 	
 	var _abstractView2 = _interopRequireDefault(_abstractView);
@@ -310,6 +314,10 @@
 	var _renderEvents2 = _interopRequireDefault(_renderEvents);
 	
 	var _router = __webpack_require__(16);
+	
+	var _showPopup = __webpack_require__(19);
+	
+	var _showPopup2 = _interopRequireDefault(_showPopup);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -735,6 +743,47 @@
 	      };
 	
 	      window.addEventListener('resize', (0, _helpers.debounce)(windowResizeHandler, 66));
+	
+	      if (this.inputData.hasOwnProperty('newEvent')) {
+	        var eventData = this.inputData.newEvent;
+	        var _iteratorNormalCompletion8 = true;
+	        var _didIteratorError8 = false;
+	        var _iteratorError8 = undefined;
+	
+	        try {
+	          for (var _iterator8 = this.rooms[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	            var room = _step8.value;
+	
+	            if (eventData.roomId === room.id) {
+	              Object.assign(eventData, {
+	                roomName: room.title,
+	                roomFloor: room.floor
+	              });
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError8 = true;
+	          _iteratorError8 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	              _iterator8.return();
+	            }
+	          } finally {
+	            if (_didIteratorError8) {
+	              throw _iteratorError8;
+	            }
+	          }
+	        }
+	
+	        (0, _showPopup2.default)('newEvent', eventData, function () {
+	          var newData = _this3.inputData;
+	          delete newData.newEvent;
+	          _application2.default.data = newData;
+	          window.location.href = '/';
+	          // Application.showMeetingRooms();
+	        });
+	      }
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -2275,13 +2324,91 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _helpers = __webpack_require__(11);
+	
+	var _data = __webpack_require__(4);
+	
+	var deletePopupTemplate = function deletePopupTemplate() {
+	  return '<div class="popup" id="deleteEventPopup">\n            <div class="popup__content inform-popup">\n                <i class="inform-popup__icon inform-popup__icon--can-not"></i>\n                <span class="inform-popup__title">\n                    \u0412\u0441\u0442\u0440\u0435\u0447\u0430 \u0431\u0443\u0434\u0435\u0442\n                    \u0443\u0434\u0430\u043B\u0435\u043D\u0430&nbsp;\u0431\u0435\u0437\u0432\u043E\u0437\u0432\u0440\u0430\u0442\u043D\u043E\n                </span>\n        \n                <div class="inform-popup__buttons">\n                    <button class="button button--gray" data-close>\u041E\u0442\u043C\u0435\u043D\u0430</button>\n                    <button class="button button--gray" id="actionBtn">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>\n                </div>\n            </div>\n        </div>';
+	};
+	
+	var newEventTemplate = function newEventTemplate(inputData) {
+	  var dateStart = inputData.dateStart;
+	  var dateEnd = inputData.dateEnd;
+	  var inclineMonths = _data.monthNames.map(function (month) {
+	    var lastLetterCharCode = month.toLowerCase().charCodeAt(month.length - 1);
+	    var inclineMonth = void 0;
+	
+	    if (lastLetterCharCode === 1100 || lastLetterCharCode === 1081) {
+	      inclineMonth = month.slice(0, -1) + 'я';
+	    } else if (lastLetterCharCode === 1090) {
+	      inclineMonth = month + 'а';
+	    }
+	    return inclineMonth.toLowerCase();
+	  });
+	  var month = inclineMonths[dateStart.getMonth()];
+	  var getMinutes = function getMinutes(date) {
+	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
+	  };
+	  var time = dateStart.getHours() + ':' + getMinutes(dateStart) + '\u2014' + dateEnd.getHours() + ':' + getMinutes(dateEnd);
+	  return '<div class="popup">\n            <div class="popup__content inform-popup">\n                <i class="inform-popup__icon inform-popup__icon--success"></i>\n                <span class="inform-popup__title">\n                    \u0412\u0441\u0442\u0440\u0435\u0447\u0430 \u0441\u043E\u0437\u0434\u0430\u043D\u0430!\n                </span>\n        \n                <div class="inform-popup__info">\n                    <span class="inform-popup__info-row">\n                        ' + dateStart.getDate() + ' ' + month + ', ' + time + '\n                    </span>\n                    <span class="inform-popup__info-row">\n                        ' + inputData.roomName + ' \xB7 ' + inputData.roomFloor + ' \u044D\u0442\u0430\u0436\n                    </span>\n                </div>\n        \n                <div class="inform-popup__buttons">\n                    <button class="button button--blue" id="actionBtn">\u0425\u043E\u0440\u043E\u0448\u043E</button>\n                </div>\n            </div>\n        </div>';
+	};
+	
+	exports.default = function (type, inputData, callback) {
+	  var popupMarkup = void 0;
+	  if (type === 'deletePopup') {
+	    popupMarkup = deletePopupTemplate();
+	  } else if (type === 'newEvent') {
+	    popupMarkup = newEventTemplate(inputData);
+	  }
+	  var popup = (0, _helpers.getNodeFromMarkup)(popupMarkup);
+	  var body = document.querySelector('body');
+	  var closeBtn = popup.querySelector('[data-close]');
+	  var actionBtn = popup.querySelector('#actionBtn');
+	  var cb = callback || function () {};
+	
+	  body.classList.add('modal-is-opened');
+	  body.appendChild(popup);
+	  popup.classList.add('opened');
+	
+	  actionBtn.addEventListener('click', function () {
+	    cb();
+	    closePopup(popup);
+	  });
+	
+	  if (closeBtn === null) {
+	    return false;
+	  }
+	  closeBtn.addEventListener('click', function () {
+	    closePopup(popup);
+	  });
+	  return true;
+	};
+	
+	var closePopup = function closePopup(popup) {
+	  var body = document.querySelector('body');
+	
+	  body.classList.remove('modal-is-opened');
+	  body.removeChild(popup);
+	};
+
+/***/ }),
+/* 20 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
 	exports.eventEditView = exports.eventNewView = undefined;
 	
-	var _eventNewView = __webpack_require__(20);
+	var _eventNewView = __webpack_require__(21);
 	
 	var _eventNewView2 = _interopRequireDefault(_eventNewView);
 	
-	var _eventEditView = __webpack_require__(37);
+	var _eventEditView = __webpack_require__(38);
 	
 	var _eventEditView2 = _interopRequireDefault(_eventEditView);
 	
@@ -2295,7 +2422,7 @@
 	};
 
 /***/ }),
-/* 20 */
+/* 21 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2316,39 +2443,39 @@
 	
 	var _router = __webpack_require__(16);
 	
-	var _apiService = __webpack_require__(21);
+	var _apiService = __webpack_require__(22);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _flatpickr = __webpack_require__(27);
+	var _flatpickr = __webpack_require__(28);
 	
 	var _flatpickr2 = _interopRequireDefault(_flatpickr);
 	
-	var _ru = __webpack_require__(28);
+	var _ru = __webpack_require__(29);
 	
 	var _helpers = __webpack_require__(11);
 	
-	var _eventFormHeader = __webpack_require__(29);
+	var _eventFormHeader = __webpack_require__(30);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
 	
-	var _eventFormFooter = __webpack_require__(30);
+	var _eventFormFooter = __webpack_require__(31);
 	
 	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
 	
-	var _field = __webpack_require__(31);
+	var _field = __webpack_require__(32);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getRecomendation = __webpack_require__(32);
+	var _getRecomendation = __webpack_require__(33);
 	
 	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
 	
-	var _getRecomendationTag = __webpack_require__(33);
+	var _getRecomendationTag = __webpack_require__(34);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
-	var _fieldAutocomplete = __webpack_require__(34);
+	var _fieldAutocomplete = __webpack_require__(35);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2522,11 +2649,22 @@
 	        return false;
 	      }
 	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
-	      var usersInput = '"' + users + '"';
+	      var usersInput = '[' + users + ']';
+	      var self = this;
+	
+	      console.log(usersInput);
 	
 	      _apiService2.default.createEvent(eventInput, usersInput, roomId).then(function () {
-	        location.reload();
-	        _router.router.navigate();
+	        var newData = Object.assign({}, self.appData, {
+	          newEvent: {
+	            dateStart: dateStart,
+	            dateEnd: dateEnd,
+	            roomId: roomId
+	          }
+	        });
+	        self.clearHandlers();
+	        _application2.default.data = newData;
+	        _application2.default.showMeetingRooms();
 	      });
 	    }
 	  }, {
@@ -2956,7 +3094,7 @@
 	exports.default = EventNewView;
 
 /***/ }),
-/* 21 */
+/* 22 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -2967,11 +3105,11 @@
 	
 	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 	
-	__webpack_require__(22);
+	__webpack_require__(23);
 	
-	var _queries = __webpack_require__(23);
+	var _queries = __webpack_require__(24);
 	
-	var _grapnhqlRequest = __webpack_require__(26);
+	var _grapnhqlRequest = __webpack_require__(27);
 	
 	var _grapnhqlRequest2 = _interopRequireDefault(_grapnhqlRequest);
 	
@@ -3080,7 +3218,7 @@
 	exports.default = new ApiService();
 
 /***/ }),
-/* 22 */
+/* 23 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -3544,7 +3682,7 @@
 	})(typeof self !== 'undefined' ? self : undefined);
 
 /***/ }),
-/* 23 */
+/* 24 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -3554,11 +3692,11 @@
 	});
 	exports.mutation = exports.query = undefined;
 	
-	var _query = __webpack_require__(24);
+	var _query = __webpack_require__(25);
 	
 	var _query2 = _interopRequireDefault(_query);
 	
-	var _mutation = __webpack_require__(25);
+	var _mutation = __webpack_require__(26);
 	
 	var _mutation2 = _interopRequireDefault(_mutation);
 	
@@ -3568,7 +3706,7 @@
 	exports.mutation = _mutation2.default;
 
 /***/ }),
-/* 24 */
+/* 25 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -3583,7 +3721,7 @@
 	};
 
 /***/ }),
-/* 25 */
+/* 26 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -3601,7 +3739,7 @@
 	};
 
 /***/ }),
-/* 26 */
+/* 27 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -3630,7 +3768,7 @@
 	};
 
 /***/ }),
-/* 27 */
+/* 28 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -5375,7 +5513,7 @@
 	});
 
 /***/ }),
-/* 28 */
+/* 29 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;'use strict';
@@ -5415,7 +5553,7 @@
 	});
 
 /***/ }),
-/* 29 */
+/* 30 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5429,7 +5567,7 @@
 	};
 
 /***/ }),
-/* 30 */
+/* 31 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5445,7 +5583,7 @@
 	};
 
 /***/ }),
-/* 31 */
+/* 32 */
 /***/ (function(module, exports) {
 
 	'use strict';
@@ -5467,7 +5605,7 @@
 	};
 
 /***/ }),
-/* 32 */
+/* 33 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5603,7 +5741,7 @@
 	                continue eventLoop;
 	              }
 	
-	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd) {
+	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd || tStart === dbEventStart && tEnd === dbEventEnd) {
 	                //если на этот промежуток времени запланировано событие
 	                isTimeHasnotEvent = false;
 	              }
@@ -5663,7 +5801,7 @@
 	exports.default = getRecommendation;
 
 /***/ }),
-/* 33 */
+/* 34 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5726,7 +5864,7 @@
 	};
 
 /***/ }),
-/* 34 */
+/* 35 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5736,15 +5874,15 @@
 	});
 	exports.autocompleteHandler = exports.getAutocompleteMarkup = undefined;
 	
-	var _field = __webpack_require__(31);
+	var _field = __webpack_require__(32);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUser = __webpack_require__(35);
+	var _getUser = __webpack_require__(36);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
-	var _getUserTag = __webpack_require__(36);
+	var _getUserTag = __webpack_require__(37);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
@@ -5922,7 +6060,7 @@
 	exports.autocompleteHandler = autocompleteHandler;
 
 /***/ }),
-/* 35 */
+/* 36 */
 /***/ (function(module, exports) {
 
 	"use strict";
@@ -5936,7 +6074,7 @@
 	};
 
 /***/ }),
-/* 36 */
+/* 37 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -5945,7 +6083,7 @@
 	  value: true
 	});
 	
-	var _getUser = __webpack_require__(35);
+	var _getUser = __webpack_require__(36);
 	
 	var _getUser2 = _interopRequireDefault(_getUser);
 	
@@ -5982,7 +6120,7 @@
 	};
 
 /***/ }),
-/* 37 */
+/* 38 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -6003,45 +6141,45 @@
 	
 	var _router = __webpack_require__(16);
 	
-	var _apiService = __webpack_require__(21);
+	var _apiService = __webpack_require__(22);
 	
 	var _apiService2 = _interopRequireDefault(_apiService);
 	
-	var _flatpickr = __webpack_require__(27);
+	var _flatpickr = __webpack_require__(28);
 	
 	var _flatpickr2 = _interopRequireDefault(_flatpickr);
 	
-	var _ru = __webpack_require__(28);
+	var _ru = __webpack_require__(29);
 	
 	var _helpers = __webpack_require__(11);
 	
-	var _eventFormHeader = __webpack_require__(29);
+	var _eventFormHeader = __webpack_require__(30);
 	
 	var _eventFormHeader2 = _interopRequireDefault(_eventFormHeader);
 	
-	var _eventFormFooter = __webpack_require__(30);
+	var _eventFormFooter = __webpack_require__(31);
 	
 	var _eventFormFooter2 = _interopRequireDefault(_eventFormFooter);
 	
-	var _field = __webpack_require__(31);
+	var _field = __webpack_require__(32);
 	
 	var _field2 = _interopRequireDefault(_field);
 	
-	var _getUserTag = __webpack_require__(36);
+	var _getUserTag = __webpack_require__(37);
 	
 	var _getUserTag2 = _interopRequireDefault(_getUserTag);
 	
-	var _getRecomendation = __webpack_require__(32);
+	var _getRecomendation = __webpack_require__(33);
 	
 	var _getRecomendation2 = _interopRequireDefault(_getRecomendation);
 	
-	var _getRecomendationTag = __webpack_require__(33);
+	var _getRecomendationTag = __webpack_require__(34);
 	
 	var _getRecomendationTag2 = _interopRequireDefault(_getRecomendationTag);
 	
-	var _fieldAutocomplete = __webpack_require__(34);
+	var _fieldAutocomplete = __webpack_require__(35);
 	
-	var _showPopup = __webpack_require__(38);
+	var _showPopup = __webpack_require__(19);
 	
 	var _showPopup2 = _interopRequireDefault(_showPopup);
 	
@@ -6379,8 +6517,7 @@
 	
 	      (0, _showPopup2.default)('deletePopup', null, function () {
 	        _apiService2.default.removeEvent(_this3.eventInputData.eventId).then(function () {
-	          location.reload();
-	          _router.router.navigate();
+	          window.location.href = '/';
 	        });
 	      });
 	    }
@@ -6692,54 +6829,6 @@
 	}(_abstractView2.default);
 	
 	exports.default = EventNewView;
-
-/***/ }),
-/* 38 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	
-	var _helpers = __webpack_require__(11);
-	
-	var deletePopupTemplate = function deletePopupTemplate() {
-	  return '<div class="popup" id="deleteEventPopup">\n            <div class="popup__content inform-popup">\n                <i class="inform-popup__icon inform-popup__icon--can-not"></i>\n                <span class="inform-popup__title">\n                    \u0412\u0441\u0442\u0440\u0435\u0447\u0430 \u0431\u0443\u0434\u0435\u0442\n                    \u0443\u0434\u0430\u043B\u0435\u043D\u0430&nbsp;\u0431\u0435\u0437\u0432\u043E\u0437\u0432\u0440\u0430\u0442\u043D\u043E\n                </span>\n        \n                <div class="inform-popup__buttons">\n                    <button class="button button--gray" data-close>\u041E\u0442\u043C\u0435\u043D\u0430</button>\n                    <button class="button button--gray" id="actionBtn">\u0423\u0434\u0430\u043B\u0438\u0442\u044C</button>\n                </div>\n            </div>\n        </div>';
-	};
-	
-	exports.default = function (type, inputData, callback) {
-	  var popupMarkup = void 0;
-	  if (type === 'deletePopup') {
-	    popupMarkup = deletePopupTemplate();
-	  }
-	  var popup = (0, _helpers.getNodeFromMarkup)(popupMarkup);
-	  var body = document.querySelector('body');
-	  var closeBtn = popup.querySelector('[data-close]');
-	  var actionBtn = popup.querySelector('#actionBtn');
-	  var cb = callback || function () {};
-	
-	  body.classList.add('modal-is-opened');
-	  body.appendChild(popup);
-	  popup.classList.add('opened');
-	
-	  closeBtn.addEventListener('click', function () {
-	    closePopup(popup);
-	  });
-	  actionBtn.addEventListener('click', function () {
-	    cb();
-	    closePopup(popup);
-	  });
-	  return true;
-	};
-	
-	var closePopup = function closePopup(popup) {
-	  var body = document.querySelector('body');
-	
-	  body.classList.remove('modal-is-opened');
-	  body.removeChild(popup);
-	};
 
 /***/ }),
 /* 39 */

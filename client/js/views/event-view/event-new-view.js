@@ -185,12 +185,23 @@ class EventNewView extends AbstractView {
       dateStart: "${dateStart.toISOString()}",
       dateEnd: "${dateEnd.toISOString()}"
     }`;
-    const usersInput = `"${users}"`;
+    const usersInput = `[${users}]`;
+    const self = this;
+
+    console.log(usersInput);
 
     ApiService.createEvent(eventInput, usersInput, roomId)
       .then(() => {
-          location.reload();
-          router.navigate();
+          const newData = Object.assign({}, self.appData, {
+            newEvent: {
+              dateStart: dateStart,
+              dateEnd: dateEnd,
+              roomId: roomId
+            }
+          });
+          self.clearHandlers();
+          Application.data = newData;
+          Application.showMeetingRooms();
         }
       );
   }

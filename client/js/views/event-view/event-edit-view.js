@@ -246,8 +246,7 @@ class EventNewView extends AbstractView {
     showPopup('deletePopup', null, () => {
       ApiService.removeEvent(this.eventInputData.eventId)
         .then(() => {
-            location.reload();
-            router.navigate();
+            window.location.href = '/';
           }
         )
     });

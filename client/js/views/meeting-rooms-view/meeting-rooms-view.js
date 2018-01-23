@@ -1,3 +1,4 @@
+import Application from './../../application';
 import AbstractView from './../abstract-view';
 import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './render-calendar-widget';
@@ -5,6 +6,7 @@ import {debounce, getDateValue} from '../../tools/helpers';
 import activateRoomName from './activate-room-name';
 import RenderEvents from './render-events';
 import {router} from './../../router';
+import showPopup from './../showPopup';
 
 let globalTimeout;
 
@@ -270,6 +272,26 @@ class MeetingRoomsView extends AbstractView {
     };
 
     window.addEventListener('resize', debounce(windowResizeHandler, 66));
+
+    if (this.inputData.hasOwnProperty('newEvent')) {
+      let eventData = this.inputData.newEvent;
+      for (let room of this.rooms) {
+        if (eventData.roomId === room.id) {
+          Object.assign(eventData, {
+            roomName: room.title,
+            roomFloor: room.floor
+          })
+        }
+      }
+
+      showPopup('newEvent', eventData, () => {
+        const newData = this.inputData;
+        delete newData.newEvent;
+        Application.data = newData;
+        window.location.href = '/';
+        // Application.showMeetingRooms();
+      });
+    }
   }
 
   viewRendered() {
