@@ -20,23 +20,21 @@ export default class RenderEvents {
     this.inputDayStart = this.inputDay + 8 * this.HOUR;
     this.inputDayEnd = this.inputDay + 23 * this.HOUR;
     this.roomsWithBusyTime = {};
-    this.eventLeft;
-    this.eventWidth;
   }
 
-  getEventMarkup (isFilled, inputEventId, start, end) {
+  getEventMarkup(isFilled, inputEventId, start, end) {
     const extraClass = (isFilled) ? 'time-slot--filled' : 'time-slot--empty';
     const timeSlotType = (isFilled) ? 'data-event-edit-trigger' : 'data-event-new-trigger';
     const eventId = (inputEventId !== null) ? `data-event-id="${inputEventId}"` : '';
-    const startTime = (start !== undefined) ? `data-start-time = "${start}"` : '';
-    const endTime = (end !== undefined) ? `data-end-time = "${end}"` : '';
+    const startTime = (typeof start !== 'undefined') ? `data-start-time = "${start}"` : '';
+    const endTime = (typeof end !== 'undefined') ? `data-end-time = "${end}"` : '';
 
     return `<span class="time-slot ${extraClass}" 
               ${eventId}
               ${timeSlotType} 
               ${startTime} 
-              ${endTime}></span>`
-  };
+              ${endTime}></span>`;
+  }
 
   getTimeNode(isFilled, inputEventId, start, end, left, width) {
     const timeNode = getNodeFromMarkup(this.getEventMarkup(isFilled, inputEventId, start, end));
@@ -58,7 +56,7 @@ export default class RenderEvents {
         const roomId = room.getAttribute('data-room-id');
         const timeContainer = room.querySelector('.diagram__day');
 
-        if (event.room.id === roomId) { //Событие происходит в нужной комнате
+        if (event.room.id === roomId) { // Событие происходит в нужной комнате
           this.eventLeft = ((eventDateStartValue - this.inputDayStart) * this.minuteStep) / this.MINUTE;
           this.eventWidth = eventDuration * this.minuteStep;
 
@@ -73,7 +71,7 @@ export default class RenderEvents {
             } else {
               this.roomsWithBusyTime[roomId] = {
                 [timeStampMinute]: event.id
-              }
+              };
             }
           }
         }
@@ -103,7 +101,7 @@ export default class RenderEvents {
         let hour = 60 - minutesFromHourStarted;
         let eventDuration = 0;
 
-        minuteLoop: for (let minute = startMinute; minute <= endMinute; minute++) {
+        for (let minute = startMinute; minute <= endMinute; minute++) {
           let timeStampMinute = this.inputDay + minute * this.MINUTE;
 
           if (hour === 1) {
@@ -112,31 +110,31 @@ export default class RenderEvents {
 
             roomArrWithFreeTime.push(roomWithFreeTime);
             roomWithFreeTime = {};
-            continue minuteLoop;
+            continue;
           }
 
           if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
             if (this.roomsWithBusyTime[roomId].hasOwnProperty(timeStampMinute)) {
-              if (roomWithFreeTime.hasOwnProperty('start')) { //Если свободное время уже было
+              if (roomWithFreeTime.hasOwnProperty('start')) { // Если свободное время уже было
                 roomWithFreeTime.end = timeStampMinute;
 
                 roomArrWithFreeTime.push(roomWithFreeTime);
                 roomWithFreeTime = {};
-                continue minuteLoop;
+                continue;
               }
 
               eventDuration++;
               roomWithFreeTime = {};
-              continue minuteLoop;
-            } else if(eventDuration > 0) {
+              continue;
+            } else if (eventDuration > 0) {
               roomWithFreeTime.start = timeStampMinute - this.MINUTE;
 
               if (hour - eventDuration > 0) {
                 hour = hour - eventDuration - 1;
-              } else if (hour - eventDuration == 0) {
+              } else if (hour - eventDuration === 0) {
                 hour = 60;
               } else if (hour - eventDuration < 0) {
-                hour = 60 - ((eventDuration - hour) - Math.floor((eventDuration - hour)/60)*60);
+                hour = 60 - ((eventDuration - hour) - Math.floor((eventDuration - hour) / 60) * 60);
               }
 
               eventDuration = 0;
@@ -172,10 +170,10 @@ export default class RenderEvents {
 
   freeTimeSlotHandler() {
     const eventNewTriggerArr = document.querySelectorAll('[data-event-new-trigger]');
-    let roomId,
-      startTime,
-      endTime,
-      eventCreateInputData = {};
+    let roomId;
+    let startTime;
+    let endTime;
+    let eventCreateInputData = {};
 
     for (let eventNewTrigger of eventNewTriggerArr) {
       const eventNewClickHandler = () => {

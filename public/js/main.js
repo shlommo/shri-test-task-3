@@ -1459,8 +1459,6 @@
 	    this.inputDayStart = this.inputDay + 8 * this.HOUR;
 	    this.inputDayEnd = this.inputDay + 23 * this.HOUR;
 	    this.roomsWithBusyTime = {};
-	    this.eventLeft;
-	    this.eventWidth;
 	  }
 	
 	  _createClass(RenderEvents, [{
@@ -1469,8 +1467,8 @@
 	      var extraClass = isFilled ? 'time-slot--filled' : 'time-slot--empty';
 	      var timeSlotType = isFilled ? 'data-event-edit-trigger' : 'data-event-new-trigger';
 	      var eventId = inputEventId !== null ? 'data-event-id="' + inputEventId + '"' : '';
-	      var startTime = start !== undefined ? 'data-start-time = "' + start + '"' : '';
-	      var endTime = end !== undefined ? 'data-end-time = "' + end + '"' : '';
+	      var startTime = typeof start !== 'undefined' ? 'data-start-time = "' + start + '"' : '';
+	      var endTime = typeof end !== 'undefined' ? 'data-end-time = "' + end + '"' : '';
 	
 	      return '<span class="time-slot ' + extraClass + '" \n              ' + eventId + '\n              ' + timeSlotType + ' \n              ' + startTime + ' \n              ' + endTime + '></span>';
 	    }
@@ -1512,7 +1510,7 @@
 	              var timeContainer = room.querySelector('.diagram__day');
 	
 	              if (event.room.id === roomId) {
-	                //Событие происходит в нужной комнате
+	                // Событие происходит в нужной комнате
 	                this.eventLeft = (eventDateStartValue - this.inputDayStart) * this.minuteStep / this.MINUTE;
 	                this.eventWidth = eventDuration * this.minuteStep;
 	
@@ -1591,7 +1589,7 @@
 	            var hour = 60 - minutesFromHourStarted;
 	            var eventDuration = 0;
 	
-	            minuteLoop: for (var minute = startMinute; minute <= endMinute; minute++) {
+	            for (var minute = startMinute; minute <= endMinute; minute++) {
 	              var timeStampMinute = this.inputDay + minute * this.MINUTE;
 	
 	              if (hour === 1) {
@@ -1600,29 +1598,29 @@
 	
 	                roomArrWithFreeTime.push(roomWithFreeTime);
 	                roomWithFreeTime = {};
-	                continue minuteLoop;
+	                continue;
 	              }
 	
 	              if (this.roomsWithBusyTime.hasOwnProperty(roomId)) {
 	                if (this.roomsWithBusyTime[roomId].hasOwnProperty(timeStampMinute)) {
 	                  if (roomWithFreeTime.hasOwnProperty('start')) {
-	                    //Если свободное время уже было
+	                    // Если свободное время уже было
 	                    roomWithFreeTime.end = timeStampMinute;
 	
 	                    roomArrWithFreeTime.push(roomWithFreeTime);
 	                    roomWithFreeTime = {};
-	                    continue minuteLoop;
+	                    continue;
 	                  }
 	
 	                  eventDuration++;
 	                  roomWithFreeTime = {};
-	                  continue minuteLoop;
+	                  continue;
 	                } else if (eventDuration > 0) {
 	                  roomWithFreeTime.start = timeStampMinute - this.MINUTE;
 	
 	                  if (hour - eventDuration > 0) {
 	                    hour = hour - eventDuration - 1;
-	                  } else if (hour - eventDuration == 0) {
+	                  } else if (hour - eventDuration === 0) {
 	                    hour = 60;
 	                  } else if (hour - eventDuration < 0) {
 	                    hour = 60 - (eventDuration - hour - Math.floor((eventDuration - hour) / 60) * 60);
@@ -1697,10 +1695,10 @@
 	    key: 'freeTimeSlotHandler',
 	    value: function freeTimeSlotHandler() {
 	      var eventNewTriggerArr = document.querySelectorAll('[data-event-new-trigger]');
-	      var roomId = void 0,
-	          startTime = void 0,
-	          endTime = void 0,
-	          eventCreateInputData = {};
+	      var roomId = void 0;
+	      var startTime = void 0;
+	      var endTime = void 0;
+	      var eventCreateInputData = {};
 	
 	      var _iteratorNormalCompletion5 = true;
 	      var _didIteratorError5 = false;
