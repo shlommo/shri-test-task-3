@@ -2865,10 +2865,12 @@
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
 	        //Событие не может быть меньше 15 мин
 	        alert('Минимальная продолжительность события - 15 минут');
+	        return false;
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
 	        alert('Нельзя редактировать события ушедших дней');
+	        return false;
 	      }
 	
 	      var _iteratorNormalCompletion8 = true;
@@ -2928,6 +2930,7 @@
 	
 	      if (this.members.length === 0) {
 	        alert('Выберите участников события');
+	        return false;
 	      }
 	
 	      // Удалить редактируемое событие из списка событий
@@ -6750,10 +6753,12 @@
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
 	        //Событие не может быть меньше 15 мин
 	        alert('Минимальная продолжительность события - 15 минут');
+	        return false;
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
 	        alert('Нельзя редактировать события ушедших дней');
+	        return false;
 	      }
 	
 	      var _iteratorNormalCompletion9 = true;
@@ -6813,6 +6818,7 @@
 	
 	      if (this.members.length === 0) {
 	        alert('Выберите участников события');
+	        return false;
 	      }
 	
 	      // Удалить редактируемое событие из списка событий

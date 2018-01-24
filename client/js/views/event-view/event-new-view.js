@@ -329,10 +329,12 @@ class EventNewView extends AbstractView {
 
     if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) { //Событие не может быть меньше 15 мин
       alert('Минимальная продолжительность события - 15 минут');
+      return false;
     }
 
     if (this.eventDateDay < this.initialAppDay) {
       alert('Нельзя редактировать события ушедших дней');
+      return false;
     }
 
     for (let eventUser of this.eventUsers) { //
@@ -350,6 +352,7 @@ class EventNewView extends AbstractView {
 
     if (this.members.length === 0) {
       alert('Выберите участников события');
+      return false;
     }
 
     // Удалить редактируемое событие из списка событий
