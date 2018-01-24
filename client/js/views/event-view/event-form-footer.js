@@ -8,5 +8,5 @@ export default (isEdit) => {
     : `<a href="#" class="button button--gray" data-cancel>Отмена</a>
       <button class="button button--blue button--disabled" id="createBtn">Создать встречу</button>`;
 
-  return  eventFormContent;
-}
+  return eventFormContent;
+};

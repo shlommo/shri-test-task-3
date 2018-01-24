@@ -2470,10 +2470,10 @@
 	    _this.rooms = _this.appData.rooms || {};
 	
 	    _this.eventStartDate = new Date(+_this.eventInputData.startTime);
-	    _this.eventDateDay = (0, _helpers.getDateValue)(_this.eventStartDate).day; //день в который происходят все события
+	    _this.eventDateDay = (0, _helpers.getDateValue)(_this.eventStartDate).day; // день в который происходят все события
 	
 	    _this.initialAppDate = new Date();
-	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; //день инициализации приложения
+	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; // день инициализации приложения
 	    _this.eventUsers = [];
 	
 	    _this.cancelBtnHandler = _this.cancelBtnHandler.bind(_this);
@@ -2489,15 +2489,13 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
-	      var events = this.appData.events[this.eventDateDay]; //события происходящие в этот день
-	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	
 	      if (this.eventInputData.hasOwnProperty('startTime')) {
 	        this.eventStartDate = new Date(+this.eventInputData.startTime);
 	        this.eventEndDate = new Date(+this.eventInputData.endTime);
 	      } else {
 	        this.eventStartDate = new Date();
-	        this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
+	        this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); // +30 минут
 	      }
 	
 	      this.eventDate = {
@@ -2596,6 +2594,8 @@
 	        _application2.default.data = newData;
 	        _router.router.navigate();
 	      });
+	
+	      return true;
 	    }
 	  }, {
 	    key: 'recommendationTagClickHandler',
@@ -2656,7 +2656,7 @@
 	  }, {
 	    key: 'addUserHandler',
 	    value: function addUserHandler(event) {
-	      //Срабатывает при добавление участника события
+	      // Срабатывает при добавление участника события
 	      var usersId = [];
 	      var _iteratorNormalCompletion3 = true;
 	      var _didIteratorError3 = false;
@@ -2691,7 +2691,7 @@
 	  }, {
 	    key: 'removeUserHandler',
 	    value: function removeUserHandler(event) {
-	      //Срабатывает при удалении участника события
+	      // Срабатывает при удалении участника события
 	      var newArr = [];
 	      var _iteratorNormalCompletion4 = true;
 	      var _didIteratorError4 = false;
@@ -2969,6 +2969,7 @@
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
 	
 	      this.renderRecommendations(this.recommendationArr);
+	      return true;
 	    }
 	  }, {
 	    key: 'viewRendered',

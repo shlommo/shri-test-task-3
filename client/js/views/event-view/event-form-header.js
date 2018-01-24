@@ -7,4 +7,4 @@ export default (isEdit) => {
                 </svg>
             </i>
         </a>`;
-}
+};

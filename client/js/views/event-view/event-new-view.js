@@ -66,10 +66,10 @@ class EventNewView extends AbstractView {
     this.rooms = this.appData.rooms || {};
 
     this.eventStartDate = new Date(+this.eventInputData.startTime);
-    this.eventDateDay = getDateValue(this.eventStartDate).day; //день в который происходят все события
+    this.eventDateDay = getDateValue(this.eventStartDate).day; // день в который происходят все события
 
     this.initialAppDate = new Date();
-    this.initialAppDay = getDateValue(this.initialAppDate).day; //день инициализации приложения
+    this.initialAppDay = getDateValue(this.initialAppDate).day; // день инициализации приложения
     this.eventUsers = [];
 
     this.cancelBtnHandler = this.cancelBtnHandler.bind(this);
@@ -81,16 +81,14 @@ class EventNewView extends AbstractView {
   }
 
   getMarkup() {
-    const header = `<header class="header"><div class="logo"></div></header>`;
-    const events = this.appData.events[this.eventDateDay];//события происходящие в этот день
-    const eventInputId = this.eventInputData.eventId; // id события переданное по url
+    const header = '<header class="header"><div class="logo"></div></header>';
 
     if (this.eventInputData.hasOwnProperty('startTime')) {
       this.eventStartDate = new Date(+this.eventInputData.startTime);
-      this.eventEndDate = new Date(+this.eventInputData.endTime)
+      this.eventEndDate = new Date(+this.eventInputData.endTime);
     } else {
       this.eventStartDate = new Date();
-      this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); //+30 минут
+      this.eventEndDate = new Date(this.eventStartDate.getTime() + 30 * 60 * 1000); // +30 минут
     }
 
     this.eventDate = {
@@ -189,11 +187,10 @@ class EventNewView extends AbstractView {
     const self = this;
 
     ApiService.createEvent(eventInput, usersInput, roomId)
-      .then(() => {
-          return ApiService.getAll()
-        }
-      )
-      .then((data) => {
+        .then(() => {
+          return ApiService.getAll();
+        })
+        .then((data) => {
           const newData = Object.assign({}, data, {
             date: self.eventStartDate,
             newEvent: {
@@ -205,8 +202,9 @@ class EventNewView extends AbstractView {
           self.clearHandlers();
           Application.data = newData;
           router.navigate();
-        }
-      );
+        });
+
+    return true;
   }
 
   recommendationTagClickHandler(recommendationTag) {
@@ -220,7 +218,7 @@ class EventNewView extends AbstractView {
     const recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
 
     for (let item of Array.from(recomTagArr)) {
-      this.recomContainer.removeChild(item)
+      this.recomContainer.removeChild(item);
     }
 
     const deleteBtn = recommendationTag.querySelector('.recommendation-tag__delete');
@@ -230,7 +228,7 @@ class EventNewView extends AbstractView {
     this.createBtn.classList.remove('button--disabled');
     this.eventTimeStartDatepickr.setDate(new Date(+startDate));
     this.eventTimeEndDatepickr.setDate(new Date(+endDate));
-    this.createBtn.addEventListener('click', this.createEventHandler)
+    this.createBtn.addEventListener('click', this.createEventHandler);
   }
 
   recommendationTagDeleteBtnHandler(event) {
@@ -242,7 +240,7 @@ class EventNewView extends AbstractView {
     this.handleRecommendation();
   }
 
-  addUserHandler(event) { //Срабатывает при добавление участника события
+  addUserHandler(event) { // Срабатывает при добавление участника события
     let usersId = [];
     for (let eventUser of this.eventUsers) {
       usersId.push(eventUser.id);
@@ -253,7 +251,7 @@ class EventNewView extends AbstractView {
     this.handleRecommendation();
   }
 
-  removeUserHandler(event) { //Срабатывает при удалении участника события
+  removeUserHandler(event) { // Срабатывает при удалении участника события
     let newArr = [];
     for (let eventUser of this.eventUsers) {
       if (eventUser.id !== event.detail.userId) {
@@ -294,7 +292,7 @@ class EventNewView extends AbstractView {
     this.autocomplete = this.element.querySelector('[data-autocomplete]');
 
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.addEventListener('click', this.cancelBtnHandler)
+      cancelBtn.addEventListener('click', this.cancelBtnHandler);
     }
 
     this.autocomplete.addEventListener('keyup', this.getAutocompleteHandler);
@@ -311,7 +309,7 @@ class EventNewView extends AbstractView {
 
   clearHandlers() {
     for (let cancelBtn of Array.from(this.cancelBtnArr)) {
-      cancelBtn.removeEventListener('click', this.cancelBtnHandler)
+      cancelBtn.removeEventListener('click', this.cancelBtnHandler);
     }
     this.eventDateDatepickr.destroy();
     this.eventTimeStartDatepickr.destroy();
@@ -320,7 +318,7 @@ class EventNewView extends AbstractView {
 
     document.removeEventListener('addUserToEvent', this.addUserHandler);
     document.removeEventListener('removeUserFromEvent', this.removeUserHandler);
-    this.createBtn.removeEventListener('click', this.createEventHandler)
+    this.createBtn.removeEventListener('click', this.createEventHandler);
   }
 
   handleRecommendation() {
@@ -372,6 +370,7 @@ class EventNewView extends AbstractView {
     this.recommendationArr = getRecommendation(this.eventDate, this.members, db);
 
     this.renderRecommendations(this.recommendationArr);
+    return true;
   }
 
   viewRendered() {
