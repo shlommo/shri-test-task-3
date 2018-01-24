@@ -9,25 +9,23 @@ const router = new Navigo(root, useHash, hash);
 
 const activateRouter = () => {
   return router
-    .on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, (hash, action) => {
-      const encodeData = encodeObjFromHash(hash);
-      if (action === 'create') {
-        Application.showEventCreate(encodeData);
-      } else if (action === 'edit') {
-        Application.showEventEdit(encodeData);
-      }
-    })
-    .on(/event\/(\w+)\/?/, (action) => {
-      if (action === 'create') {
-        Application.showEventCreate();
-      } else if (action === 'edit') {
-
-      }
-    })
-    .on('/', function () {
-      Application.showMeetingRooms();
-    })
-    .resolve();
+      .on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, (urlHash, action) => {
+        const encodeData = encodeObjFromHash(urlHash);
+        if (action === 'create') {
+          Application.showEventCreate(encodeData);
+        } else if (action === 'edit') {
+          Application.showEventEdit(encodeData);
+        }
+      })
+      .on(/event\/(\w+)\/?/, (action) => {
+        if (action === 'create') {
+          Application.showEventCreate();
+        }
+      })
+      .on('/', function () {
+        Application.showMeetingRooms();
+      })
+      .resolve();
 };
 
 export {router, activateRouter};

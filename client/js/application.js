@@ -10,11 +10,11 @@ export default class Application {
   }
 
   static showEventCreate(eventInputData) {
-    view(TYPES.EVENT_CREATE, eventInputData)
+    view(TYPES.EVENT_CREATE, eventInputData);
   }
 
   static showEventEdit(eventInputData) {
-    view(TYPES.EVENT_EDIT, eventInputData)
+    view(TYPES.EVENT_EDIT, eventInputData);
   }
 
   static set data(data) {

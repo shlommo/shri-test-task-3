@@ -65,18 +65,18 @@
 	(0, _createSvgSprite2.default)();
 	
 	_apiService2.default.getAll().then(function (data) {
-	    _application2.default.data = data;
+	  _application2.default.data = data;
 	
-	    (0, _router.activateRouter)();
+	  (0, _router.activateRouter)();
 	});
 	
 	document.addEventListener('dateChange', function (e) {
-	    var newData = Object.assign({}, _application2.default.data, {
-	        date: e.detail.date
-	    });
+	  var newData = Object.assign({}, _application2.default.data, {
+	    date: e.detail.date
+	  });
 	
-	    _application2.default.data = newData;
-	    _application2.default.showMeetingRooms();
+	  _application2.default.data = newData;
+	  _application2.default.showMeetingRooms();
 	});
 
 /***/ }),
@@ -2036,8 +2036,8 @@
 	var router = new _navigo2.default(root, useHash, hash);
 	
 	var activateRouter = function activateRouter() {
-	  return router.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (hash, action) {
-	    var encodeData = (0, _helpers.encodeObjFromHash)(hash);
+	  return router.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (urlHash, action) {
+	    var encodeData = (0, _helpers.encodeObjFromHash)(urlHash);
 	    if (action === 'create') {
 	      _application2.default.showEventCreate(encodeData);
 	    } else if (action === 'edit') {
@@ -2046,7 +2046,7 @@
 	  }).on(/event\/(\w+)\/?/, function (action) {
 	    if (action === 'create') {
 	      _application2.default.showEventCreate();
-	    } else if (action === 'edit') {}
+	    }
 	  }).on('/', function () {
 	    _application2.default.showMeetingRooms();
 	  }).resolve();

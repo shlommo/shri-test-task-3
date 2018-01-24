@@ -6,19 +6,19 @@ import {activateRouter} from './router';
 createSvgSprite();
 
 ApiService.getAll()
-  .then((data) => {
-    Application.data = data;
+    .then((data) => {
+      Application.data = data;
 
-    activateRouter();
+      activateRouter();
 
-  });
-
-document.addEventListener('dateChange', (e) => {
-    const newData = Object.assign({}, Application.data, {
-      date: e.detail.date
     });
 
-    Application.data = newData;
-    Application.showMeetingRooms();
+document.addEventListener('dateChange', (e) => {
+  const newData = Object.assign({}, Application.data, {
+    date: e.detail.date
+  });
+
+  Application.data = newData;
+  Application.showMeetingRooms();
 });
 
