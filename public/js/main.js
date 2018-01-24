@@ -6134,7 +6134,7 @@
 	  var userTagElement = (0, _helpers.getNodeFromMarkup)(userTag);
 	  var userTagRemoveBtn = userTagElement.querySelector('.user-tag__remove');
 	
-	  var removeUserFromEvent = new CustomEvent("removeUserFromEvent", {
+	  var removeUserFromEvent = new CustomEvent('removeUserFromEvent', {
 	    detail: {
 	      userId: userId
 	    }

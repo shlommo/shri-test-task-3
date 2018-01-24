@@ -52,7 +52,7 @@ const openCalendar = () => {
       body.classList.add(classToBody);
     }
 
-    hideOnClickOutside(`#calendar`, removeAction);
+    hideOnClickOutside('#calendar', removeAction);
 
     addListenerMulti(calendarOverlay, 'click touchstart', removeAction);
   });

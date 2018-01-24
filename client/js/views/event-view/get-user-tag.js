@@ -1,4 +1,4 @@
-import getUser from './get-user'
+import getUser from './get-user';
 import {getNodeFromMarkup} from './../../tools/helpers';
 
 export default (userId, login, avatarUrl) => {
@@ -16,7 +16,7 @@ export default (userId, login, avatarUrl) => {
   const userTagElement = getNodeFromMarkup(userTag);
   const userTagRemoveBtn = userTagElement.querySelector('.user-tag__remove');
 
-  const removeUserFromEvent = new CustomEvent("removeUserFromEvent", {
+  const removeUserFromEvent = new CustomEvent('removeUserFromEvent', {
     detail: {
       userId: userId
     }
@@ -30,10 +30,10 @@ export default (userId, login, avatarUrl) => {
   };
 
   const removeClickListener = () => {
-    userTagRemoveBtn.removeEventListener('click', userRemoveBtnHandler)
+    userTagRemoveBtn.removeEventListener('click', userRemoveBtnHandler);
   };
 
   userTagRemoveBtn.addEventListener('click', userRemoveBtnHandler);
 
   return userTagElement;
-}
+};
