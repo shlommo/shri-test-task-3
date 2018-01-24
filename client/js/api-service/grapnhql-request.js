@@ -14,8 +14,8 @@ export default (request) => {
   return window.fetch(`${requestAddr}/graphql`, {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
-    body: JSON.stringify({ query:  request })
+    body: JSON.stringify({query: request})
   })
-    .then(checkStatus)
-    .then(parseJSON);
+      .then(checkStatus)
+      .then(parseJSON);
 };
