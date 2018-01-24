@@ -37,7 +37,9 @@ export const debounce = (f, ms) =>{
 
   return function (...args) {
     const onComplete = () => {
+      /* eslint-disable */
       f.apply(this, args);
+      /* eslint-enable */
       timer = null;
     };
 
@@ -63,13 +65,13 @@ export const getDateValue = (inputDate) => {
     day: day.valueOf(),
     hour: hour.valueOf(),
     minute: minute.valueOf()
-  }
+  };
 };
 
-Element.prototype.parents = function(selector) {
+Element.prototype.parents = function (selector) {
   let elements = [];
   let elem = this;
-  const ishaveselector = selector !== undefined;
+  const ishaveselector = typeof selector !== 'undefined';
 
   while ((elem = elem.parentElement) !== null) {
     if (elem.nodeType !== Node.ELEMENT_NODE) {
@@ -86,12 +88,16 @@ Element.prototype.parents = function(selector) {
 
 export const parseObjToHash = (inputObj) => {
   let hashPartBuffer = [];
+
   for (let k in inputObj) {
+    if (typeof inputObj !== 'object') {
+      return [];
+    }
     hashPartBuffer.push(
-      encodeURIComponent(k),
-      '=',
-      encodeURIComponent(inputObj[k]),
-      '&');
+        encodeURIComponent(k),
+        '=',
+        encodeURIComponent(inputObj[k]),
+        '&');
   }
   if (hashPartBuffer.length) {
     // Remove the last element from the string buffer
@@ -109,7 +115,7 @@ export const encodeObjFromHash = (hashPartString) => {
   for (let i = 0; i < pairs.length; i++) {
     let keyValue = pairs[i].split(/=/);
     // Validate that this has the right structure.
-    if (keyValue.length == 2) {
+    if (keyValue.length === 2) {
       object[keyValue[0]] = keyValue[1];
     }
   }
@@ -149,4 +155,4 @@ export const checkEventTarget = (event, elem) => {
     return true;
   }
   return isTarget;
-}
+};

@@ -906,6 +906,9 @@
 	Object.defineProperty(exports, "__esModule", {
 	  value: true
 	});
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
 	var getCoords = exports.getCoords = function getCoords(elem) {
 	  var box = elem.getBoundingClientRect();
 	
@@ -952,7 +955,9 @@
 	    }
 	
 	    var onComplete = function onComplete() {
+	      /* eslint-disable */
 	      f.apply(_this, args);
+	      /* eslint-enable */
 	      timer = null;
 	    };
 	
@@ -984,7 +989,7 @@
 	Element.prototype.parents = function (selector) {
 	  var elements = [];
 	  var elem = this;
-	  var ishaveselector = selector !== undefined;
+	  var ishaveselector = typeof selector !== 'undefined';
 	
 	  while ((elem = elem.parentElement) !== null) {
 	    if (elem.nodeType !== Node.ELEMENT_NODE) {
@@ -1001,7 +1006,11 @@
 	
 	var parseObjToHash = exports.parseObjToHash = function parseObjToHash(inputObj) {
 	  var hashPartBuffer = [];
+	
 	  for (var k in inputObj) {
+	    if ((typeof inputObj === 'undefined' ? 'undefined' : _typeof(inputObj)) !== 'object') {
+	      return [];
+	    }
 	    hashPartBuffer.push(encodeURIComponent(k), '=', encodeURIComponent(inputObj[k]), '&');
 	  }
 	  if (hashPartBuffer.length) {
@@ -1020,7 +1029,7 @@
 	  for (var i = 0; i < pairs.length; i++) {
 	    var keyValue = pairs[i].split(/=/);
 	    // Validate that this has the right structure.
-	    if (keyValue.length == 2) {
+	    if (keyValue.length === 2) {
 	      object[keyValue[0]] = keyValue[1];
 	    }
 	  }
