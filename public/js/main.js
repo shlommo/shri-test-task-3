@@ -2539,10 +2539,24 @@
 	  }, {
 	    key: 'createEventHandler',
 	    value: function createEventHandler() {
+	      try {
+	        this.tryCreateEventHandler();
+	      } catch (msg) {
+	        this.showErrorMessage(msg);
+	      }
+	    }
+	  }, {
+	    key: 'tryCreateEventHandler',
+	    value: function tryCreateEventHandler() {
 	      var eventTitle = this.element.querySelector('#eventTitle').value;
 	      var userTagArr = this.element.querySelectorAll('.user-tag');
 	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
-	      var roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+	      if (recommendationTagSelected === null) {
+	        throw new _helpers.UserException('Вы не выбрали переговорку.');
+	      } else {
+	        this.clearErrorContainer();
+	      }
+	      var roomId = recommendationTagSelected.getAttribute('data-room-id');
 	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
 	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
 	      var now = new Date();
@@ -2576,24 +2590,29 @@
 	      }
 	
 	      if (eventTitle.length === 0) {
-	        alert('Введите название мероприятия');
-	        return false;
+	        throw new _helpers.UserException('Введите название мероприятия');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (users.length === 0) {
-	        alert('Выберите участников события');
-	        return false;
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (roomId === null) {
-	        alert('Выберите комнату из рекомменадций');
-	        return false;
+	        throw new _helpers.UserException('Выберите комнату из рекомменадций');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (currentMinute > (0, _helpers.getDateValue)(dateStart).minute) {
-	        alert('Время вышло. Пожалуйста, обновите время');
-	        return false;
+	        throw new _helpers.UserException('Время вышло. Пожалуйста, обновите время');
+	      } else {
+	        this.clearErrorContainer();
 	      }
+	
 	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
 	      var usersInput = '[' + users + ']';
 	      var self = this;
@@ -2743,6 +2762,11 @@
 	      this.handleRecommendation();
 	    }
 	  }, {
+	    key: 'clearRecommendations',
+	    value: function clearRecommendations() {
+	      this.recomContainer.innerHTML = 'Нет рекомендаций';
+	    }
+	  }, {
 	    key: 'renderRecommendations',
 	    value: function renderRecommendations(recommendations) {
 	      var _this2 = this;
@@ -2751,7 +2775,7 @@
 	      this.recomParent.classList.remove('hidden');
 	
 	      if (recommendations.length === 0) {
-	        this.recomContainer.innerHTML = 'Нет рекомендаций';
+	        this.clearRecommendations();
 	      } else {
 	        this.recomContainer.innerHTML = '';
 	      }
@@ -2836,6 +2860,9 @@
 	      document.addEventListener('removeUserFromEvent', this.removeUserHandler);
 	
 	      this.createBtn = this.element.querySelector('#createBtn');
+	
+	      this.eventFormValidation = this.element.querySelector('.event-form__validation');
+	      this.eventFormValidationContent = this.eventFormValidation.querySelector('.event-form__validation-content');
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -2877,17 +2904,30 @@
 	  }, {
 	    key: 'handleRecommendation',
 	    value: function handleRecommendation() {
+	      try {
+	        this.tryHandleRecommendation();
+	      } catch (msg) {
+	        this.showErrorMessage(msg);
+	      }
+	    }
+	  }, {
+	    key: 'tryHandleRecommendation',
+	    value: function tryHandleRecommendation() {
 	      this.members = [];
 	      var person = {};
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-	        alert('Минимальная продолжительность события - 15 минут');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Минимальная продолжительность события - 15 минут');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
-	        alert('Нельзя редактировать события ушедших дней');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Нельзя редактировать события ушедших дней');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      var _iteratorNormalCompletion8 = true;
@@ -2945,19 +2985,20 @@
 	      }
 	
 	      if (this.members.length === 0) {
-	        alert('Выберите участников события');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      // Удалить редактируемое событие из списка событий
 	      var newEventsArr = [];
-	      var appDateEvents = this.appData.events[this.eventDateDay] || [];
 	      var _iteratorNormalCompletion9 = true;
 	      var _didIteratorError9 = false;
 	      var _iteratorError9 = undefined;
 	
 	      try {
-	        for (var _iterator9 = appDateEvents[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
 	          var event = _step9.value;
 	
 	          if (event.id !== this.currentId) {
@@ -2988,6 +3029,19 @@
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
 	
 	      return this.renderRecommendations(this.recommendationArr);
+	    }
+	  }, {
+	    key: 'showErrorMessage',
+	    value: function showErrorMessage(msg) {
+	      this.eventFormValidationContent.innerHTML = msg;
+	      this.eventFormValidation.classList.add('show');
+	    }
+	  }, {
+	    key: 'clearErrorContainer',
+	    value: function clearErrorContainer() {
+	      if (this.eventFormValidation.classList.contains('show')) {
+	        this.eventFormValidation.classList.remove('show');
+	      }
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -5796,7 +5850,7 @@
 	                continue eventLoop;
 	              }
 	
-	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd || tStart === dbEventStart && tEnd === dbEventEnd) {
+	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd || tStart <= dbEventStart && tEnd === dbEventEnd) {
 	                // если на этот промежуток времени запланировано событие
 	                isTimeHasnotEvent = false;
 	              }
@@ -6593,6 +6647,15 @@
 	      });
 	    }
 	  }, {
+	    key: 'editEventBtnHandle',
+	    value: function editEventBtnHandle() {
+	      try {
+	        this.tryEditEventBtnHandle();
+	      } catch (msg) {
+	        this.showErrorMessage(msg);
+	      }
+	    }
+	  }, {
 	    key: 'tryEditEventBtnHandle',
 	    value: function tryEditEventBtnHandle() {
 	      var eventId = this.eventInputData.eventId;
@@ -6606,7 +6669,7 @@
 	        this.clearErrorContainer();
 	      }
 	
-	      var roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+	      var roomId = recommendationTagSelected.getAttribute('data-room-id');
 	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
 	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
 	      var now = new Date();
@@ -6684,15 +6747,6 @@
 	      return true;
 	    }
 	  }, {
-	    key: 'editEventBtnHandle',
-	    value: function editEventBtnHandle() {
-	      try {
-	        this.tryEditEventBtnHandle();
-	      } catch (msg) {
-	        this.showErrorMessage(msg);
-	      }
-	    }
-	  }, {
 	    key: 'bindHandlers',
 	    value: function bindHandlers() {
 	      this.fieldResetBtn = this.element.querySelector('.field__reset');
@@ -6741,6 +6795,7 @@
 	
 	      this.editEventBtn = this.element.querySelector('#editEventBtn');
 	      this.editEventBtn.addEventListener('click', this.editEventBtnHandle);
+	
 	      this.eventFormValidation = this.element.querySelector('.event-form__validation');
 	      this.eventFormValidationContent = this.eventFormValidation.querySelector('.event-form__validation-content');
 	    }

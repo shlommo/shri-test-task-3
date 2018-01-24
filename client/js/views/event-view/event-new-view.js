@@ -4,15 +4,13 @@ import {router} from './../../router';
 import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
-import {getDateValue, getNodeFromMarkup, checkEventTarget} from '../../tools/helpers';
-
+import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException} from '../../tools/helpers';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
 import getRecommendation from './get-recomendation';
 import getRecommendationTagMarkup from './get-recomendation-tag';
 import {getAutocompleteMarkup, autocompleteHandler} from './field-autocomplete';
-
 
 class EventNewView extends AbstractView {
 
@@ -149,10 +147,23 @@ class EventNewView extends AbstractView {
   }
 
   createEventHandler() {
+    try {
+      this.tryCreateEventHandler();
+    } catch (msg) {
+      this.showErrorMessage(msg);
+    }
+  }
+
+  tryCreateEventHandler() {
     const eventTitle = this.element.querySelector('#eventTitle').value;
     const userTagArr = this.element.querySelectorAll('.user-tag');
     const recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
-    const roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+    if (recommendationTagSelected === null) {
+      throw new UserException('Вы не выбрали переговорку.');
+    } else {
+      this.clearErrorContainer();
+    }
+    const roomId = recommendationTagSelected.getAttribute('data-room-id');
     const dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
     const dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
     const now = new Date();
@@ -165,24 +176,29 @@ class EventNewView extends AbstractView {
     }
 
     if (eventTitle.length === 0) {
-      alert('Введите название мероприятия');
-      return false;
+      throw new UserException('Введите название мероприятия');
+    } else {
+      this.clearErrorContainer();
     }
 
     if (users.length === 0) {
-      alert('Выберите участников события');
-      return false;
+      throw new UserException('Выберите участников события');
+    } else {
+      this.clearErrorContainer();
     }
 
     if (roomId === null) {
-      alert('Выберите комнату из рекомменадций');
-      return false;
+      throw new UserException('Выберите комнату из рекомменадций');
+    } else {
+      this.clearErrorContainer();
     }
 
     if (currentMinute > getDateValue(dateStart).minute) {
-      alert('Время вышло. Пожалуйста, обновите время');
-      return false;
+      throw new UserException('Время вышло. Пожалуйста, обновите время');
+    } else {
+      this.clearErrorContainer();
     }
+
     const eventInput = `{
       title: "${eventTitle}",
       dateStart: "${dateStart.toISOString()}",
@@ -267,12 +283,16 @@ class EventNewView extends AbstractView {
     this.handleRecommendation();
   }
 
+  clearRecommendations() {
+    this.recomContainer.innerHTML = 'Нет рекомендаций';
+  }
+
   renderRecommendations(recommendations) {
     this.recomParentTitle.innerHTML = 'Рекомендованные переговорки';
     this.recomParent.classList.remove('hidden');
 
     if (recommendations.length === 0) {
-      this.recomContainer.innerHTML = 'Нет рекомендаций';
+      this.clearRecommendations();
     } else {
       this.recomContainer.innerHTML = '';
     }
@@ -310,6 +330,9 @@ class EventNewView extends AbstractView {
     document.addEventListener('removeUserFromEvent', this.removeUserHandler);
 
     this.createBtn = this.element.querySelector('#createBtn');
+
+    this.eventFormValidation = this.element.querySelector('.event-form__validation');
+    this.eventFormValidationContent = this.eventFormValidation.querySelector('.event-form__validation-content');
   }
 
   clearHandlers() {
@@ -327,17 +350,29 @@ class EventNewView extends AbstractView {
   }
 
   handleRecommendation() {
+    try {
+      this.tryHandleRecommendation();
+    } catch (msg) {
+      this.showErrorMessage(msg);
+    }
+  }
+
+  tryHandleRecommendation() {
     this.members = [];
     let person = {};
 
     if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-      alert('Минимальная продолжительность события - 15 минут');
-      return false;
+      this.clearRecommendations();
+      throw new UserException('Минимальная продолжительность события - 15 минут');
+    } else {
+      this.clearErrorContainer();
     }
 
     if (this.eventDateDay < this.initialAppDay) {
-      alert('Нельзя редактировать события ушедших дней');
-      return false;
+      this.clearRecommendations();
+      throw new UserException('Нельзя редактировать события ушедших дней');
+    } else {
+      this.clearErrorContainer();
     }
 
     for (let eventUser of this.eventUsers) {
@@ -354,14 +389,15 @@ class EventNewView extends AbstractView {
     }
 
     if (this.members.length === 0) {
-      alert('Выберите участников события');
-      return false;
+      this.clearRecommendations();
+      throw new UserException('Выберите участников события');
+    } else {
+      this.clearErrorContainer();
     }
 
     // Удалить редактируемое событие из списка событий
     let newEventsArr = [];
-    const appDateEvents = this.appData.events[this.eventDateDay] || [];
-    for (let event of appDateEvents) {
+    for (let event of this.appData.events[this.eventDateDay]) {
       if (event.id !== this.currentId) {
         newEventsArr.push(event);
       }
@@ -375,6 +411,17 @@ class EventNewView extends AbstractView {
     this.recommendationArr = getRecommendation(this.eventDate, this.members, db);
 
     return this.renderRecommendations(this.recommendationArr);
+  }
+
+  showErrorMessage(msg) {
+    this.eventFormValidationContent.innerHTML = msg;
+    this.eventFormValidation.classList.add('show');
+  }
+
+  clearErrorContainer() {
+    if (this.eventFormValidation.classList.contains('show')) {
+      this.eventFormValidation.classList.remove('show');
+    }
   }
 
   viewRendered() {

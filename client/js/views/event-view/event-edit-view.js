@@ -5,8 +5,6 @@ import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
 import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException} from '../../tools/helpers';
-
-
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
@@ -271,6 +269,14 @@ class EventNewView extends AbstractView {
     });
   }
 
+  editEventBtnHandle() {
+    try {
+      this.tryEditEventBtnHandle();
+    } catch (msg) {
+      this.showErrorMessage(msg);
+    }
+  }
+
   tryEditEventBtnHandle() {
     const eventId = this.eventInputData.eventId;
     const eventTitle = this.element.querySelector('#eventTitle').value;
@@ -283,7 +289,7 @@ class EventNewView extends AbstractView {
       this.clearErrorContainer();
     }
 
-    const roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
+    const roomId = recommendationTagSelected.getAttribute('data-room-id');
     const dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
     const dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
     const now = new Date();
@@ -346,14 +352,6 @@ class EventNewView extends AbstractView {
     return true;
   }
 
-  editEventBtnHandle() {
-    try {
-      this.tryEditEventBtnHandle();
-    } catch (msg) {
-      this.showErrorMessage(msg);
-    }
-  }
-
   bindHandlers() {
     this.fieldResetBtn = this.element.querySelector('.field__reset');
     this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
@@ -379,6 +377,7 @@ class EventNewView extends AbstractView {
 
     this.editEventBtn = this.element.querySelector('#editEventBtn');
     this.editEventBtn.addEventListener('click', this.editEventBtnHandle);
+
     this.eventFormValidation = this.element.querySelector('.event-form__validation');
     this.eventFormValidationContent = this.eventFormValidation.querySelector('.event-form__validation-content');
   }

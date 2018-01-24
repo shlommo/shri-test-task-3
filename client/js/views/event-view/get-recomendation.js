@@ -109,7 +109,7 @@ function getRecommendation(date, members, db) {
           if (tStart <= dbEventStart && tEnd > dbEventEnd
               || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart
               || tStart > dbEventStart && tEnd <= dbEventEnd
-              || tStart === dbEventStart && tEnd === dbEventEnd) { // если на этот промежуток времени запланировано событие
+              || tStart <= dbEventStart && tEnd === dbEventEnd) { // если на этот промежуток времени запланировано событие
             isTimeHasnotEvent = false;
           }
 
