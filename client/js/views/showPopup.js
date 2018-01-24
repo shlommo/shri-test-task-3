@@ -1,4 +1,4 @@
-import {getNodeFromMarkup, getDateValue} from './../tools/helpers';
+import {getNodeFromMarkup} from './../tools/helpers';
 import {monthNames} from './../data/data';
 
 const deletePopupTemplate = () => {

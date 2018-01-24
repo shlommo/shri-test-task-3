@@ -2863,7 +2863,6 @@
 	      var person = {};
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-	        //Событие не может быть меньше 15 мин
 	        alert('Минимальная продолжительность события - 15 минут');
 	        return false;
 	      }
@@ -2880,7 +2879,6 @@
 	      try {
 	        for (var _iterator8 = this.eventUsers[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
 	          var eventUser = _step8.value;
-	          //
 	          var _iteratorNormalCompletion10 = true;
 	          var _didIteratorError10 = false;
 	          var _iteratorError10 = undefined;
@@ -6751,7 +6749,6 @@
 	      var person = {};
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-	        //Событие не может быть меньше 15 мин
 	        alert('Минимальная продолжительность события - 15 минут');
 	        return false;
 	      }
@@ -6768,7 +6765,6 @@
 	      try {
 	        for (var _iterator9 = this.eventUsers[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
 	          var eventUser = _step9.value;
-	          //
 	          var _iteratorNormalCompletion11 = true;
 	          var _didIteratorError11 = false;
 	          var _iteratorError11 = undefined;

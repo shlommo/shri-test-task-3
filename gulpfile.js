@@ -79,7 +79,7 @@ gulp.task('copy-html', function () {
   gulp.src('client/*.html')
     .pipe(gulp.dest('public'))
     .pipe(server.stream());
-})
+});
 
 gulp.task('copy', ['copy-html', 'scripts', 'style']);
 

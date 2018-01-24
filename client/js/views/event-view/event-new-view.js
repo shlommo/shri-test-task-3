@@ -327,7 +327,7 @@ class EventNewView extends AbstractView {
     this.members = [];
     let person = {};
 
-    if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) { //Событие не может быть меньше 15 мин
+    if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
       alert('Минимальная продолжительность события - 15 минут');
       return false;
     }
@@ -337,7 +337,7 @@ class EventNewView extends AbstractView {
       return false;
     }
 
-    for (let eventUser of this.eventUsers) { //
+    for (let eventUser of this.eventUsers) {
       for (let user of this.users) {
         if (eventUser.id === user.id) {
           person = {
