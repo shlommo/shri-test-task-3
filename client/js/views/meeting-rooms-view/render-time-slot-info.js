@@ -29,7 +29,8 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
     }
   }
 
-  let userLogin, userAvatarUrl;
+  let userLogin;
+  let userAvatarUrl;
 
   for (let user of users) {
     if (user.id === event.users[0].id) {
@@ -91,12 +92,11 @@ const getTimeSlotInfoTemplate = (event, rooms, users) => {
 
 
 export default (parent, events, rooms, users) => {
-  // const parent = context;
   const timeSlotArr = parent.querySelectorAll('[data-event-edit-trigger]');
 
   for ( let timeSlot of Array.from(timeSlotArr) ) {
-    const timeSlotClickHandler = (event) => {
-      event.preventDefault();
+    const timeSlotClickHandler = (e) => {
+      e.preventDefault();
 
       const timeSlotComputedStyle = getComputedStyle(timeSlot);
       const timeSlotHeight = +timeSlotComputedStyle.height.slice(0, -2);
@@ -126,7 +126,7 @@ export default (parent, events, rooms, users) => {
         if (windowWidth < 1280) {
           const timeSlotInfoMarker = document.querySelector('.time-slot-info__marker');
           const timeSlotInfoMarkerWidth = +getComputedStyle(timeSlotInfoMarker).width.slice(0, -2);
-          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop  + timeSlotHeight}px;`;
+          timeSlotInfoNode.style.cssText = `top: ${timeSlotTop + timeSlotHeight}px;`;
           timeSlotInfoMarker.style.left = `${timeSlotLeft + timeSlotWidth / 2 - timeSlotInfoMarkerWidth / 2}px`;
         } else {
           const timeSlotNodeWidth = getComputedStyle(timeSlotInfoNode).width.slice(0, -2);
@@ -138,23 +138,23 @@ export default (parent, events, rooms, users) => {
 
       setTimeout(() => {
         hideOnClickOutside('#timeSlotInfoModal', () => {
-            timeSlot.classList.remove('focused');
-            if (diagramContent.contains(timeSlotInfoNode)) {
-              diagramContent.removeChild(timeSlotInfoNode);
-            }
-          });
+          timeSlot.classList.remove('focused');
+          if (diagramContent.contains(timeSlotInfoNode)) {
+            diagramContent.removeChild(timeSlotInfoNode);
+          }
+        });
       }, 10);
 
       const timeSlotInfoTrigger = diagramContent.querySelector('.time-slot-info__trigger');
 
-      timeSlotInfoTrigger.addEventListener('click', (e) => {
-        e.preventDefault();
+      timeSlotInfoTrigger.addEventListener('click', (ev) => {
+        ev.preventDefault();
         const eventHref = timeSlotInfoTrigger.getAttribute('href');
 
         diagramContent.removeChild(timeSlotInfoNode);
         timeSlot.removeEventListener('click', timeSlotClickHandler);
         router.navigate(eventHref);
-      })
+      });
     };
 
     timeSlot.addEventListener('click', timeSlotClickHandler);

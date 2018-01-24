@@ -1828,8 +1828,8 @@
 	    }
 	  }
 	
-	  var userLogin = void 0,
-	      userAvatarUrl = void 0;
+	  var userLogin = void 0;
+	  var userAvatarUrl = void 0;
 	
 	  var _iteratorNormalCompletion2 = true;
 	  var _didIteratorError2 = false;
@@ -1883,7 +1883,6 @@
 	};
 	
 	exports.default = function (parent, events, rooms, users) {
-	  // const parent = context;
 	  var timeSlotArr = parent.querySelectorAll('[data-event-edit-trigger]');
 	
 	  var _iteratorNormalCompletion3 = true;
@@ -1894,8 +1893,8 @@
 	    var _loop = function _loop() {
 	      var timeSlot = _step3.value;
 	
-	      var timeSlotClickHandler = function timeSlotClickHandler(event) {
-	        event.preventDefault();
+	      var timeSlotClickHandler = function timeSlotClickHandler(e) {
+	        e.preventDefault();
 	
 	        var timeSlotComputedStyle = getComputedStyle(timeSlot);
 	        var timeSlotHeight = +timeSlotComputedStyle.height.slice(0, -2);
@@ -1917,10 +1916,10 @@
 	
 	        try {
 	          for (var _iterator4 = events[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	            var _event = _step4.value;
+	            var event = _step4.value;
 	
-	            if (_event.id === timeSlotEventId) {
-	              timeSlotInfoTemplate = getTimeSlotInfoTemplate(_event, rooms, users);
+	            if (event.id === timeSlotEventId) {
+	              timeSlotInfoTemplate = getTimeSlotInfoTemplate(event, rooms, users);
 	              timeSlotInfoNode = (0, _helpers.getNodeFromMarkup)(timeSlotInfoTemplate);
 	            }
 	          }
@@ -1967,8 +1966,8 @@
 	
 	        var timeSlotInfoTrigger = diagramContent.querySelector('.time-slot-info__trigger');
 	
-	        timeSlotInfoTrigger.addEventListener('click', function (e) {
-	          e.preventDefault();
+	        timeSlotInfoTrigger.addEventListener('click', function (ev) {
+	          ev.preventDefault();
 	          var eventHref = timeSlotInfoTrigger.getAttribute('href');
 	
 	          diagramContent.removeChild(timeSlotInfoNode);
