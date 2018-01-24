@@ -2968,8 +2968,7 @@
 	
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
 	
-	      this.renderRecommendations(this.recommendationArr);
-	      return true;
+	      return this.renderRecommendations(this.recommendationArr);
 	    }
 	  }, {
 	    key: 'viewRendered',
@@ -6277,10 +6276,10 @@
 	    _this.rooms = _this.appData.rooms || {};
 	
 	    _this.eventStartDate = new Date(+_this.eventInputData.startTime);
-	    _this.eventDateDay = (0, _helpers.getDateValue)(_this.eventStartDate).day; //день в который происходят все события
+	    _this.eventDateDay = (0, _helpers.getDateValue)(_this.eventStartDate).day; // день в который происходят все события
 	
 	    _this.initialAppDate = new Date();
-	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; //день инициализации приложения
+	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day; // день инициализации приложения
 	
 	    _this.cancelBtnHandler = _this.cancelBtnHandler.bind(_this);
 	    _this.getAutocompleteHandler = _this.getAutocompleteHandler.bind(_this);
@@ -6296,7 +6295,7 @@
 	    key: 'getMarkup',
 	    value: function getMarkup() {
 	      var header = '<header class="header"><div class="logo"></div></header>';
-	      var events = this.appData.events[this.eventDateDay]; //события происходящие в этот день
+	      var events = this.appData.events[this.eventDateDay]; // события происходящие в этот день
 	      var eventInputId = this.eventInputData.eventId; // id события переданное по url
 	      this.eventStartDate = new Date(+this.eventInputData.startTime);
 	      this.eventEndDate = new Date(+this.eventInputData.endTime);
@@ -6368,9 +6367,9 @@
 	    key: 'fieldResetHandler',
 	    value: function fieldResetHandler(event) {
 	      event.preventDefault();
-	      var field = this.parentNode;
-	      var input = field.querySelector('input');
-	      field.classList.remove('filled');
+	      var fieldInput = this.parentNode;
+	      var input = _field2.default.querySelector('input');
+	      fieldInput.classList.remove('filled');
 	      input.value = '';
 	      input.focus();
 	    }
@@ -6429,7 +6428,7 @@
 	  }, {
 	    key: 'addUserHandler',
 	    value: function addUserHandler(event) {
-	      //Срабатывает при добавление участника события
+	      // Срабатывает при добавление участника события
 	      var usersId = [];
 	      var _iteratorNormalCompletion3 = true;
 	      var _didIteratorError3 = false;
@@ -6464,7 +6463,7 @@
 	  }, {
 	    key: 'removeUserHandler',
 	    value: function removeUserHandler(event) {
-	      //Срабатывает при удалении участника события
+	      // Срабатывает при удалении участника события
 	      var newArr = [];
 	      var _iteratorNormalCompletion4 = true;
 	      var _didIteratorError4 = false;
@@ -6649,6 +6648,8 @@
 	        _application2.default.data = newData;
 	        _router.router.navigate();
 	      });
+	
+	      return true;
 	    }
 	  }, {
 	    key: 'bindHandlers',
@@ -6854,7 +6855,7 @@
 	
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
 	
-	      this.renderRecommendations(this.recommendationArr);
+	      return this.renderRecommendations(this.recommendationArr);
 	    }
 	  }, {
 	    key: 'viewRendered',

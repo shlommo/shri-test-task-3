@@ -369,8 +369,7 @@ class EventNewView extends AbstractView {
 
     this.recommendationArr = getRecommendation(this.eventDate, this.members, db);
 
-    this.renderRecommendations(this.recommendationArr);
-    return true;
+    return this.renderRecommendations(this.recommendationArr);
   }
 
   viewRendered() {
