@@ -35,15 +35,15 @@ class MeetingRoomsView extends AbstractView {
   }
 
   diagramCellMarkup(cellMarkup, time) {
-    const cell = (cellMarkup !== undefined ) ? cellMarkup : '';
-    const dataTime = `${time !== undefined ? 'data-time=' + time : ''}`;
+    const cell = (typeof cellMarkup !== 'undefined' ) ? cellMarkup : '';
+    const dataTime = `${typeof time !== 'undefined' ? 'data-time=' + time : ''}`;
     return `<div class="diagram__cell" ${dataTime}>${cell}</div>`;
   }
 
   getCellList(inputMarkup) {
     let cellList = '';
     for (let time = this.dayMin; time <= this.dayMax; time++) {
-      cellList += this.diagramCellMarkup(inputMarkup, time)
+      cellList += this.diagramCellMarkup(inputMarkup, time);
     }
     return cellList;
   }
@@ -52,7 +52,7 @@ class MeetingRoomsView extends AbstractView {
     const now = isNow ? ' diagram__time--now' : '';
     const minute = this.minute < 10 ? `0${this.minute}` : this.minute;
     const currentTime = `${this.hour}:${minute}`;
-    return `<span class="diagram__time${now}">${isCurrentTime !== undefined ? currentTime : time}</span>`;
+    return `<span class="diagram__time${now}">${typeof isCurrentTime !== 'undefined' ? currentTime : time}</span>`;
   }
 
   diagramTimelineTimeMarkup() {
@@ -73,9 +73,14 @@ class MeetingRoomsView extends AbstractView {
 
   changeFreeTime() {
     const freeTimeSlotArr = document.querySelectorAll('.time-slot--empty');
-    let startTime, endTime, duration, width, left, startDate;
+    let startTime;
+    let endTime;
+    let duration;
+    let width;
+    let left;
+    let startDate;
 
-    if (freeTimeSlotArr !== undefined) {
+    if (typeof freeTimeSlotArr !== 'undefined') {
       for (let freeTimeSlot of Array.from(freeTimeSlotArr)) {
         startTime = +freeTimeSlot.getAttribute('data-start-time');
         endTime = +freeTimeSlot.getAttribute('data-end-time');
@@ -100,9 +105,14 @@ class MeetingRoomsView extends AbstractView {
 
   responsiveTimeSlot() {
     const timeSlotArr = document.querySelectorAll('.time-slot');
-    let startTime, endTime, duration, width, left, startDate;
+    let startTime;
+    let endTime;
+    let duration;
+    let width;
+    let left;
+    let startDate;
 
-    if (timeSlotArr !== undefined) {
+    if (typeof timeSlotArr !== 'undefined') {
       for (let timeSlot of Array.from(timeSlotArr)) {
         startTime = +timeSlot.getAttribute('data-start-time');
         endTime = +timeSlot.getAttribute('data-end-time');
@@ -146,8 +156,7 @@ class MeetingRoomsView extends AbstractView {
           timelineCell.classList.add('past');
         }
       }
-    }
-    else if (this.IS_PAST) {
+    } else if (this.IS_PAST) {
       for (let timelineCell of Array.from(timelineCellArr)) {
         timelineCell.classList.add('past');
       }
@@ -181,7 +190,7 @@ class MeetingRoomsView extends AbstractView {
     return `<div class="${rowClass}">
               <div class="diagram__sidebar">${diagramSidebarMarkup}</div>
               <div class="diagram__row-body">${diagramRowBodyMarkup}</div>
-            </div>`
+            </div>`;
   }
 
   getRoomMarkup(name, capacity) {
@@ -215,8 +224,10 @@ class MeetingRoomsView extends AbstractView {
     }
 
     floors.sort((a, b) => {
-      if (a > b) return 1;
-      if (a < b) return -1;
+      if (a > b) {
+        return 1;
+      }
+      return -1;
     });
 
     let floorList = '';
@@ -264,7 +275,7 @@ class MeetingRoomsView extends AbstractView {
 
     eventNewTrigger.addEventListener('click', (e) => {
       e.preventDefault();
-      router.navigate(`/event/create`);
+      router.navigate('/event/create');
     });
 
     const windowResizeHandler = () => {
@@ -281,7 +292,7 @@ class MeetingRoomsView extends AbstractView {
           Object.assign(eventData, {
             roomName: room.title,
             roomFloor: room.floor
-          })
+          });
         }
       }
 

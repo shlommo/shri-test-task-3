@@ -290,8 +290,8 @@
 	  _createClass(MeetingRoomsView, [{
 	    key: 'diagramCellMarkup',
 	    value: function diagramCellMarkup(cellMarkup, time) {
-	      var cell = cellMarkup !== undefined ? cellMarkup : '';
-	      var dataTime = '' + (time !== undefined ? 'data-time=' + time : '');
+	      var cell = typeof cellMarkup !== 'undefined' ? cellMarkup : '';
+	      var dataTime = '' + (typeof time !== 'undefined' ? 'data-time=' + time : '');
 	      return '<div class="diagram__cell" ' + dataTime + '>' + cell + '</div>';
 	    }
 	  }, {
@@ -309,7 +309,7 @@
 	      var now = isNow ? ' diagram__time--now' : '';
 	      var minute = this.minute < 10 ? '0' + this.minute : this.minute;
 	      var currentTime = this.hour + ':' + minute;
-	      return '<span class="diagram__time' + now + '">' + (isCurrentTime !== undefined ? currentTime : time) + '</span>';
+	      return '<span class="diagram__time' + now + '">' + (typeof isCurrentTime !== 'undefined' ? currentTime : time) + '</span>';
 	    }
 	  }, {
 	    key: 'diagramTimelineTimeMarkup',
@@ -333,14 +333,14 @@
 	    key: 'changeFreeTime',
 	    value: function changeFreeTime() {
 	      var freeTimeSlotArr = document.querySelectorAll('.time-slot--empty');
-	      var startTime = void 0,
-	          endTime = void 0,
-	          duration = void 0,
-	          width = void 0,
-	          left = void 0,
-	          startDate = void 0;
+	      var startTime = void 0;
+	      var endTime = void 0;
+	      var duration = void 0;
+	      var width = void 0;
+	      var left = void 0;
+	      var startDate = void 0;
 	
-	      if (freeTimeSlotArr !== undefined) {
+	      if (typeof freeTimeSlotArr !== 'undefined') {
 	        var _iteratorNormalCompletion = true;
 	        var _didIteratorError = false;
 	        var _iteratorError = undefined;
@@ -387,14 +387,14 @@
 	    key: 'responsiveTimeSlot',
 	    value: function responsiveTimeSlot() {
 	      var timeSlotArr = document.querySelectorAll('.time-slot');
-	      var startTime = void 0,
-	          endTime = void 0,
-	          duration = void 0,
-	          width = void 0,
-	          left = void 0,
-	          startDate = void 0;
+	      var startTime = void 0;
+	      var endTime = void 0;
+	      var duration = void 0;
+	      var width = void 0;
+	      var left = void 0;
+	      var startDate = void 0;
 	
-	      if (timeSlotArr !== undefined) {
+	      if (typeof timeSlotArr !== 'undefined') {
 	        var _iteratorNormalCompletion2 = true;
 	        var _didIteratorError2 = false;
 	        var _iteratorError2 = undefined;
@@ -613,8 +613,10 @@
 	      }
 	
 	      floors.sort(function (a, b) {
-	        if (a > b) return 1;
-	        if (a < b) return -1;
+	        if (a > b) {
+	          return 1;
+	        }
+	        return -1;
 	      });
 	
 	      var floorList = '';
