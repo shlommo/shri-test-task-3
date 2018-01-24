@@ -5866,8 +5866,8 @@
 	    return date.getMinutes() < 10 ? '0' + date.getMinutes() : date.getMinutes();
 	  };
 	  var time = eventStartDate.getHours() + ':' + getMinutes(eventStartDate) + '\u2014' + eventEndDate.getHours() + ':' + getMinutes(eventEndDate);
-	  var roomTitle = void 0,
-	      roomFloor = void 0;
+	  var roomTitle = void 0;
+	  var roomFloor = void 0;
 	
 	  var _iteratorNormalCompletion = true;
 	  var _didIteratorError = false;

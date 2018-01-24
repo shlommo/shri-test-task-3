@@ -12,8 +12,8 @@ export default (inputData, isSelected) => {
     return (date.getMinutes() < 10) ? `0${date.getMinutes()}` : date.getMinutes();
   };
   const time = `${eventStartDate.getHours()}:${getMinutes(eventStartDate)}—${eventEndDate.getHours()}:${getMinutes(eventEndDate)}`;
-  let roomTitle,
-      roomFloor;
+  let roomTitle;
+  let roomFloor;
 
   for (let dbRoom of dbRooms) {
     if (roomId === dbRoom.id) {

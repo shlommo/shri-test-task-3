@@ -2,7 +2,7 @@ export default (fieldProps) => {
   const inputId = fieldProps.inputId;
   const label = fieldProps.label;
   const placeholder = (fieldProps.placeholder !== null) ? fieldProps.placeholder : '';
-  const extraClass = (fieldProps.extraClass !== null) ?  ' ' + fieldProps.extraClass : '';
+  const extraClass = (fieldProps.extraClass !== null) ? ` ${fieldProps.extraClass}` : '';
   const inputValue = fieldProps.inputValue;
   const filledClass = (inputValue !== null) ? ' filled' : '';
   const isDate = fieldProps.isDate;
