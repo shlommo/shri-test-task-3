@@ -98,7 +98,7 @@ class EventNewView extends AbstractView {
 
     return `<div class="event-page" id="app">
               ${header} 
-              <div class="event-form">
+              <div class="event-form event-form--new">
                 <div class="event-form__header">${eventFormHeader(false)}</div>
                 <div class="event-form__body">
                   <div class="event-form__col">
@@ -128,7 +128,12 @@ class EventNewView extends AbstractView {
                     </div>
                   </div>
                 </div>
-                <div class="event-form__footer">${eventFormFooter(false)}</div>
+                <div class="event-form__footer">
+                  <div class="event-form__validation">
+                    <div class="event-form__validation-content"></div>
+                  </div>
+                  ${eventFormFooter(false)}
+                </div>
             </div>
             </div>`;
   }

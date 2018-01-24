@@ -33,6 +33,7 @@
   padding-bottom: 60px
 
 .event-form__footer
+  position: relative
   padding: 20px
   margin-top: auto
   text-align: center
@@ -73,18 +74,26 @@
 
 .event-form__validation
   position: absolute
-  bottom: 81px
+  bottom: 77px
   left: 0
   right: 0
-  padding: 12px 16px 13px
+  display: block
+  max-height: 0
   background-color: rgba(0, 16, 33, .7)
   color: #fff
-  display: none
   font-size: 15px
   line-height: 18px
   text-align: left
   font-weight: 600
-  
+  transition: max-height ease-in-out .2s
+  overflow: hidden
+
+.event-form__validation.show
+  max-height: 200px
+
+.event-form__validation-content
+  padding: 12px 16px 13px
+
 .event-form__delete-btn
   display: inline-block
   vertical-align: top

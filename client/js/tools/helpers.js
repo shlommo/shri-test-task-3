@@ -156,3 +156,12 @@ export const checkEventTarget = (event, elem) => {
   }
   return isTarget;
 };
+
+export function UserException(message) {
+  this.message = message;
+  this.name = 'UserException';
+}
+
+UserException.prototype.toString = function () {
+  return this.message;
+};

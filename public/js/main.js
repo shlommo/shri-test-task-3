@@ -909,6 +909,7 @@
 	
 	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 	
+	exports.UserException = UserException;
 	var getCoords = exports.getCoords = function getCoords(elem) {
 	  var box = elem.getBoundingClientRect();
 	
@@ -1069,6 +1070,15 @@
 	    return true;
 	  }
 	  return isTarget;
+	};
+	
+	function UserException(message) {
+	  this.message = message;
+	  this.name = 'UserException';
+	}
+	
+	UserException.prototype.toString = function () {
+	  return this.message;
 	};
 
 /***/ }),
@@ -2512,7 +2522,7 @@
 	        end: (0, _helpers.getDateValue)(this.eventEndDate).minute
 	      };
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations hidden" id="recomParent">\n                      <div class="recommendations__title">\u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0438</div>\n                      <div class="recomendations__cnt"></div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(false) + '</div>\n            </div>\n            </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form event-form--new">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(false) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations hidden" id="recomParent">\n                      <div class="recommendations__title">\u0420\u0435\u043A\u043E\u043C\u0435\u043D\u0434\u043E\u0432\u0430\u043D\u043D\u044B\u0435 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0438</div>\n                      <div class="recomendations__cnt"></div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">\n                  <div class="event-form__validation">\n                    <div class="event-form__validation-content"></div>\n                  </div>\n                  ' + (0, _eventFormFooter2.default)(false) + '\n                </div>\n            </div>\n            </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -6358,7 +6368,7 @@
 	        room: this.eventRoomId
 	      };
 	
-	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations" id="recomParent" data-type="room-selected">\n                      <div class="recommendations__title">\u0412\u0430\u0448\u0430 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0430</div>\n                      <div class="recomendations__cnt">\n                        ' + (0, _getRecomendationTag2.default)(this.recommendation, true) + '\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">' + (0, _eventFormFooter2.default)(true) + '</div>\n            </div>\n          </div>';
+	      return '<div class="event-page" id="app">\n              ' + header + ' \n              <div class="event-form event-form--edit">\n                <div class="event-form__header">' + (0, _eventFormHeader2.default)(true) + '</div>\n                <div class="event-form__body">\n                  <div class="event-form__col">\n                    ' + (0, _field2.default)(this.fieldsProps.eventTitle) + '\n                  </div>\n                  \n                  <div class="event-form__col event-form__col--flex">\n                    <div class="event-form__col-date">\n                      ' + (0, _field2.default)(this.fieldsProps.eventDate) + '\n                    </div>\n                    \n                    <div class="event-form__col-time">\n                      ' + (0, _field2.default)(this.fieldsProps.eventStartTime) + '\n                      <i class="event-form__col-time-separator"></i>\n                      ' + (0, _field2.default)(this.fieldsProps.eventEndTime) + '\n                    </div>\n                  </div>\n                  \n                  <div class="event-form__col">\n                    ' + (0, _fieldAutocomplete.getAutocompleteMarkup)(this.fieldsProps.eventMembers) + '                  \n                  </div>\n                  \n                  <div class="event-form__col">\n                    <div class="recommendations" id="recomParent" data-type="room-selected">\n                      <div class="recommendations__title">\u0412\u0430\u0448\u0430 \u043F\u0435\u0440\u0435\u0433\u043E\u0432\u043E\u0440\u043A\u0430</div>\n                      <div class="recomendations__cnt">\n                        ' + (0, _getRecomendationTag2.default)(this.recommendation, true) + '\n                      </div>\n                    </div>\n                  </div>\n                </div>\n                <div class="event-form__footer">\n                  <div class="event-form__validation">\n                    <div class="event-form__validation-content"></div>\n                  </div>\n                  ' + (0, _eventFormFooter2.default)(true) + '\n                </div>\n            </div>\n          </div>';
 	    }
 	  }, {
 	    key: 'cancelBtnHandler',
@@ -6377,7 +6387,7 @@
 	    value: function fieldResetHandler(event) {
 	      event.preventDefault();
 	      var fieldInput = this.parentNode;
-	      var input = _field2.default.querySelector('input');
+	      var input = fieldInput.querySelector('input');
 	      fieldInput.classList.remove('filled');
 	      input.value = '';
 	      input.focus();
@@ -6505,6 +6515,11 @@
 	      this.handleRecommendation();
 	    }
 	  }, {
+	    key: 'clearRecommendations',
+	    value: function clearRecommendations() {
+	      this.recomContainer.innerHTML = 'Нет рекомендаций';
+	    }
+	  }, {
 	    key: 'renderRecommendations',
 	    value: function renderRecommendations(recommendations) {
 	      var _this2 = this;
@@ -6513,7 +6528,7 @@
 	      this.recomParent.classList.remove('hidden');
 	
 	      if (recommendations.length === 0) {
-	        this.recomContainer.innerHTML = 'Нет рекомендаций';
+	        this.clearRecommendations();
 	      } else {
 	        this.recomContainer.innerHTML = '';
 	      }
@@ -6578,17 +6593,19 @@
 	      });
 	    }
 	  }, {
-	    key: 'editEventBtnHandle',
-	    value: function editEventBtnHandle() {
+	    key: 'tryEditEventBtnHandle',
+	    value: function tryEditEventBtnHandle() {
 	      var eventId = this.eventInputData.eventId;
 	      var eventTitle = this.element.querySelector('#eventTitle').value;
 	      var userTagArr = this.element.querySelectorAll('.user-tag');
-	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
 	
+	      var recommendationTagSelected = this.element.querySelector('.recommendation-tag--selected');
 	      if (recommendationTagSelected === null) {
-	        alert('Вы не выбрали комнату. И вероятнее всего вы пытаетесь редактировать событие прошлого. Не стоит');
-	        return false;
+	        throw new _helpers.UserException('Вы не выбрали переговорку.');
+	      } else {
+	        this.clearErrorContainer();
 	      }
+	
 	      var roomId = recommendationTagSelected.getAttribute('data-room-id') || null;
 	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
 	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
@@ -6604,8 +6621,10 @@
 	        for (var _iterator6 = Array.from(userTagArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	          var userTag = _step6.value;
 	
-	          var userId = userTag.getAttribute('data-user-id');
-	          users.push(userId);
+	          if (userTag !== null) {
+	            var userId = userTag.getAttribute('data-user-id');
+	            users.push(userId);
+	          }
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -6623,23 +6642,27 @@
 	      }
 	
 	      if (eventTitle.length === 0) {
-	        alert('Введите название мероприятия');
-	        return false;
+	        throw new _helpers.UserException('Введите название мероприятия');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (users.length === 0) {
-	        alert('Выберите участников события');
-	        return false;
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (roomId === null) {
-	        alert('Выберите комнату из рекомменадций');
-	        return false;
+	        throw new _helpers.UserException('Выберите комнату из рекомменадций');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (currentMinute > (0, _helpers.getDateValue)(dateStart).minute) {
-	        alert('Время вышло. Пожалуйста, обновите время');
-	        return false;
+	        throw new _helpers.UserException('Время вышло. Пожалуйста, обновите время');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      var eventInput = '{\n      title: "' + eventTitle + '",\n      dateStart: "' + dateStart.toISOString() + '",\n      dateEnd: "' + dateEnd.toISOString() + '"\n    }';
@@ -6659,6 +6682,15 @@
 	      });
 	
 	      return true;
+	    }
+	  }, {
+	    key: 'editEventBtnHandle',
+	    value: function editEventBtnHandle() {
+	      try {
+	        this.tryEditEventBtnHandle();
+	      } catch (msg) {
+	        this.showErrorMessage(msg);
+	      }
 	    }
 	  }, {
 	    key: 'bindHandlers',
@@ -6709,6 +6741,8 @@
 	
 	      this.editEventBtn = this.element.querySelector('#editEventBtn');
 	      this.editEventBtn.addEventListener('click', this.editEventBtnHandle);
+	      this.eventFormValidation = this.element.querySelector('.event-form__validation');
+	      this.eventFormValidationContent = this.eventFormValidation.querySelector('.event-form__validation-content');
 	    }
 	  }, {
 	    key: 'clearHandlers',
@@ -6755,17 +6789,30 @@
 	  }, {
 	    key: 'handleRecommendation',
 	    value: function handleRecommendation() {
+	      try {
+	        this.tryHandleRecommendation();
+	      } catch (msg) {
+	        this.showErrorMessage(msg);
+	      }
+	    }
+	  }, {
+	    key: 'tryHandleRecommendation',
+	    value: function tryHandleRecommendation() {
 	      this.members = [];
 	      var person = {};
 	
 	      if ((this.eventDate.end - this.eventDate.start) / 60000 < 15) {
-	        alert('Минимальная продолжительность события - 15 минут');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Минимальная продолжительность события - 15 минут');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      if (this.eventDateDay < this.initialAppDay) {
-	        alert('Нельзя редактировать события ушедших дней');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Нельзя редактировать события ушедших дней');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      var _iteratorNormalCompletion9 = true;
@@ -6823,8 +6870,10 @@
 	      }
 	
 	      if (this.members.length === 0) {
-	        alert('Выберите участников события');
-	        return false;
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
 	      }
 	
 	      // Удалить редактируемое событие из списка событий
@@ -6865,6 +6914,19 @@
 	      this.recommendationArr = (0, _getRecomendation2.default)(this.eventDate, this.members, db);
 	
 	      return this.renderRecommendations(this.recommendationArr);
+	    }
+	  }, {
+	    key: 'showErrorMessage',
+	    value: function showErrorMessage(msg) {
+	      this.eventFormValidationContent.innerHTML = msg;
+	      this.eventFormValidation.classList.add('show');
+	    }
+	  }, {
+	    key: 'clearErrorContainer',
+	    value: function clearErrorContainer() {
+	      if (this.eventFormValidation.classList.contains('show')) {
+	        this.eventFormValidation.classList.remove('show');
+	      }
 	    }
 	  }, {
 	    key: 'viewRendered',
