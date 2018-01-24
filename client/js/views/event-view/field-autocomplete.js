@@ -1,8 +1,7 @@
-import field from './field'
-import getUser from './get-user'
-import getUserTag from './get-user-tag'
+import field from './field';
+import getUser from './get-user';
+import getUserTag from './get-user-tag';
 import hideOnClickOutside from '../../tools/hide-on-click-outside';
-import {getNodeFromMarkup} from './../../tools/helpers';
 
 const getAutocompleteMarkup = (fieldProps) => {
   return `<div class="field-autocomplete" data-autocomplete>
@@ -29,14 +28,15 @@ const dropdownItemHandler = (event, item, container) => {
   let userTag = getUserTag(userId, login, avatarUrl);
 
   for (let userIn of Array.from(userArrInContainer)) {
-   const userInId = userIn.getAttribute('data-user-id');
+    const userInId = userIn.getAttribute('data-user-id');
 
-   if (userInId === userId) {
-     return false;
-   }
+    if (userInId === userId) {
+      return false;
+    }
   }
 
   container.appendChild(userTag);
+  return true;
 };
 
 const autocompleteHandler = (event, inputUsers) => {
@@ -49,10 +49,10 @@ const autocompleteHandler = (event, inputUsers) => {
     autocompleteDropdown.innerHTML = '';
   };
   let inputValue = input.value;
-  let autocompleteList,
-      autocompleteListItems = '',
-      autocompleteListItem,
-      autocompleteDropdownItemArr;
+  let autocompleteList;
+  let autocompleteListItems = '';
+  let autocompleteListItem;
+  let autocompleteDropdownItemArr;
 
   if (inputValue.length < 2) {
     clearAutocomplete();
@@ -73,7 +73,7 @@ const autocompleteHandler = (event, inputUsers) => {
   }
 
   if (autocompleteListItems.length === 0) {
-      return false;
+    return false;
   }
 
   autocompleteList = `<ul>${autocompleteListItems}</ul>`;
@@ -82,20 +82,18 @@ const autocompleteHandler = (event, inputUsers) => {
 
   autocompleteDropdownItemArr = autocompleteDropdown.querySelectorAll('.field-autocomplete__dropdown-item');
 
-
-
-  let getDropdownItemHandler,
-      dropdownItemRemoveClickListener;
+  let getDropdownItemHandler;
+  let dropdownItemRemoveClickListener;
 
   for (let autocompleteDropdownItem of Array.from(autocompleteDropdownItemArr)) {
-    const addUserToEvent = new CustomEvent("addUserToEvent", {
+    const addUserToEvent = new CustomEvent('addUserToEvent', {
       detail: {
         userId: autocompleteDropdownItem.getAttribute('data-user-id')
       }
     });
 
-    getDropdownItemHandler = (event) =>  {
-      dropdownItemHandler(event, autocompleteDropdownItem, autocompleteTagsContainer);
+    getDropdownItemHandler = (e) => {
+      dropdownItemHandler(e, autocompleteDropdownItem, autocompleteTagsContainer);
       clearAutocomplete();
 
       dropdownItemRemoveClickListener();
@@ -113,6 +111,8 @@ const autocompleteHandler = (event, inputUsers) => {
     clearAutocomplete();
     dropdownItemRemoveClickListener();
   });
+
+  return true;
 };
 
 export {getAutocompleteMarkup, autocompleteHandler};

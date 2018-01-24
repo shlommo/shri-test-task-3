@@ -5715,8 +5715,8 @@
 	  var dbRooms = db.rooms;
 	  var dbPersons = db.persons;
 	  var numberOfMembers = members.length;
-	  var recommendation = {},
-	      recommendationArr = [];
+	  var recommendation = {};
+	  var recommendationArr = [];
 	
 	  var now = new Date();
 	  var today = (0, _helpers.getDateValue)(now).day;
@@ -5728,7 +5728,7 @@
 	
 	  if (today === eventStartDay) {
 	    if (currentMinute > eventStart || currentMinute > eventEnd) {
-	      //если время предпологаемого события меньше текущего времени
+	      // если время предпологаемого события меньше текущего времени
 	      return [];
 	    }
 	  } else if (today > eventStartDay) {
@@ -5745,15 +5745,14 @@
 	
 	      var dbRoomId = dbRoom.id;
 	      if (dbRoom.capacity < numberOfMembers) {
-	        //если вместимость комнаты меньше участников события
+	        // если вместимость комнаты меньше участников события
 	        continue roomLoop;
 	      }
 	
-	      //Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
+	      // Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
 	      timeLoop: for (var t = eventStart; t <= dayEnd - eventDuration; t += eventDuration) {
-	        var tStart = t,
-	            //Время начала предпологаемого события
-	        tEnd = tStart + eventDuration; //Время окончания предпологаемого события
+	        var tStart = t; // Время начала предпологаемого события
+	        var tEnd = tStart + eventDuration; // Время окончания предпологаемого события
 	
 	        var isTimeHasnotEvent = true;
 	
@@ -5765,21 +5764,21 @@
 	          eventLoop: for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	            var dbEvent = _step2.value;
 	
-	            var dbEventStart = (0, _helpers.getDateValue)(new Date(dbEvent.dateStart)).minute,
-	                dbEventEnd = (0, _helpers.getDateValue)(new Date(dbEvent.dateEnd)).minute;
+	            var dbEventStart = (0, _helpers.getDateValue)(new Date(dbEvent.dateStart)).minute;
+	            var dbEventEnd = (0, _helpers.getDateValue)(new Date(dbEvent.dateEnd)).minute;
 	
 	            if (currentMinute > dbEventEnd) {
 	              continue eventLoop;
 	            }
 	
 	            if (dbEvent.room.id === dbRoomId) {
-	              //если в этой комнате есть события
+	              // если в этой комнате есть события
 	              if (dbEventStart < tStart && dbEventEnd < tStart) {
 	                continue eventLoop;
 	              }
 	
 	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd || tStart === dbEventStart && tEnd === dbEventEnd) {
-	                //если на этот промежуток времени запланировано событие
+	                // если на этот промежуток времени запланировано событие
 	                isTimeHasnotEvent = false;
 	              }
 	
@@ -5927,8 +5926,6 @@
 	
 	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
 	
-	var _helpers = __webpack_require__(9);
-	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	var getAutocompleteMarkup = function getAutocompleteMarkup(fieldProps) {
@@ -5974,6 +5971,7 @@
 	  }
 	
 	  container.appendChild(userTag);
+	  return true;
 	};
 	
 	var autocompleteHandler = function autocompleteHandler(event, inputUsers) {
@@ -5986,10 +5984,10 @@
 	    autocompleteDropdown.innerHTML = '';
 	  };
 	  var inputValue = input.value;
-	  var autocompleteList = void 0,
-	      autocompleteListItems = '',
-	      autocompleteListItem = void 0,
-	      autocompleteDropdownItemArr = void 0;
+	  var autocompleteList = void 0;
+	  var autocompleteListItems = '';
+	  var autocompleteListItem = void 0;
+	  var autocompleteDropdownItemArr = void 0;
 	
 	  if (inputValue.length < 2) {
 	    clearAutocomplete();
@@ -6037,8 +6035,8 @@
 	
 	  autocompleteDropdownItemArr = autocompleteDropdown.querySelectorAll('.field-autocomplete__dropdown-item');
 	
-	  var getDropdownItemHandler = void 0,
-	      dropdownItemRemoveClickListener = void 0;
+	  var getDropdownItemHandler = void 0;
+	  var dropdownItemRemoveClickListener = void 0;
 	
 	  var _iteratorNormalCompletion3 = true;
 	  var _didIteratorError3 = false;
@@ -6048,14 +6046,14 @@
 	    var _loop = function _loop() {
 	      var autocompleteDropdownItem = _step3.value;
 	
-	      var addUserToEvent = new CustomEvent("addUserToEvent", {
+	      var addUserToEvent = new CustomEvent('addUserToEvent', {
 	        detail: {
 	          userId: autocompleteDropdownItem.getAttribute('data-user-id')
 	        }
 	      });
 	
-	      getDropdownItemHandler = function getDropdownItemHandler(event) {
-	        dropdownItemHandler(event, autocompleteDropdownItem, autocompleteTagsContainer);
+	      getDropdownItemHandler = function getDropdownItemHandler(e) {
+	        dropdownItemHandler(e, autocompleteDropdownItem, autocompleteTagsContainer);
 	        clearAutocomplete();
 	
 	        dropdownItemRemoveClickListener();
@@ -6091,6 +6089,8 @@
 	    clearAutocomplete();
 	    dropdownItemRemoveClickListener();
 	  });
+	
+	  return true;
 	};
 	
 	exports.getAutocompleteMarkup = getAutocompleteMarkup;
