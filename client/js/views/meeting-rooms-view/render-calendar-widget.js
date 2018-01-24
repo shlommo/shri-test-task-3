@@ -1,12 +1,14 @@
 import {getNodeFromMarkup, getDay, getDateValue} from './../../tools/helpers';
-import {monthNames} from './../../data/data'
+import {monthNames} from './../../data/data';
 
 export default class RenderCalendarWidget {
   constructor(date) {
     this.date = date;
     this.calendarWidget = document.getElementById('calendarWidget');
     this.calendar = document.getElementById('calendar');
-    this.monthNamesShortcuts = monthNames.map((month) => {return month.toLowerCase().slice(0, 3)});
+    this.monthNamesShortcuts = monthNames.map((month) => {
+      return month.toLowerCase().slice(0, 3);
+    });
   }
 
   getMonth(year, month) {
@@ -27,7 +29,7 @@ export default class RenderCalendarWidget {
       let todayClass = '';
       if (d.getDate() === today && currentMonth === month) {
         todayClass = 'today';
-      } else if(d.getDate() === nowDay && nowMonth === month) {
+      } else if (d.getDate() === nowDay && nowMonth === month) {
         todayClass = 'still-today';
       }
 
@@ -114,7 +116,7 @@ export default class RenderCalendarWidget {
       const minutesValue = now.getMinutes();
       const secondsValue = now.getSeconds();
 
-      const dateChangeEvent = new CustomEvent("dateChange", {
+      const dateChangeEvent = new CustomEvent('dateChange', {
         detail: {
           date: new Date(yearValue, monthValue, dayValue, hourValue, minutesValue, secondsValue)
         }

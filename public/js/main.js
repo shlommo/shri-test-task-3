@@ -1220,7 +1220,7 @@
 	          var minutesValue = now.getMinutes();
 	          var secondsValue = now.getSeconds();
 	
-	          var dateChangeEvent = new CustomEvent("dateChange", {
+	          var dateChangeEvent = new CustomEvent('dateChange', {
 	            detail: {
 	              date: new Date(yearValue, monthValue, dayValue, hourValue, minutesValue, secondsValue)
 	            }
