@@ -396,14 +396,9 @@ class EventNewView extends AbstractView {
     }
 
     // Удалить редактируемое событие из списка событий
-    let newEventsArr = [];
-    for (let event of this.appData.events[this.eventDateDay]) {
-      if (event.id !== this.currentId) {
-        newEventsArr.push(event);
-      }
-    }
+    const events = this.appData.events[this.eventDateDay] || [];
     const db = {
-      events: newEventsArr,
+      events: events,
       rooms: this.appData.rooms,
       persons: this.appData.users
     };
