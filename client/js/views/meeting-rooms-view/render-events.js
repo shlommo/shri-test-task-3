@@ -117,6 +117,7 @@ export default class RenderEvents {
             if (this.roomsWithBusyTime[roomId].hasOwnProperty(timeStampMinute)) {
               if (roomWithFreeTime.hasOwnProperty('start')) { // Если свободное время уже было
                 roomWithFreeTime.end = timeStampMinute;
+                hour--;
 
                 roomArrWithFreeTime.push(roomWithFreeTime);
                 roomWithFreeTime = {};
@@ -128,13 +129,13 @@ export default class RenderEvents {
               continue;
             } else if (eventDuration > 0) {
               roomWithFreeTime.start = timeStampMinute - this.MINUTE;
-
+              eventDuration--;
               if (hour - eventDuration > 0) {
                 hour = hour - eventDuration - 1;
               } else if (hour - eventDuration === 0) {
-                hour = 60;
+                hour = 59;
               } else if (hour - eventDuration < 0) {
-                hour = 60 - ((eventDuration - hour) - Math.floor((eventDuration - hour) / 60) * 60);
+                hour = 59 - ((eventDuration - hour) - Math.floor((eventDuration - hour) / 60) * 60);
               }
 
               eventDuration = 0;
@@ -162,6 +163,7 @@ export default class RenderEvents {
 
           let freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
 
+          console.log(new Date(freeTime.start), new Date(freeTime.end));
           timeContainer.appendChild(freeTimeNode);
         }
       }
