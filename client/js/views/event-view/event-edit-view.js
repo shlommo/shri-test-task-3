@@ -4,7 +4,7 @@ import {router} from './../../router';
 import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
-import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException} from '../../tools/helpers';
+import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException, encodeObjFromHash} from '../../tools/helpers';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
@@ -289,6 +289,7 @@ class EventNewView extends AbstractView {
       this.clearErrorContainer();
     }
 
+    const recomSwap = recommendationTagSelected.getAttribute('data-swap');
     const roomId = recommendationTagSelected.getAttribute('data-room-id');
     const dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
     const dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
@@ -335,19 +336,39 @@ class EventNewView extends AbstractView {
     const usersInput = `[${users}]`;
     const self = this;
 
-    ApiService.editEvent(eventId, eventInput, usersInput, roomId)
-        .then(() => {
-          return ApiService.getAll();
-        })
-        .then((data) => {
-          const newData = Object.assign(data, {
-            date: self.eventStartDate
-          });
+    const editEvent = () => {
+      return ApiService.editEvent(eventId, eventInput, usersInput, roomId)
+          .then(() => {
+            return ApiService.getAll();
+          })
+          .then((data) => {
+            const newData = Object.assign(data, {
+              date: self.eventStartDate
+            });
 
-          self.clearHandlers();
-          Application.data = newData;
-          router.navigate();
-        });
+            self.clearHandlers();
+            Application.data = newData;
+            router.navigate();
+          });
+    };
+
+    if (recomSwap !== null) {
+      let swapArr = recomSwap.split('|');
+      let swapObj;
+
+      for (let swap of swapArr) {
+        if (swap.length > 0) {
+          swapObj = encodeObjFromHash(swap);
+
+          ApiService.changeEventRoom(swapObj.event, swapObj.room)
+              .then(() => {
+                return editEvent();
+              });
+        }
+      }
+    } else {
+      editEvent();
+    }
 
     return true;
   }

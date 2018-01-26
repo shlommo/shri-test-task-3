@@ -6933,6 +6933,7 @@
 	        this.clearErrorContainer();
 	      }
 	
+	      var recomSwap = recommendationTagSelected.getAttribute('data-swap');
 	      var roomId = recommendationTagSelected.getAttribute('data-room-id');
 	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
 	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
@@ -6996,17 +6997,57 @@
 	      var usersInput = '[' + users + ']';
 	      var self = this;
 	
-	      _apiService2.default.editEvent(eventId, eventInput, usersInput, roomId).then(function () {
-	        return _apiService2.default.getAll();
-	      }).then(function (data) {
-	        var newData = Object.assign(data, {
-	          date: self.eventStartDate
-	        });
+	      var editEvent = function editEvent() {
+	        return _apiService2.default.editEvent(eventId, eventInput, usersInput, roomId).then(function () {
+	          return _apiService2.default.getAll();
+	        }).then(function (data) {
+	          var newData = Object.assign(data, {
+	            date: self.eventStartDate
+	          });
 	
-	        self.clearHandlers();
-	        _application2.default.data = newData;
-	        _router.router.navigate();
-	      });
+	          self.clearHandlers();
+	          _application2.default.data = newData;
+	          _router.router.navigate();
+	        });
+	      };
+	
+	      if (recomSwap !== null) {
+	        var swapArr = recomSwap.split('|');
+	        var swapObj = void 0;
+	
+	        var _iteratorNormalCompletion7 = true;
+	        var _didIteratorError7 = false;
+	        var _iteratorError7 = undefined;
+	
+	        try {
+	          for (var _iterator7 = swapArr[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	            var swap = _step7.value;
+	
+	            if (swap.length > 0) {
+	              swapObj = (0, _helpers.encodeObjFromHash)(swap);
+	
+	              _apiService2.default.changeEventRoom(swapObj.event, swapObj.room).then(function () {
+	                return editEvent();
+	              });
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError7 = true;
+	          _iteratorError7 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	              _iterator7.return();
+	            }
+	          } finally {
+	            if (_didIteratorError7) {
+	              throw _iteratorError7;
+	            }
+	          }
+	        }
+	      } else {
+	        editEvent();
+	      }
 	
 	      return true;
 	    }
@@ -7018,27 +7059,27 @@
 	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
 	      this.fieldResetBtn.addEventListener('click', this.fieldResetHandler);
 	
-	      var _iteratorNormalCompletion7 = true;
-	      var _didIteratorError7 = false;
-	      var _iteratorError7 = undefined;
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
 	
 	      try {
-	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	          var cancelBtn = _step7.value;
+	        for (var _iterator8 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var cancelBtn = _step8.value;
 	
 	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
-	        _didIteratorError7 = true;
-	        _iteratorError7 = err;
+	        _didIteratorError8 = true;
+	        _iteratorError8 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
-	            _iterator7.return();
+	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	            _iterator8.return();
 	          }
 	        } finally {
-	          if (_didIteratorError7) {
-	            throw _iteratorError7;
+	          if (_didIteratorError8) {
+	            throw _iteratorError8;
 	          }
 	        }
 	      }
@@ -7068,27 +7109,27 @@
 	    value: function clearHandlers() {
 	      this.fieldResetBtn.removeEventListener('click', this.fieldResetHandler);
 	
-	      var _iteratorNormalCompletion8 = true;
-	      var _didIteratorError8 = false;
-	      var _iteratorError8 = undefined;
+	      var _iteratorNormalCompletion9 = true;
+	      var _didIteratorError9 = false;
+	      var _iteratorError9 = undefined;
 	
 	      try {
-	        for (var _iterator8 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	          var cancelBtn = _step8.value;
+	        for (var _iterator9 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	          var cancelBtn = _step9.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
-	        _didIteratorError8 = true;
-	        _iteratorError8 = err;
+	        _didIteratorError9 = true;
+	        _iteratorError9 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
-	            _iterator8.return();
+	          if (!_iteratorNormalCompletion9 && _iterator9.return) {
+	            _iterator9.return();
 	          }
 	        } finally {
-	          if (_didIteratorError8) {
-	            throw _iteratorError8;
+	          if (_didIteratorError9) {
+	            throw _iteratorError9;
 	          }
 	        }
 	      }
@@ -7134,20 +7175,20 @@
 	        this.clearErrorContainer();
 	      }
 	
-	      var _iteratorNormalCompletion9 = true;
-	      var _didIteratorError9 = false;
-	      var _iteratorError9 = undefined;
+	      var _iteratorNormalCompletion10 = true;
+	      var _didIteratorError10 = false;
+	      var _iteratorError10 = undefined;
 	
 	      try {
-	        for (var _iterator9 = this.eventUsers[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	          var eventUser = _step9.value;
-	          var _iteratorNormalCompletion11 = true;
-	          var _didIteratorError11 = false;
-	          var _iteratorError11 = undefined;
+	        for (var _iterator10 = this.eventUsers[Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
+	          var eventUser = _step10.value;
+	          var _iteratorNormalCompletion12 = true;
+	          var _didIteratorError12 = false;
+	          var _iteratorError12 = undefined;
 	
 	          try {
-	            for (var _iterator11 = this.users[Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
-	              var user = _step11.value;
+	            for (var _iterator12 = this.users[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
+	              var user = _step12.value;
 	
 	              if (eventUser.id === user.id) {
 	                person = {
@@ -7159,54 +7200,18 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError11 = true;
-	            _iteratorError11 = err;
+	            _didIteratorError12 = true;
+	            _iteratorError12 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion11 && _iterator11.return) {
-	                _iterator11.return();
+	              if (!_iteratorNormalCompletion12 && _iterator12.return) {
+	                _iterator12.return();
 	              }
 	            } finally {
-	              if (_didIteratorError11) {
-	                throw _iteratorError11;
+	              if (_didIteratorError12) {
+	                throw _iteratorError12;
 	              }
 	            }
-	          }
-	        }
-	      } catch (err) {
-	        _didIteratorError9 = true;
-	        _iteratorError9 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion9 && _iterator9.return) {
-	            _iterator9.return();
-	          }
-	        } finally {
-	          if (_didIteratorError9) {
-	            throw _iteratorError9;
-	          }
-	        }
-	      }
-	
-	      if (this.members.length === 0) {
-	        this.clearRecommendations();
-	        throw new _helpers.UserException('Выберите участников события');
-	      } else {
-	        this.clearErrorContainer();
-	      }
-	
-	      // Удалить редактируемое событие из списка событий
-	      var newEventsArr = [];
-	      var _iteratorNormalCompletion10 = true;
-	      var _didIteratorError10 = false;
-	      var _iteratorError10 = undefined;
-	
-	      try {
-	        for (var _iterator10 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step10; !(_iteratorNormalCompletion10 = (_step10 = _iterator10.next()).done); _iteratorNormalCompletion10 = true) {
-	          var event = _step10.value;
-	
-	          if (event.id !== this.currentId) {
-	            newEventsArr.push(event);
 	          }
 	        }
 	      } catch (err) {
@@ -7220,6 +7225,42 @@
 	        } finally {
 	          if (_didIteratorError10) {
 	            throw _iteratorError10;
+	          }
+	        }
+	      }
+	
+	      if (this.members.length === 0) {
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
+	      }
+	
+	      // Удалить редактируемое событие из списка событий
+	      var newEventsArr = [];
+	      var _iteratorNormalCompletion11 = true;
+	      var _didIteratorError11 = false;
+	      var _iteratorError11 = undefined;
+	
+	      try {
+	        for (var _iterator11 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step11; !(_iteratorNormalCompletion11 = (_step11 = _iterator11.next()).done); _iteratorNormalCompletion11 = true) {
+	          var event = _step11.value;
+	
+	          if (event.id !== this.currentId) {
+	            newEventsArr.push(event);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError11 = true;
+	        _iteratorError11 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion11 && _iterator11.return) {
+	            _iterator11.return();
+	          }
+	        } finally {
+	          if (_didIteratorError11) {
+	            throw _iteratorError11;
 	          }
 	        }
 	      }
@@ -7298,20 +7339,20 @@
 	      this.autocompleteTagsContainer = this.element.querySelector('.field-autocomplete__tags');
 	
 	      var userTag = void 0;
-	      var _iteratorNormalCompletion12 = true;
-	      var _didIteratorError12 = false;
-	      var _iteratorError12 = undefined;
+	      var _iteratorNormalCompletion13 = true;
+	      var _didIteratorError13 = false;
+	      var _iteratorError13 = undefined;
 	
 	      try {
-	        for (var _iterator12 = this.eventUsers[Symbol.iterator](), _step12; !(_iteratorNormalCompletion12 = (_step12 = _iterator12.next()).done); _iteratorNormalCompletion12 = true) {
-	          var eventUser = _step12.value;
-	          var _iteratorNormalCompletion13 = true;
-	          var _didIteratorError13 = false;
-	          var _iteratorError13 = undefined;
+	        for (var _iterator13 = this.eventUsers[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
+	          var eventUser = _step13.value;
+	          var _iteratorNormalCompletion14 = true;
+	          var _didIteratorError14 = false;
+	          var _iteratorError14 = undefined;
 	
 	          try {
-	            for (var _iterator13 = this.users[Symbol.iterator](), _step13; !(_iteratorNormalCompletion13 = (_step13 = _iterator13.next()).done); _iteratorNormalCompletion13 = true) {
-	              var user = _step13.value;
+	            for (var _iterator14 = this.users[Symbol.iterator](), _step14; !(_iteratorNormalCompletion14 = (_step14 = _iterator14.next()).done); _iteratorNormalCompletion14 = true) {
+	              var user = _step14.value;
 	
 	              if (eventUser.id === user.id) {
 	                userTag = (0, _getUserTag2.default)(user.id, user.login, user.avatarUrl);
@@ -7319,31 +7360,31 @@
 	              }
 	            }
 	          } catch (err) {
-	            _didIteratorError13 = true;
-	            _iteratorError13 = err;
+	            _didIteratorError14 = true;
+	            _iteratorError14 = err;
 	          } finally {
 	            try {
-	              if (!_iteratorNormalCompletion13 && _iterator13.return) {
-	                _iterator13.return();
+	              if (!_iteratorNormalCompletion14 && _iterator14.return) {
+	                _iterator14.return();
 	              }
 	            } finally {
-	              if (_didIteratorError13) {
-	                throw _iteratorError13;
+	              if (_didIteratorError14) {
+	                throw _iteratorError14;
 	              }
 	            }
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError12 = true;
-	        _iteratorError12 = err;
+	        _didIteratorError13 = true;
+	        _iteratorError13 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion12 && _iterator12.return) {
-	            _iterator12.return();
+	          if (!_iteratorNormalCompletion13 && _iterator13.return) {
+	            _iterator13.return();
 	          }
 	        } finally {
-	          if (_didIteratorError12) {
-	            throw _iteratorError12;
+	          if (_didIteratorError13) {
+	            throw _iteratorError13;
 	          }
 	        }
 	      }
