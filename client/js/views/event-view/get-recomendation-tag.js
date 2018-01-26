@@ -1,5 +1,5 @@
 import Application from './../../application';
-import {getDateValue} from '../../tools/helpers';
+import {getDateValue, parseObjToHash} from '../../tools/helpers';
 
 export default (inputData, isSelected) => {
   const appData = Application.data;
@@ -14,6 +14,16 @@ export default (inputData, isSelected) => {
   const time = `${eventStartDate.getHours()}:${getMinutes(eventStartDate)}—${eventEndDate.getHours()}:${getMinutes(eventEndDate)}`;
   let roomTitle;
   let roomFloor;
+  let dataSwap = '';
+
+  if (inputData.hasOwnProperty('swap')) {
+    for (let swap of inputData.swap) {
+      let swapHash = parseObjToHash(swap);
+      dataSwap += '|' + swapHash;
+    }
+
+    dataSwap = `data-swap="${dataSwap}"`;
+  }
 
   for (let dbRoom of dbRooms) {
     if (roomId === dbRoom.id) {
@@ -22,7 +32,7 @@ export default (inputData, isSelected) => {
     }
   }
 
-  return `<div class="recommendation-tag${(isSelected) ? ' recommendation-tag--selected' : ''}" data-room-id="${roomId}">
+  return `<div class="recommendation-tag${(isSelected) ? ' recommendation-tag--selected' : ''}" data-room-id="${roomId}" ${dataSwap}>
             <div class="recommendation-tag__content">
               <span class="recommendation-tag__time" 
                 data-start-date="${getDateValue(eventStartDate).minute}"

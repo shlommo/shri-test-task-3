@@ -41,4 +41,21 @@ export default {
       }
     }`;
   },
+  changeEventRoom: (id, roomId) => {
+    return `
+    mutation {
+      changeEventRoom(id: ${id}, roomId: ${roomId}) {
+        id,
+        title,
+        dateStart,
+        dateEnd,
+        users {
+          id
+        },
+        room {
+          id
+        }
+      }
+    }`;
+  }
 };

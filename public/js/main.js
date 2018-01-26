@@ -1627,6 +1627,7 @@
 	                  if (roomWithFreeTime.hasOwnProperty('start')) {
 	                    // Если свободное время уже было
 	                    roomWithFreeTime.end = timeStampMinute;
+	                    hour--;
 	
 	                    roomArrWithFreeTime.push(roomWithFreeTime);
 	                    roomWithFreeTime = {};
@@ -1638,13 +1639,13 @@
 	                  continue;
 	                } else if (eventDuration > 0) {
 	                  roomWithFreeTime.start = timeStampMinute - this.MINUTE;
-	
+	                  eventDuration--;
 	                  if (hour - eventDuration > 0) {
 	                    hour = hour - eventDuration - 1;
 	                  } else if (hour - eventDuration === 0) {
-	                    hour = 60;
+	                    hour = 59;
 	                  } else if (hour - eventDuration < 0) {
-	                    hour = 60 - (eventDuration - hour - Math.floor((eventDuration - hour) / 60) * 60);
+	                    hour = 59 - (eventDuration - hour - Math.floor((eventDuration - hour) / 60) * 60);
 	                  }
 	
 	                  eventDuration = 0;
@@ -2556,6 +2557,7 @@
 	      } else {
 	        this.clearErrorContainer();
 	      }
+	      var recomSwap = recommendationTagSelected.getAttribute('data-swap');
 	      var roomId = recommendationTagSelected.getAttribute('data-room-id');
 	      var dateStart = new Date(this.eventTimeStartDatepickr.selectedDates);
 	      var dateEnd = new Date(this.eventTimeEndDatepickr.selectedDates);
@@ -2617,21 +2619,61 @@
 	      var usersInput = '[' + users + ']';
 	      var self = this;
 	
-	      _apiService2.default.createEvent(eventInput, usersInput, roomId).then(function () {
-	        return _apiService2.default.getAll();
-	      }).then(function (data) {
-	        var newData = Object.assign({}, data, {
-	          date: self.eventStartDate,
-	          newEvent: {
-	            dateStart: dateStart,
-	            dateEnd: dateEnd,
-	            roomId: roomId
-	          }
+	      var createEvent = function createEvent() {
+	        return _apiService2.default.createEvent(eventInput, usersInput, roomId).then(function () {
+	          return _apiService2.default.getAll();
+	        }).then(function (data) {
+	          var newData = Object.assign({}, data, {
+	            date: self.eventStartDate,
+	            newEvent: {
+	              dateStart: dateStart,
+	              dateEnd: dateEnd,
+	              roomId: roomId
+	            }
+	          });
+	          self.clearHandlers();
+	          _application2.default.data = newData;
+	          _router.router.navigate();
 	        });
-	        self.clearHandlers();
-	        _application2.default.data = newData;
-	        _router.router.navigate();
-	      });
+	      };
+	
+	      if (recomSwap !== null) {
+	        var swapArr = recomSwap.split('|');
+	        var swapObj = void 0;
+	
+	        var _iteratorNormalCompletion2 = true;
+	        var _didIteratorError2 = false;
+	        var _iteratorError2 = undefined;
+	
+	        try {
+	          for (var _iterator2 = swapArr[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	            var swap = _step2.value;
+	
+	            if (swap.length > 0) {
+	              swapObj = (0, _helpers.encodeObjFromHash)(swap);
+	
+	              _apiService2.default.changeEventRoom(swapObj.event, swapObj.room).then(function () {
+	                return createEvent();
+	              });
+	            }
+	          }
+	        } catch (err) {
+	          _didIteratorError2 = true;
+	          _iteratorError2 = err;
+	        } finally {
+	          try {
+	            if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	              _iterator2.return();
+	            }
+	          } finally {
+	            if (_didIteratorError2) {
+	              throw _iteratorError2;
+	            }
+	          }
+	        }
+	      } else {
+	        createEvent();
+	      }
 	
 	      return true;
 	    }
@@ -2647,27 +2689,27 @@
 	
 	      var recomTagArr = this.recomContainer.querySelectorAll('.recommendation-tag');
 	
-	      var _iteratorNormalCompletion2 = true;
-	      var _didIteratorError2 = false;
-	      var _iteratorError2 = undefined;
+	      var _iteratorNormalCompletion3 = true;
+	      var _didIteratorError3 = false;
+	      var _iteratorError3 = undefined;
 	
 	      try {
-	        for (var _iterator2 = Array.from(recomTagArr)[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
-	          var item = _step2.value;
+	        for (var _iterator3 = Array.from(recomTagArr)[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	          var item = _step3.value;
 	
 	          this.recomContainer.removeChild(item);
 	        }
 	      } catch (err) {
-	        _didIteratorError2 = true;
-	        _iteratorError2 = err;
+	        _didIteratorError3 = true;
+	        _iteratorError3 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion2 && _iterator2.return) {
-	            _iterator2.return();
+	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	            _iterator3.return();
 	          }
 	        } finally {
-	          if (_didIteratorError2) {
-	            throw _iteratorError2;
+	          if (_didIteratorError3) {
+	            throw _iteratorError3;
 	          }
 	        }
 	      }
@@ -2696,27 +2738,27 @@
 	    value: function addUserHandler(event) {
 	      // Срабатывает при добавление участника события
 	      var usersId = [];
-	      var _iteratorNormalCompletion3 = true;
-	      var _didIteratorError3 = false;
-	      var _iteratorError3 = undefined;
+	      var _iteratorNormalCompletion4 = true;
+	      var _didIteratorError4 = false;
+	      var _iteratorError4 = undefined;
 	
 	      try {
-	        for (var _iterator3 = this.eventUsers[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
-	          var eventUser = _step3.value;
+	        for (var _iterator4 = this.eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	          var eventUser = _step4.value;
 	
 	          usersId.push(eventUser.id);
 	        }
 	      } catch (err) {
-	        _didIteratorError3 = true;
-	        _iteratorError3 = err;
+	        _didIteratorError4 = true;
+	        _iteratorError4 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion3 && _iterator3.return) {
-	            _iterator3.return();
+	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	            _iterator4.return();
 	          }
 	        } finally {
-	          if (_didIteratorError3) {
-	            throw _iteratorError3;
+	          if (_didIteratorError4) {
+	            throw _iteratorError4;
 	          }
 	        }
 	      }
@@ -2731,29 +2773,29 @@
 	    value: function removeUserHandler(event) {
 	      // Срабатывает при удалении участника события
 	      var newArr = [];
-	      var _iteratorNormalCompletion4 = true;
-	      var _didIteratorError4 = false;
-	      var _iteratorError4 = undefined;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
 	
 	      try {
-	        for (var _iterator4 = this.eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
-	          var eventUser = _step4.value;
+	        for (var _iterator5 = this.eventUsers[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var eventUser = _step5.value;
 	
 	          if (eventUser.id !== event.detail.userId) {
 	            newArr.push(eventUser);
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError4 = true;
-	        _iteratorError4 = err;
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion4 && _iterator4.return) {
-	            _iterator4.return();
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
 	          }
 	        } finally {
-	          if (_didIteratorError4) {
-	            throw _iteratorError4;
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
 	          }
 	        }
 	      }
@@ -2780,13 +2822,13 @@
 	        this.recomContainer.innerHTML = '';
 	      }
 	
-	      var _iteratorNormalCompletion5 = true;
-	      var _didIteratorError5 = false;
-	      var _iteratorError5 = undefined;
+	      var _iteratorNormalCompletion6 = true;
+	      var _didIteratorError6 = false;
+	      var _iteratorError6 = undefined;
 	
 	      try {
 	        var _loop = function _loop() {
-	          var recom = _step5.value;
+	          var recom = _step6.value;
 	
 	          var recomMarkup = (0, _getRecomendationTag2.default)(recom, false);
 	          var recomNode = (0, _helpers.getNodeFromMarkup)(recomMarkup);
@@ -2801,39 +2843,8 @@
 	          _this2.recomContainer.appendChild(recomNode);
 	        };
 	
-	        for (var _iterator5 = recommendations[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	        for (var _iterator6 = recommendations[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
 	          _loop();
-	        }
-	      } catch (err) {
-	        _didIteratorError5 = true;
-	        _iteratorError5 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
-	            _iterator5.return();
-	          }
-	        } finally {
-	          if (_didIteratorError5) {
-	            throw _iteratorError5;
-	          }
-	        }
-	      }
-	    }
-	  }, {
-	    key: 'bindHandlers',
-	    value: function bindHandlers() {
-	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
-	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
-	
-	      var _iteratorNormalCompletion6 = true;
-	      var _didIteratorError6 = false;
-	      var _iteratorError6 = undefined;
-	
-	      try {
-	        for (var _iterator6 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
-	          var cancelBtn = _step6.value;
-	
-	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
 	        _didIteratorError6 = true;
@@ -2846,6 +2857,37 @@
 	        } finally {
 	          if (_didIteratorError6) {
 	            throw _iteratorError6;
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: 'bindHandlers',
+	    value: function bindHandlers() {
+	      this.cancelBtnArr = this.element.querySelectorAll('[data-cancel]');
+	      this.autocomplete = this.element.querySelector('[data-autocomplete]');
+	
+	      var _iteratorNormalCompletion7 = true;
+	      var _didIteratorError7 = false;
+	      var _iteratorError7 = undefined;
+	
+	      try {
+	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
+	          var cancelBtn = _step7.value;
+	
+	          cancelBtn.addEventListener('click', this.cancelBtnHandler);
+	        }
+	      } catch (err) {
+	        _didIteratorError7 = true;
+	        _iteratorError7 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
+	            _iterator7.return();
+	          }
+	        } finally {
+	          if (_didIteratorError7) {
+	            throw _iteratorError7;
 	          }
 	        }
 	      }
@@ -2867,27 +2909,27 @@
 	  }, {
 	    key: 'clearHandlers',
 	    value: function clearHandlers() {
-	      var _iteratorNormalCompletion7 = true;
-	      var _didIteratorError7 = false;
-	      var _iteratorError7 = undefined;
+	      var _iteratorNormalCompletion8 = true;
+	      var _didIteratorError8 = false;
+	      var _iteratorError8 = undefined;
 	
 	      try {
-	        for (var _iterator7 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step7; !(_iteratorNormalCompletion7 = (_step7 = _iterator7.next()).done); _iteratorNormalCompletion7 = true) {
-	          var cancelBtn = _step7.value;
+	        for (var _iterator8 = Array.from(this.cancelBtnArr)[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
+	          var cancelBtn = _step8.value;
 	
 	          cancelBtn.removeEventListener('click', this.cancelBtnHandler);
 	        }
 	      } catch (err) {
-	        _didIteratorError7 = true;
-	        _iteratorError7 = err;
+	        _didIteratorError8 = true;
+	        _iteratorError8 = err;
 	      } finally {
 	        try {
-	          if (!_iteratorNormalCompletion7 && _iterator7.return) {
-	            _iterator7.return();
+	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
+	            _iterator8.return();
 	          }
 	        } finally {
-	          if (_didIteratorError7) {
-	            throw _iteratorError7;
+	          if (_didIteratorError8) {
+	            throw _iteratorError8;
 	          }
 	        }
 	      }
@@ -2930,13 +2972,13 @@
 	        this.clearErrorContainer();
 	      }
 	
-	      var _iteratorNormalCompletion8 = true;
-	      var _didIteratorError8 = false;
-	      var _iteratorError8 = undefined;
+	      var _iteratorNormalCompletion9 = true;
+	      var _didIteratorError9 = false;
+	      var _iteratorError9 = undefined;
 	
 	      try {
-	        for (var _iterator8 = this.eventUsers[Symbol.iterator](), _step8; !(_iteratorNormalCompletion8 = (_step8 = _iterator8.next()).done); _iteratorNormalCompletion8 = true) {
-	          var eventUser = _step8.value;
+	        for (var _iterator9 = this.eventUsers[Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
+	          var eventUser = _step9.value;
 	          var _iteratorNormalCompletion10 = true;
 	          var _didIteratorError10 = false;
 	          var _iteratorError10 = undefined;
@@ -2970,42 +3012,6 @@
 	          }
 	        }
 	      } catch (err) {
-	        _didIteratorError8 = true;
-	        _iteratorError8 = err;
-	      } finally {
-	        try {
-	          if (!_iteratorNormalCompletion8 && _iterator8.return) {
-	            _iterator8.return();
-	          }
-	        } finally {
-	          if (_didIteratorError8) {
-	            throw _iteratorError8;
-	          }
-	        }
-	      }
-	
-	      if (this.members.length === 0) {
-	        this.clearRecommendations();
-	        throw new _helpers.UserException('Выберите участников события');
-	      } else {
-	        this.clearErrorContainer();
-	      }
-	
-	      // Удалить редактируемое событие из списка событий
-	      var newEventsArr = [];
-	      var _iteratorNormalCompletion9 = true;
-	      var _didIteratorError9 = false;
-	      var _iteratorError9 = undefined;
-	
-	      try {
-	        for (var _iterator9 = this.appData.events[this.eventDateDay][Symbol.iterator](), _step9; !(_iteratorNormalCompletion9 = (_step9 = _iterator9.next()).done); _iteratorNormalCompletion9 = true) {
-	          var event = _step9.value;
-	
-	          if (event.id !== this.currentId) {
-	            newEventsArr.push(event);
-	          }
-	        }
-	      } catch (err) {
 	        _didIteratorError9 = true;
 	        _iteratorError9 = err;
 	      } finally {
@@ -3020,8 +3026,17 @@
 	        }
 	      }
 	
+	      if (this.members.length === 0) {
+	        this.clearRecommendations();
+	        throw new _helpers.UserException('Выберите участников события');
+	      } else {
+	        this.clearErrorContainer();
+	      }
+	
+	      // Удалить редактируемое событие из списка событий
+	      var events = this.appData.events[this.eventDateDay] || [];
 	      var db = {
-	        events: newEventsArr,
+	        events: events,
 	        rooms: this.appData.rooms,
 	        persons: this.appData.users
 	      };
@@ -3219,6 +3234,11 @@
 	    key: 'updateEvent',
 	    value: function updateEvent(eventId, eventInput) {
 	      return (0, _grapnhqlRequest2.default)(_queries.mutation.updateEvent(eventId, eventInput));
+	    }
+	  }, {
+	    key: 'changeEventRoom',
+	    value: function changeEventRoom(eventId, roomId) {
+	      return (0, _grapnhqlRequest2.default)(_queries.mutation.changeEventRoom(eventId, roomId));
 	    }
 	  }, {
 	    key: 'editEvent',
@@ -3762,6 +3782,9 @@
 	  },
 	  updateEvent: function updateEvent(id, eventInput) {
 	    return "\n    mutation {\n      updateEvent(id: " + id + ", input: " + eventInput + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
+	  },
+	  changeEventRoom: function changeEventRoom(id, roomId) {
+	    return "\n    mutation {\n      changeEventRoom(id: " + id + ", roomId: " + roomId + ") {\n        id,\n        title,\n        dateStart,\n        dateEnd,\n        users {\n          id\n        },\n        room {\n          id\n        }\n      }\n    }";
 	  }
 	};
 
@@ -5786,7 +5809,7 @@
 	  var dayEnd = new Date(eventStart).setHours(23, 0, 0);
 	  var dbEvents = db.events;
 	  var dbRooms = db.rooms;
-	  var dbPersons = db.persons;
+	  var dbUsers = db.persons;
 	  var numberOfMembers = members.length;
 	  var recommendation = {};
 	  var recommendationArr = [];
@@ -5797,8 +5820,6 @@
 	  var eventStartDate = new Date(date.start);
 	  var eventStartDay = (0, _helpers.getDateValue)(eventStartDate).day;
 	
-	  var swapArr = [];
-	
 	  if (today === eventStartDay) {
 	    if (currentMinute > eventStart || currentMinute > eventEnd) {
 	      // если время предпологаемого события меньше текущего времени
@@ -5807,6 +5828,8 @@
 	  } else if (today > eventStartDay) {
 	    return [];
 	  }
+	
+	  var swapArr = [];
 	
 	  var _iteratorNormalCompletion = true;
 	  var _didIteratorError = false;
@@ -5819,13 +5842,13 @@
 	      var dbRoomId = dbRoom.id;
 	      if (dbRoom.capacity < numberOfMembers) {
 	        // если вместимость комнаты меньше участников события
-	        continue roomLoop;
+	        continue;
 	      }
 	
 	      // Цикл который пробегается по всему дню, начиная со времени начала предпологаемого события, с шагом в продолжительность события
-	      timeLoop: for (var t = eventStart; t <= dayEnd - eventDuration; t += eventDuration) {
+	      for (var t = eventStart; t <= dayEnd - eventDuration;) {
 	        var tStart = t; // Время начала предпологаемого события
-	        var tEnd = tStart + eventDuration; // Время окончания предпологаемого события
+	        var tEnd = tStart + eventDuration; // Время окончания предпологаемого
 	
 	        var isTimeHasnotEvent = true;
 	
@@ -5834,31 +5857,95 @@
 	        var _iteratorError2 = undefined;
 	
 	        try {
-	          eventLoop: for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	          for (var _iterator2 = dbEvents[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
 	            var dbEvent = _step2.value;
 	
 	            var dbEventStart = (0, _helpers.getDateValue)(new Date(dbEvent.dateStart)).minute;
 	            var dbEventEnd = (0, _helpers.getDateValue)(new Date(dbEvent.dateEnd)).minute;
+	            var dbEventDuration = dbEventEnd - dbEventStart;
+	            var dif = tEnd - dbEventStart;
 	
 	            if (currentMinute > dbEventEnd) {
-	              continue eventLoop;
+	              continue;
 	            }
 	
 	            if (dbEvent.room.id === dbRoomId) {
 	              // если в этой комнате есть события
-	              if (dbEventStart < tStart && dbEventEnd < tStart) {
-	                continue eventLoop;
+	              if (tStart - dbEventEnd > 0 || tEnd - dbEventStart < 0) {
+	                continue;
 	              }
 	
-	              if (tStart <= dbEventStart && tEnd > dbEventEnd || tStart <= dbEventStart && tEnd < dbEventEnd && tEnd > dbEventStart || tStart > dbEventStart && tEnd <= dbEventEnd || tStart <= dbEventStart && tEnd === dbEventEnd) {
+	              if (tStart <= dbEventStart && tEnd >= dbEventEnd && eventDuration > dbEventDuration) {
+	                // Если событие идет не весь промежуток времени
+	                swapArr.push({
+	                  event: dbEvent,
+	                  tStart: (0, _helpers.getDateValue)(new Date(tStart)).minute,
+	                  tEnd: (0, _helpers.getDateValue)(new Date(tEnd)).minute,
+	                  roomId: dbRoom.id,
+	                  roomFloor: dbRoom.floor
+	                });
+	
+	                if (swapArr.length > 1) {
+	                  var eventSwap = checkEventsForSwap(swapArr, dbUsers, dbRooms);
+	
+	                  if (eventSwap.length > 0) {
+	                    var _iteratorNormalCompletion3 = true;
+	                    var _didIteratorError3 = false;
+	                    var _iteratorError3 = undefined;
+	
+	                    try {
+	                      for (var _iterator3 = eventSwap[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                        var swap = _step3.value;
+	
+	                        if (swap.eventRoom === dbRoomId) {
+	                          recommendation = {
+	                            date: {
+	                              start: (0, _helpers.getDateValue)(new Date(tStart)).minute,
+	                              end: (0, _helpers.getDateValue)(new Date(tEnd)).minute
+	                            },
+	                            room: dbRoomId
+	                          };
+	                          if (recommendation.hasOwnProperty('swap')) {
+	                            recommendation.swap.push({
+	                              event: swap.event,
+	                              room: swap.newRoom
+	                            });
+	                          } else {
+	                            recommendation.swap = [{
+	                              event: swap.event,
+	                              room: swap.newRoom
+	                            }];
+	                          }
+	                          recommendationArr.push(recommendation);
+	                          recommendation = {};
+	                          continue roomLoop;
+	                        }
+	                      }
+	                    } catch (err) {
+	                      _didIteratorError3 = true;
+	                      _iteratorError3 = err;
+	                    } finally {
+	                      try {
+	                        if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	                          _iterator3.return();
+	                        }
+	                      } finally {
+	                        if (_didIteratorError3) {
+	                          throw _iteratorError3;
+	                        }
+	                      }
+	                    }
+	                  }
+	                }
+	              }
+	
+	              if (dif > 1) {
 	                // если на этот промежуток времени запланировано событие
+	                t = dbEventEnd + 1;
 	                isTimeHasnotEvent = false;
+	                break;
 	              }
-	
-	              if (tStart > dbEventStart && tEnd > dbEventEnd && tStart < dbEventEnd) {
-	                t = dbEventEnd - eventDuration;
-	                continue timeLoop;
-	              }
+	              t += eventDuration;
 	            }
 	          }
 	        } catch (err) {
@@ -5879,12 +5966,13 @@
 	        if (isTimeHasnotEvent) {
 	          recommendation = {
 	            date: {
-	              start: tStart,
-	              end: tEnd
+	              start: (0, _helpers.getDateValue)(new Date(tStart)).minute,
+	              end: (0, _helpers.getDateValue)(new Date(tEnd)).minute
 	            },
 	            room: dbRoomId
 	          };
 	          recommendationArr.push(recommendation);
+	          recommendation = {};
 	          continue roomLoop;
 	        }
 	      }
@@ -5906,6 +5994,151 @@
 	
 	  return recommendationArr;
 	}
+	
+	var checkEventsForSwap = function checkEventsForSwap(events, users, dbRooms) {
+	  var floorsValueOne = void 0;
+	  var floorsValueTwo = void 0;
+	  var isFeet = void 0;
+	  var swap = [];
+	
+	  for (var i = 0; i < events.length; i++) {
+	    var eventOne = events[i].event;
+	    var startOne = (0, _helpers.getDateValue)(new Date(eventOne.dateStart)).minute;
+	    var endOne = (0, _helpers.getDateValue)(new Date(eventOne.dateEnd)).minute;
+	    var roomOneFloor = events[i].roomFloor;
+	    var roomOneId = events[i].roomId;
+	
+	    for (var j = i + 1; j < events.length; j++) {
+	      var eventTwo = events[j].event;
+	      var startTwo = (0, _helpers.getDateValue)(new Date(eventTwo.dateStart)).minute;
+	      var endTwo = (0, _helpers.getDateValue)(new Date(eventTwo.dateEnd)).minute;
+	      var roomTwoFloor = events[j].roomFloor;
+	      var roomTwoId = events[j].roomId;
+	
+	      if (startOne < startTwo && endOne <= endOne || startTwo < startOne && endTwo <= startOne) {
+	        // если события не пересекаются
+	
+	        floorsValueOne = countFloors(eventOne.users, users, roomTwoFloor);
+	        floorsValueTwo = countFloors(eventTwo.users, users, roomOneFloor);
+	
+	        if (floorsValueOne < floorsValueTwo) {
+	          isFeet = checkCapacity(dbRooms, eventTwo.room.id, eventTwo.users);
+	          if (isFeet) {
+	            swap.push({
+	              event: eventOne.id,
+	              eventRoom: roomOneId,
+	              newRoom: eventTwo.room.id
+	            });
+	          }
+	        } else {
+	          isFeet = checkCapacity(dbRooms, eventOne.room.id, eventOne.users);
+	          if (isFeet) {
+	            swap.push({
+	              event: eventTwo.id,
+	              eventRoom: roomTwoId,
+	              newRoom: eventOne.room.id
+	            });
+	          }
+	        }
+	      }
+	    }
+	    break;
+	  }
+	
+	  return swap;
+	};
+	
+	var countFloors = function countFloors(eventUsers, users, roomFloor) {
+	  var numberOfFloors = 0;
+	  var userFloor = void 0;
+	  var _iteratorNormalCompletion4 = true;
+	  var _didIteratorError4 = false;
+	  var _iteratorError4 = undefined;
+	
+	  try {
+	    for (var _iterator4 = eventUsers[Symbol.iterator](), _step4; !(_iteratorNormalCompletion4 = (_step4 = _iterator4.next()).done); _iteratorNormalCompletion4 = true) {
+	      var eventUser = _step4.value;
+	      var _iteratorNormalCompletion5 = true;
+	      var _didIteratorError5 = false;
+	      var _iteratorError5 = undefined;
+	
+	      try {
+	        for (var _iterator5 = users[Symbol.iterator](), _step5; !(_iteratorNormalCompletion5 = (_step5 = _iterator5.next()).done); _iteratorNormalCompletion5 = true) {
+	          var user = _step5.value;
+	
+	          if (user.id === eventUser.id) {
+	            userFloor = user.homeFloor;
+	            numberOfFloors = Math.max(userFloor, roomFloor) - Math.min(userFloor, roomFloor);
+	          }
+	        }
+	      } catch (err) {
+	        _didIteratorError5 = true;
+	        _iteratorError5 = err;
+	      } finally {
+	        try {
+	          if (!_iteratorNormalCompletion5 && _iterator5.return) {
+	            _iterator5.return();
+	          }
+	        } finally {
+	          if (_didIteratorError5) {
+	            throw _iteratorError5;
+	          }
+	        }
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError4 = true;
+	    _iteratorError4 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion4 && _iterator4.return) {
+	        _iterator4.return();
+	      }
+	    } finally {
+	      if (_didIteratorError4) {
+	        throw _iteratorError4;
+	      }
+	    }
+	  }
+	
+	  return numberOfFloors;
+	};
+	
+	var checkCapacity = function checkCapacity(rooms, id, eventMembers) {
+	  var isFeet = void 0;
+	  var _iteratorNormalCompletion6 = true;
+	  var _didIteratorError6 = false;
+	  var _iteratorError6 = undefined;
+	
+	  try {
+	    for (var _iterator6 = rooms[Symbol.iterator](), _step6; !(_iteratorNormalCompletion6 = (_step6 = _iterator6.next()).done); _iteratorNormalCompletion6 = true) {
+	      var room = _step6.value;
+	
+	      if (room.id === id) {
+	        if (room.capacity > eventMembers.length) {
+	          isFeet = true;
+	          break;
+	        }
+	        isFeet = false;
+	      }
+	    }
+	  } catch (err) {
+	    _didIteratorError6 = true;
+	    _iteratorError6 = err;
+	  } finally {
+	    try {
+	      if (!_iteratorNormalCompletion6 && _iterator6.return) {
+	        _iterator6.return();
+	      }
+	    } finally {
+	      if (_didIteratorError6) {
+	        throw _iteratorError6;
+	      }
+	    }
+	  }
+	
+	  return isFeet;
+	};
 	
 	exports.default = getRecommendation;
 
@@ -5940,14 +6173,45 @@
 	  var time = eventStartDate.getHours() + ':' + getMinutes(eventStartDate) + '\u2014' + eventEndDate.getHours() + ':' + getMinutes(eventEndDate);
 	  var roomTitle = void 0;
 	  var roomFloor = void 0;
+	  var dataSwap = '';
 	
-	  var _iteratorNormalCompletion = true;
-	  var _didIteratorError = false;
-	  var _iteratorError = undefined;
+	  if (inputData.hasOwnProperty('swap')) {
+	    var _iteratorNormalCompletion = true;
+	    var _didIteratorError = false;
+	    var _iteratorError = undefined;
+	
+	    try {
+	      for (var _iterator = inputData.swap[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	        var swap = _step.value;
+	
+	        var swapHash = (0, _helpers.parseObjToHash)(swap);
+	        dataSwap += '|' + swapHash;
+	      }
+	    } catch (err) {
+	      _didIteratorError = true;
+	      _iteratorError = err;
+	    } finally {
+	      try {
+	        if (!_iteratorNormalCompletion && _iterator.return) {
+	          _iterator.return();
+	        }
+	      } finally {
+	        if (_didIteratorError) {
+	          throw _iteratorError;
+	        }
+	      }
+	    }
+	
+	    dataSwap = 'data-swap="' + dataSwap + '"';
+	  }
+	
+	  var _iteratorNormalCompletion2 = true;
+	  var _didIteratorError2 = false;
+	  var _iteratorError2 = undefined;
 	
 	  try {
-	    for (var _iterator = dbRooms[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	      var dbRoom = _step.value;
+	    for (var _iterator2 = dbRooms[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	      var dbRoom = _step2.value;
 	
 	      if (roomId === dbRoom.id) {
 	        roomTitle = dbRoom.title;
@@ -5955,21 +6219,21 @@
 	      }
 	    }
 	  } catch (err) {
-	    _didIteratorError = true;
-	    _iteratorError = err;
+	    _didIteratorError2 = true;
+	    _iteratorError2 = err;
 	  } finally {
 	    try {
-	      if (!_iteratorNormalCompletion && _iterator.return) {
-	        _iterator.return();
+	      if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	        _iterator2.return();
 	      }
 	    } finally {
-	      if (_didIteratorError) {
-	        throw _iteratorError;
+	      if (_didIteratorError2) {
+	        throw _iteratorError2;
 	      }
 	    }
 	  }
 	
-	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '">\n            <div class="recommendation-tag__content">\n              <span class="recommendation-tag__time" \n                data-start-date="' + (0, _helpers.getDateValue)(eventStartDate).minute + '"\n                data-end-date="' + (0, _helpers.getDateValue)(eventEndDate).minute + '">\n                ' + time + '\n              </span>\n              <span class="recommendation-tag__room">\n                ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n              </span>\n            </div>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
+	  return '<div class="recommendation-tag' + (isSelected ? ' recommendation-tag--selected' : '') + '" data-room-id="' + roomId + '" ' + dataSwap + '>\n            <div class="recommendation-tag__content">\n              <span class="recommendation-tag__time" \n                data-start-date="' + (0, _helpers.getDateValue)(eventStartDate).minute + '"\n                data-end-date="' + (0, _helpers.getDateValue)(eventEndDate).minute + '">\n                ' + time + '\n              </span>\n              <span class="recommendation-tag__room">\n                ' + roomTitle + ' \xB7 ' + roomFloor + ' \u044D\u0442\u0430\u0436\n              </span>\n            </div>\n            <button class="recommendation-tag__delete">\n              <i>\n                  <svg width="10" height="10">\n                      <use xmlns:xlink="http://www.w3.org/1999/xlink" xlink:href="#icon-close"></use>\n                  </svg>\n              </i>\n            </button>\n          </div>';
 	};
 
 /***/ }),

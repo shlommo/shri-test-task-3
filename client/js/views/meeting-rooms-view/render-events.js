@@ -163,7 +163,6 @@ export default class RenderEvents {
 
           let freeTimeNode = this.getTimeNode(false, null, freeTimeStart, freeTime.end, this.eventLeft, this.eventWidth);
 
-          console.log(new Date(freeTime.start), new Date(freeTime.end));
           timeContainer.appendChild(freeTimeNode);
         }
       }

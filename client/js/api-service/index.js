@@ -70,6 +70,10 @@ class ApiService {
     return grapnhQlRequest(mutation.updateEvent(eventId, eventInput));
   }
 
+  changeEventRoom(eventId, roomId) {
+    return grapnhQlRequest(mutation.changeEventRoom(eventId, roomId));
+  }
+
   editEvent(eventId, eventInput, usersInput, roomId) {
     let editEvent = new Promise((resolve, reject) => {
       resolve(this.removeEvent(eventId));
