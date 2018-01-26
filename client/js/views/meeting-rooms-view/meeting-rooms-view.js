@@ -2,7 +2,7 @@ import Application from './../../application';
 import AbstractView from './../abstract-view';
 import {calendarMarkup, openCalendar} from './calendar';
 import RenderCalendarWidget from './render-calendar-widget';
-import {debounce, getDateValue} from '../../tools/helpers';
+import {debounce, getDateValue, parseObjToHash} from '../../tools/helpers';
 import activateRoomName from './activate-room-name';
 import RenderEvents from './render-events';
 import {router} from './../../router';
@@ -25,6 +25,7 @@ class MeetingRoomsView extends AbstractView {
     this.dayMin = 8;
     this.dayMax = 22;
     this.MINUTE = 60 * 1000;
+    this.HOUR = this.MINUTE * 60;
     this.dayTotal = this.dayMax - this.dayMin + 1;
     this.initialAppDate = new Date();
     this.initialAppDay = getDateValue(this.initialAppDate).day;
@@ -247,7 +248,7 @@ class MeetingRoomsView extends AbstractView {
   getMarkup() {
     const header = `<header class="header">
                       <div class="logo"></div>
-                      <a href="event-new.html" class="button header__button button--blue" id="newEventTrigger">Создать встречу</a>
+                      <a href="#" class="button header__button button--blue" id="newEventTrigger">Создать встречу</a>
                   </header>`;
 
     const diagram = `<div class="diagram">
@@ -275,7 +276,20 @@ class MeetingRoomsView extends AbstractView {
 
     eventNewTrigger.addEventListener('click', (e) => {
       e.preventDefault();
-      router.navigate('/event/create');
+      let startTime;
+      if (this.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
+        const now = new Date();
+        startTime = getDateValue(new Date(this.date.getFullYear(), this.date.getMonth(), this.date.getDate(), now.getHours(), now.getMinutes())).minute;
+      } else {
+        startTime = getDateValue(this.date).day + this.HOUR * 8;
+      }
+      let endTime = startTime + 15 * this.MINUTE;
+      const eventCreateInputData = {
+        roomId: 0,
+        startTime: startTime,
+        endTime: endTime
+      };
+      router.navigate(`/event/${parseObjToHash(eventCreateInputData)}/create`);
     });
 
     const windowResizeHandler = () => {

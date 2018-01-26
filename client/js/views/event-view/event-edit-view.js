@@ -4,7 +4,7 @@ import {router} from './../../router';
 import ApiService from './../../api-service';
 import Flatpickr from 'flatpickr';
 import {Russian} from 'flatpickr/dist/l10n/ru.js';
-import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException, encodeObjFromHash} from '../../tools/helpers';
+import {getDateValue, getNodeFromMarkup, checkEventTarget, UserException, parseObjToHash, encodeObjFromHash} from '../../tools/helpers';
 import eventFormHeader from './event-form-header';
 import eventFormFooter from './event-form-footer';
 import field from './field';
@@ -152,9 +152,12 @@ class EventNewView extends AbstractView {
   }
 
   cancelBtnHandler(event) {
+    const day = {
+      date: this.eventInputData.startTime
+    };
     event.preventDefault();
     this.clearHandlers();
-    router.navigate();
+    router.navigate(`/date/${parseObjToHash(day)}`);
   }
 
   getAutocompleteHandler(event) {

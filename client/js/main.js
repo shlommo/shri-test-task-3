@@ -12,13 +12,3 @@ ApiService.getAll()
       activateRouter();
 
     });
-
-document.addEventListener('dateChange', (e) => {
-  const newData = Object.assign({}, Application.data, {
-    date: e.detail.date
-  });
-
-  Application.data = newData;
-  Application.showMeetingRooms();
-});
-

@@ -17,12 +17,27 @@ const activateRouter = () => {
           Application.showEventEdit(encodeData);
         }
       })
-      .on(/event\/(\w+)\/?/, (action) => {
-        if (action === 'create') {
-          Application.showEventCreate();
-        }
+      // .on(/event\/(\w+)\/(\w+=\d+&\w+=\d+)\/?/, (action) => {
+      //   const encodeData = encodeObjFromHash(urlHash);
+      //   if (action === 'create') {
+      //     Application.showEventCreate();
+      //   }
+      // })
+      .on(/date\/(\w+=\d+)\/?/, (urlHash) => {
+        const encodeData = encodeObjFromHash(urlHash);
+        const newData = Object.assign({}, Application.data, {
+          date: new Date(+encodeData.date)
+        });
+
+        Application.data = newData;
+        Application.showMeetingRooms();
       })
       .on('/', function () {
+        const newData = Object.assign({}, Application.data, {
+          date: new Date()
+        });
+
+        Application.data = newData;
         Application.showMeetingRooms();
       })
       .resolve();

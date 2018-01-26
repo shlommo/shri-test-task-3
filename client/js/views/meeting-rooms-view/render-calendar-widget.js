@@ -1,5 +1,6 @@
-import {getNodeFromMarkup, getDay, getDateValue} from './../../tools/helpers';
+import {getNodeFromMarkup, getDay, getDateValue, parseObjToHash} from './../../tools/helpers';
 import {monthNames} from './../../data/data';
+import {router} from './../../router';
 
 export default class RenderCalendarWidget {
   constructor(date) {
@@ -114,21 +115,17 @@ export default class RenderCalendarWidget {
       const now = new Date();
       const hourValue = now.getHours();
       const minutesValue = now.getMinutes();
-      const secondsValue = now.getSeconds();
 
-      const dateChangeEvent = new CustomEvent('dateChange', {
-        detail: {
-          date: new Date(yearValue, monthValue, dayValue, hourValue, minutesValue, secondsValue)
-        }
-      });
-
+      const calendarChangedDate = {
+        date: getDateValue(new Date(yearValue, monthValue, dayValue, hourValue, minutesValue)).minute
+      };
 
       day.addEventListener('click', () => {
         this.calendarWidget.querySelector('.month__day.today').classList.remove('today');
         day.classList.add('today');
         calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + this.monthNamesShortcuts[monthValue];
 
-        document.dispatchEvent(dateChangeEvent);
+        router.navigate(`/date/${parseObjToHash(calendarChangedDate)}`);
       });
     }
   }

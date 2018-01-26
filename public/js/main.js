@@ -58,25 +58,16 @@
 	
 	var _createSvgSprite2 = _interopRequireDefault(_createSvgSprite);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
 	(0, _createSvgSprite2.default)();
 	
 	_apiService2.default.getAll().then(function (data) {
-	  _application2.default.data = data;
+	    _application2.default.data = data;
 	
-	  (0, _router.activateRouter)();
-	});
-	
-	document.addEventListener('dateChange', function (e) {
-	  var newData = Object.assign({}, _application2.default.data, {
-	    date: e.detail.date
-	  });
-	
-	  _application2.default.data = newData;
-	  _application2.default.showMeetingRooms();
+	    (0, _router.activateRouter)();
 	});
 
 /***/ }),
@@ -234,15 +225,15 @@
 	
 	var _helpers = __webpack_require__(9);
 	
-	var _activateRoomName = __webpack_require__(11);
+	var _activateRoomName = __webpack_require__(14);
 	
 	var _activateRoomName2 = _interopRequireDefault(_activateRoomName);
 	
-	var _renderEvents = __webpack_require__(12);
+	var _renderEvents = __webpack_require__(15);
 	
 	var _renderEvents2 = _interopRequireDefault(_renderEvents);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	var _showPopup = __webpack_require__(17);
 	
@@ -277,6 +268,7 @@
 	    _this.dayMin = 8;
 	    _this.dayMax = 22;
 	    _this.MINUTE = 60 * 1000;
+	    _this.HOUR = _this.MINUTE * 60;
 	    _this.dayTotal = _this.dayMax - _this.dayMin + 1;
 	    _this.initialAppDate = new Date();
 	    _this.initialAppDay = (0, _helpers.getDateValue)(_this.initialAppDate).day;
@@ -651,7 +643,7 @@
 	  }, {
 	    key: 'getMarkup',
 	    value: function getMarkup() {
-	      var header = '<header class="header">\n                      <div class="logo"></div>\n                      <a href="event-new.html" class="button header__button button--blue" id="newEventTrigger">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</a>\n                  </header>';
+	      var header = '<header class="header">\n                      <div class="logo"></div>\n                      <a href="#" class="button header__button button--blue" id="newEventTrigger">\u0421\u043E\u0437\u0434\u0430\u0442\u044C \u0432\u0441\u0442\u0440\u0435\u0447\u0443</a>\n                  </header>';
 	
 	      var diagram = '<div class="diagram">\n                      <div class="diagram__body">\n                        <div class="diagram__body-cnt">\n                            <div class="diagram__time-line">' + this.diagramRowMarkup((0, _calendar.calendarMarkup)(), this.diagramTimelineTimeMarkup()) + '</div>\n                            <div class="diagram__content-wrapper">\n                              <div class="diagram__content">\n                                ' + this.diagramRowMarkup(null, this.getCellList(), 'diagram__cell-grid') + '\n                                ' + this.getFloorListMarkup() + '\n                              </div>\n                            </div>\n                        </div>\n                      </div>\n                    </div>';
 	
@@ -666,7 +658,20 @@
 	
 	      eventNewTrigger.addEventListener('click', function (e) {
 	        e.preventDefault();
-	        _router.router.navigate('/event/create');
+	        var startTime = void 0;
+	        if (_this3.IS_INPUT_DATE_EQUAL_INITIAL_APP_DATE) {
+	          var now = new Date();
+	          startTime = (0, _helpers.getDateValue)(new Date(_this3.date.getFullYear(), _this3.date.getMonth(), _this3.date.getDate(), now.getHours(), now.getMinutes())).minute;
+	        } else {
+	          startTime = (0, _helpers.getDateValue)(_this3.date).day + _this3.HOUR * 8;
+	        }
+	        var endTime = startTime + 15 * _this3.MINUTE;
+	        var eventCreateInputData = {
+	          roomId: 0,
+	          startTime: startTime,
+	          endTime: endTime
+	        };
+	        _router.router.navigate('/event/' + (0, _helpers.parseObjToHash)(eventCreateInputData) + '/create');
 	      });
 	
 	      var windowResizeHandler = function windowResizeHandler() {
@@ -1097,6 +1102,8 @@
 	
 	var _data = __webpack_require__(2);
 	
+	var _router = __webpack_require__(11);
+	
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 	
 	var RenderCalendarWidget = function () {
@@ -1239,20 +1246,17 @@
 	          var now = new Date();
 	          var hourValue = now.getHours();
 	          var minutesValue = now.getMinutes();
-	          var secondsValue = now.getSeconds();
 	
-	          var dateChangeEvent = new CustomEvent('dateChange', {
-	            detail: {
-	              date: new Date(yearValue, monthValue, dayValue, hourValue, minutesValue, secondsValue)
-	            }
-	          });
+	          var calendarChangedDate = {
+	            date: (0, _helpers.getDateValue)(new Date(yearValue, monthValue, dayValue, hourValue, minutesValue)).minute
+	          };
 	
 	          day.addEventListener('click', function () {
 	            _this2.calendarWidget.querySelector('.month__day.today').classList.remove('today');
 	            day.classList.add('today');
 	            calendarHeaderTitle.innerHTML = day.innerHTML + ' ' + _this2.monthNamesShortcuts[monthValue];
 	
-	            document.dispatchEvent(dateChangeEvent);
+	            _router.router.navigate('/date/' + (0, _helpers.parseObjToHash)(calendarChangedDate));
 	          });
 	        };
 	
@@ -1324,6 +1328,268 @@
 
 /***/ }),
 /* 11 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	'use strict';
+	
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+	exports.activateRouter = exports.router = undefined;
+	
+	var _navigo = __webpack_require__(12);
+	
+	var _navigo2 = _interopRequireDefault(_navigo);
+	
+	var _application = __webpack_require__(1);
+	
+	var _application2 = _interopRequireDefault(_application);
+	
+	var _helpers = __webpack_require__(9);
+	
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+	
+	var root = null;
+	var useHash = true;
+	var hash = '#';
+	var router = new _navigo2.default(root, useHash, hash);
+	
+	var activateRouter = function activateRouter() {
+	  return router.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (urlHash, action) {
+	    var encodeData = (0, _helpers.encodeObjFromHash)(urlHash);
+	    if (action === 'create') {
+	      _application2.default.showEventCreate(encodeData);
+	    } else if (action === 'edit') {
+	      _application2.default.showEventEdit(encodeData);
+	    }
+	  })
+	  // .on(/event\/(\w+)\/(\w+=\d+&\w+=\d+)\/?/, (action) => {
+	  //   const encodeData = encodeObjFromHash(urlHash);
+	  //   if (action === 'create') {
+	  //     Application.showEventCreate();
+	  //   }
+	  // })
+	  .on(/date\/(\w+=\d+)\/?/, function (urlHash) {
+	    var encodeData = (0, _helpers.encodeObjFromHash)(urlHash);
+	    var newData = Object.assign({}, _application2.default.data, {
+	      date: new Date(+encodeData.date)
+	    });
+	
+	    _application2.default.data = newData;
+	    _application2.default.showMeetingRooms();
+	  }).on('/', function () {
+	    var newData = Object.assign({}, _application2.default.data, {
+	      date: new Date()
+	    });
+	
+	    _application2.default.data = newData;
+	    _application2.default.showMeetingRooms();
+	  }).resolve();
+	};
+	
+	exports.router = router;
+	exports.activateRouter = activateRouter;
+
+/***/ }),
+/* 12 */
+/***/ (function(module, exports, __webpack_require__) {
+
+	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {"use strict";
+	
+	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+	
+	!function (e, t) {
+	  "object" == ( false ? "undefined" : _typeof(exports)) && "object" == ( false ? "undefined" : _typeof(module)) ? module.exports = t() :  true ? !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (t), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : "object" == (typeof exports === "undefined" ? "undefined" : _typeof(exports)) ? exports.Navigo = t() : e.Navigo = t();
+	}(undefined, function () {
+	  return function (e) {
+	    function t(o) {
+	      if (n[o]) return n[o].exports;var i = n[o] = { exports: {}, id: o, loaded: !1 };return e[o].call(i.exports, i, i.exports, t), i.loaded = !0, i.exports;
+	    }var n = {};return t.m = e, t.c = n, t.p = "", t(0);
+	  }([function (e, t) {
+	    "use strict";
+	    function n(e) {
+	      if (Array.isArray(e)) {
+	        for (var t = 0, n = Array(e.length); t < e.length; t++) {
+	          n[t] = e[t];
+	        }return n;
+	      }return Array.from(e);
+	    }function o() {
+	      return !("undefined" == typeof window || !window.history || !window.history.pushState);
+	    }function i(e, t, n) {
+	      this.root = null, this._routes = [], this._useHash = t, this._hash = "undefined" == typeof n ? "#" : n, this._paused = !1, this._destroyed = !1, this._lastRouteResolved = null, this._notFoundHandler = null, this._defaultHandler = null, this._usePushState = !t && o(), this._onLocationChange = this._onLocationChange.bind(this), this._genericHooks = null, this._historyAPIUpdateMethod = "pushState", e ? this.root = t ? e.replace(/\/$/, "/" + this._hash) : e.replace(/\/$/, "") : t && (this.root = this._cLoc().split(this._hash)[0].replace(/\/$/, "/" + this._hash)), this._listen(), this.updatePageLinks();
+	    }function s(e) {
+	      return e instanceof RegExp ? e : e.replace(/\/+$/, "").replace(/^\/+/, "^/");
+	    }function r(e, t) {
+	      return 0 === t.length ? null : e ? e.slice(1, e.length).reduce(function (e, n, o) {
+	        return null === e && (e = {}), e[t[o]] = decodeURIComponent(n), e;
+	      }, null) : null;
+	    }function a(e) {
+	      var t,
+	          n = [];return t = e instanceof RegExp ? e : new RegExp(e.replace(i.PARAMETER_REGEXP, function (e, t, o) {
+	        return n.push(o), i.REPLACE_VARIABLE_REGEXP;
+	      }).replace(i.WILDCARD_REGEXP, i.REPLACE_WILDCARD) + i.FOLLOWED_BY_SLASH_REGEXP, i.MATCH_REGEXP_FLAGS), { regexp: t, paramNames: n };
+	    }function u(e) {
+	      return e.replace(/\/$/, "").split("/").length;
+	    }function h(e, t) {
+	      return u(t) - u(e);
+	    }function l(e) {
+	      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : [];return t.map(function (t) {
+	        var n = a(s(t.route)),
+	            o = n.regexp,
+	            i = n.paramNames,
+	            u = e.replace(/^\/+/, "/").match(o),
+	            h = r(u, i);return !!u && { match: u, route: t, params: h };
+	      }).filter(function (e) {
+	        return e;
+	      });
+	    }function d(e, t) {
+	      return l(e, t)[0] || !1;
+	    }function c(e, t) {
+	      var n = t.map(function (t) {
+	        return "" === t.route || "*" === t.route ? e : e.split(new RegExp(t.route + "($|/)"))[0];
+	      }),
+	          o = s(e);return n.length > 1 ? n.reduce(function (e, t) {
+	        return e.length > t.length && (e = t), e;
+	      }, n[0]) : 1 === n.length ? n[0] : o;
+	    }function f() {
+	      return !!("undefined" != typeof window && "onhashchange" in window);
+	    }function _(e) {
+	      return e.split(/\?(.*)?$/).slice(1).join("");
+	    }function p(e, t, n) {
+	      var i,
+	          s = e,
+	          r = function r(e) {
+	        return e.split(/\?(.*)?$/)[0];
+	      };return "undefined" == typeof n && (n = "#"), o() && !t ? s = r(e).split(n)[0] : (i = e.split(n), s = r(i.length > 1 ? i[1] : i[0])), s;
+	    }function v(e, t, n) {
+	      if (t && "object" === ("undefined" == typeof t ? "undefined" : g(t))) {
+	        if (t.before) return void t.before(function () {
+	          var o = !(arguments.length > 0 && void 0 !== arguments[0]) || arguments[0];o && (e(), t.after && t.after(n));
+	        }, n);if (t.after) return e(), void (t.after && t.after(n));
+	      }e();
+	    }function R(e, t, n) {
+	      if (o() && !t) return !1;if (!e.match(n)) return !1;var i = e.split(n);return i.length < 2 || "" === i[1];
+	    }Object.defineProperty(t, "__esModule", { value: !0 });var g = "function" == typeof Symbol && "symbol" == _typeof(Symbol.iterator) ? function (e) {
+	      return typeof e === "undefined" ? "undefined" : _typeof(e);
+	    } : function (e) {
+	      return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e === "undefined" ? "undefined" : _typeof(e);
+	    };i.prototype = { helpers: { match: d, root: c, clean: s, getOnlyURL: p }, navigate: function navigate(e, t) {
+	        var n;return e = e || "", this._usePushState ? (n = (t ? "" : this._getRoot() + "/") + e.replace(/^\/+/, "/"), n = n.replace(/([^:])(\/{2,})/g, "$1/"), history[this._historyAPIUpdateMethod]({}, "", n), this.resolve()) : "undefined" != typeof window && (e = e.replace(new RegExp("^" + this._hash), ""), window.location.href = window.location.href.replace(/#$/, "").replace(new RegExp(this._hash + ".*$"), "") + this._hash + e), this;
+	      }, on: function on() {
+	        for (var e = this, t = arguments.length, n = Array(t), o = 0; o < t; o++) {
+	          n[o] = arguments[o];
+	        }if ("function" == typeof n[0]) this._defaultHandler = { handler: n[0], hooks: n[1] };else if (n.length >= 2) {
+	          if ("/" === n[0]) {
+	            var i = n[1];"object" === g(n[1]) && (i = n[1].uses), this._defaultHandler = { handler: i, hooks: n[2] };
+	          } else this._add(n[0], n[1], n[2]);
+	        } else if ("object" === g(n[0])) {
+	          var s = Object.keys(n[0]).sort(h);s.forEach(function (t) {
+	            e.on(t, n[0][t]);
+	          });
+	        }return this;
+	      }, off: function off(e) {
+	        return null !== this._defaultHandler && e === this._defaultHandler.handler ? this._defaultHandler = null : null !== this._notFoundHandler && e === this._notFoundHandler.handler && (this._notFoundHandler = null), this._routes = this._routes.reduce(function (t, n) {
+	          return n.handler !== e && t.push(n), t;
+	        }, []), this;
+	      }, notFound: function notFound(e, t) {
+	        return this._notFoundHandler = { handler: e, hooks: t }, this;
+	      }, resolve: function resolve(e) {
+	        var t,
+	            o,
+	            i = this,
+	            s = (e || this._cLoc()).replace(this._getRoot(), "");this._useHash && (s = s.replace(new RegExp("^/" + this._hash), "/"));var r = _(e || this._cLoc()),
+	            a = p(s, this._useHash, this._hash);return !this._paused && (this._lastRouteResolved && a === this._lastRouteResolved.url && r === this._lastRouteResolved.query ? (this._lastRouteResolved.hooks && this._lastRouteResolved.hooks.already && this._lastRouteResolved.hooks.already(this._lastRouteResolved.params), !1) : (o = d(a, this._routes)) ? (this._callLeave(), this._lastRouteResolved = { url: a, query: r, hooks: o.route.hooks, params: o.params, name: o.route.name }, t = o.route.handler, v(function () {
+	          v(function () {
+	            o.route.route instanceof RegExp ? t.apply(void 0, n(o.match.slice(1, o.match.length))) : t(o.params, r);
+	          }, o.route.hooks, o.params, i._genericHooks);
+	        }, this._genericHooks, o.params), o) : this._defaultHandler && ("" === a || "/" === a || a === this._hash || R(a, this._useHash, this._hash)) ? (v(function () {
+	          v(function () {
+	            i._callLeave(), i._lastRouteResolved = { url: a, query: r, hooks: i._defaultHandler.hooks }, i._defaultHandler.handler(r);
+	          }, i._defaultHandler.hooks);
+	        }, this._genericHooks), !0) : (this._notFoundHandler && v(function () {
+	          v(function () {
+	            i._callLeave(), i._lastRouteResolved = { url: a, query: r, hooks: i._notFoundHandler.hooks }, i._notFoundHandler.handler(r);
+	          }, i._notFoundHandler.hooks);
+	        }, this._genericHooks), !1));
+	      }, destroy: function destroy() {
+	        this._routes = [], this._destroyed = !0, this._lastRouteResolved = null, this._genericHooks = null, clearTimeout(this._listeningInterval), "undefined" != typeof window && (window.removeEventListener("popstate", this._onLocationChange), window.removeEventListener("hashchange", this._onLocationChange));
+	      }, updatePageLinks: function updatePageLinks() {
+	        var e = this;"undefined" != typeof document && this._findLinks().forEach(function (t) {
+	          t.hasListenerAttached || (t.addEventListener("click", function (n) {
+	            var o = e.getLinkPath(t);e._destroyed || (n.preventDefault(), e.navigate(o.replace(/\/+$/, "").replace(/^\/+/, "/")));
+	          }), t.hasListenerAttached = !0);
+	        });
+	      }, generate: function generate(e) {
+	        var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
+	            n = this._routes.reduce(function (n, o) {
+	          var i;if (o.name === e) {
+	            n = o.route;for (i in t) {
+	              n = n.toString().replace(":" + i, t[i]);
+	            }
+	          }return n;
+	        }, "");return this._useHash ? this._hash + n : n;
+	      }, link: function link(e) {
+	        return this._getRoot() + e;
+	      }, pause: function pause() {
+	        var e = !(arguments.length > 0 && void 0 !== arguments[0]) || arguments[0];this._paused = e, e ? this._historyAPIUpdateMethod = "replaceState" : this._historyAPIUpdateMethod = "pushState";
+	      }, resume: function resume() {
+	        this.pause(!1);
+	      }, historyAPIUpdateMethod: function historyAPIUpdateMethod(e) {
+	        return "undefined" == typeof e ? this._historyAPIUpdateMethod : (this._historyAPIUpdateMethod = e, e);
+	      }, disableIfAPINotAvailable: function disableIfAPINotAvailable() {
+	        o() || this.destroy();
+	      }, lastRouteResolved: function lastRouteResolved() {
+	        return this._lastRouteResolved;
+	      }, getLinkPath: function getLinkPath(e) {
+	        return e.getAttribute("href");
+	      }, hooks: function hooks(e) {
+	        this._genericHooks = e;
+	      }, _add: function _add(e) {
+	        var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : null,
+	            n = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : null;return "string" == typeof e && (e = encodeURI(e)), "object" === ("undefined" == typeof t ? "undefined" : g(t)) ? this._routes.push({ route: e, handler: t.uses, name: t.as, hooks: n || t.hooks }) : this._routes.push({ route: e, handler: t, hooks: n }), this._add;
+	      }, _getRoot: function _getRoot() {
+	        return null !== this.root ? this.root : (this.root = c(this._cLoc().split("?")[0], this._routes), this.root);
+	      }, _listen: function _listen() {
+	        var e = this;if (this._usePushState) window.addEventListener("popstate", this._onLocationChange);else if (f()) window.addEventListener("hashchange", this._onLocationChange);else {
+	          var t = this._cLoc(),
+	              n = void 0,
+	              _o = void 0;_o = function o() {
+	            n = e._cLoc(), t !== n && (t = n, e.resolve()), e._listeningInterval = setTimeout(_o, 200);
+	          }, _o();
+	        }
+	      }, _cLoc: function _cLoc() {
+	        return "undefined" != typeof window ? "undefined" != typeof window.__NAVIGO_WINDOW_LOCATION_MOCK__ ? window.__NAVIGO_WINDOW_LOCATION_MOCK__ : s(window.location.href) : "";
+	      }, _findLinks: function _findLinks() {
+	        return [].slice.call(document.querySelectorAll("[data-navigo]"));
+	      }, _onLocationChange: function _onLocationChange() {
+	        this.resolve();
+	      }, _callLeave: function _callLeave() {
+	        this._lastRouteResolved && this._lastRouteResolved.hooks && this._lastRouteResolved.hooks.leave && this._lastRouteResolved.hooks.leave(this._lastRouteResolved.params);
+	      } }, i.PARAMETER_REGEXP = /([:*])(\w+)/g, i.WILDCARD_REGEXP = /\*/g, i.REPLACE_VARIABLE_REGEXP = "([^/]+)", i.REPLACE_WILDCARD = "(?:.*)", i.FOLLOWED_BY_SLASH_REGEXP = "(?:/$|$)", i.MATCH_REGEXP_FLAGS = "", t["default"] = i, e.exports = t["default"];
+	  }]);
+	});
+	//# sourceMappingURL=navigo.min.js.map
+	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(13)(module)))
+
+/***/ }),
+/* 13 */
+/***/ (function(module, exports) {
+
+	"use strict";
+	
+	module.exports = function (module) {
+		if (!module.webpackPolyfill) {
+			module.deprecate = function () {};
+			module.paths = [];
+			// module.parent = undefined by default
+			module.children = [];
+			module.webpackPolyfill = 1;
+		}
+		return module;
+	};
+
+/***/ }),
+/* 14 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1436,7 +1702,7 @@
 	};
 
 /***/ }),
-/* 12 */
+/* 15 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1449,11 +1715,11 @@
 	
 	var _helpers = __webpack_require__(9);
 	
-	var _renderTimeSlotInfo = __webpack_require__(13);
+	var _renderTimeSlotInfo = __webpack_require__(16);
 	
 	var _renderTimeSlotInfo2 = _interopRequireDefault(_renderTimeSlotInfo);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -1781,7 +2047,7 @@
 	exports.default = RenderEvents;
 
 /***/ }),
-/* 13 */
+/* 16 */
 /***/ (function(module, exports, __webpack_require__) {
 
 	'use strict';
@@ -1798,7 +2064,7 @@
 	
 	var _hideOnClickOutside2 = _interopRequireDefault(_hideOnClickOutside);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 	
@@ -2019,252 +2285,6 @@
 	};
 
 /***/ }),
-/* 14 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	'use strict';
-	
-	Object.defineProperty(exports, "__esModule", {
-	  value: true
-	});
-	exports.activateRouter = exports.router = undefined;
-	
-	var _navigo = __webpack_require__(15);
-	
-	var _navigo2 = _interopRequireDefault(_navigo);
-	
-	var _application = __webpack_require__(1);
-	
-	var _application2 = _interopRequireDefault(_application);
-	
-	var _helpers = __webpack_require__(9);
-	
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-	
-	var root = null;
-	var useHash = true;
-	var hash = '#';
-	var router = new _navigo2.default(root, useHash, hash);
-	
-	var activateRouter = function activateRouter() {
-	  return router.on(/event\/(\w+=\d+&\w+=\d+&\w+=\d+)\/(\w+)\/?/, function (urlHash, action) {
-	    var encodeData = (0, _helpers.encodeObjFromHash)(urlHash);
-	    if (action === 'create') {
-	      _application2.default.showEventCreate(encodeData);
-	    } else if (action === 'edit') {
-	      _application2.default.showEventEdit(encodeData);
-	    }
-	  }).on(/event\/(\w+)\/?/, function (action) {
-	    if (action === 'create') {
-	      _application2.default.showEventCreate();
-	    }
-	  }).on('/', function () {
-	    _application2.default.showMeetingRooms();
-	  }).resolve();
-	};
-	
-	exports.router = router;
-	exports.activateRouter = activateRouter;
-
-/***/ }),
-/* 15 */
-/***/ (function(module, exports, __webpack_require__) {
-
-	var __WEBPACK_AMD_DEFINE_FACTORY__, __WEBPACK_AMD_DEFINE_ARRAY__, __WEBPACK_AMD_DEFINE_RESULT__;/* WEBPACK VAR INJECTION */(function(module) {"use strict";
-	
-	var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-	
-	!function (e, t) {
-	  "object" == ( false ? "undefined" : _typeof(exports)) && "object" == ( false ? "undefined" : _typeof(module)) ? module.exports = t() :  true ? !(__WEBPACK_AMD_DEFINE_ARRAY__ = [], __WEBPACK_AMD_DEFINE_FACTORY__ = (t), __WEBPACK_AMD_DEFINE_RESULT__ = (typeof __WEBPACK_AMD_DEFINE_FACTORY__ === 'function' ? (__WEBPACK_AMD_DEFINE_FACTORY__.apply(exports, __WEBPACK_AMD_DEFINE_ARRAY__)) : __WEBPACK_AMD_DEFINE_FACTORY__), __WEBPACK_AMD_DEFINE_RESULT__ !== undefined && (module.exports = __WEBPACK_AMD_DEFINE_RESULT__)) : "object" == (typeof exports === "undefined" ? "undefined" : _typeof(exports)) ? exports.Navigo = t() : e.Navigo = t();
-	}(undefined, function () {
-	  return function (e) {
-	    function t(o) {
-	      if (n[o]) return n[o].exports;var i = n[o] = { exports: {}, id: o, loaded: !1 };return e[o].call(i.exports, i, i.exports, t), i.loaded = !0, i.exports;
-	    }var n = {};return t.m = e, t.c = n, t.p = "", t(0);
-	  }([function (e, t) {
-	    "use strict";
-	    function n(e) {
-	      if (Array.isArray(e)) {
-	        for (var t = 0, n = Array(e.length); t < e.length; t++) {
-	          n[t] = e[t];
-	        }return n;
-	      }return Array.from(e);
-	    }function o() {
-	      return !("undefined" == typeof window || !window.history || !window.history.pushState);
-	    }function i(e, t, n) {
-	      this.root = null, this._routes = [], this._useHash = t, this._hash = "undefined" == typeof n ? "#" : n, this._paused = !1, this._destroyed = !1, this._lastRouteResolved = null, this._notFoundHandler = null, this._defaultHandler = null, this._usePushState = !t && o(), this._onLocationChange = this._onLocationChange.bind(this), this._genericHooks = null, this._historyAPIUpdateMethod = "pushState", e ? this.root = t ? e.replace(/\/$/, "/" + this._hash) : e.replace(/\/$/, "") : t && (this.root = this._cLoc().split(this._hash)[0].replace(/\/$/, "/" + this._hash)), this._listen(), this.updatePageLinks();
-	    }function s(e) {
-	      return e instanceof RegExp ? e : e.replace(/\/+$/, "").replace(/^\/+/, "^/");
-	    }function r(e, t) {
-	      return 0 === t.length ? null : e ? e.slice(1, e.length).reduce(function (e, n, o) {
-	        return null === e && (e = {}), e[t[o]] = decodeURIComponent(n), e;
-	      }, null) : null;
-	    }function a(e) {
-	      var t,
-	          n = [];return t = e instanceof RegExp ? e : new RegExp(e.replace(i.PARAMETER_REGEXP, function (e, t, o) {
-	        return n.push(o), i.REPLACE_VARIABLE_REGEXP;
-	      }).replace(i.WILDCARD_REGEXP, i.REPLACE_WILDCARD) + i.FOLLOWED_BY_SLASH_REGEXP, i.MATCH_REGEXP_FLAGS), { regexp: t, paramNames: n };
-	    }function u(e) {
-	      return e.replace(/\/$/, "").split("/").length;
-	    }function h(e, t) {
-	      return u(t) - u(e);
-	    }function l(e) {
-	      var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : [];return t.map(function (t) {
-	        var n = a(s(t.route)),
-	            o = n.regexp,
-	            i = n.paramNames,
-	            u = e.replace(/^\/+/, "/").match(o),
-	            h = r(u, i);return !!u && { match: u, route: t, params: h };
-	      }).filter(function (e) {
-	        return e;
-	      });
-	    }function d(e, t) {
-	      return l(e, t)[0] || !1;
-	    }function c(e, t) {
-	      var n = t.map(function (t) {
-	        return "" === t.route || "*" === t.route ? e : e.split(new RegExp(t.route + "($|/)"))[0];
-	      }),
-	          o = s(e);return n.length > 1 ? n.reduce(function (e, t) {
-	        return e.length > t.length && (e = t), e;
-	      }, n[0]) : 1 === n.length ? n[0] : o;
-	    }function f() {
-	      return !!("undefined" != typeof window && "onhashchange" in window);
-	    }function _(e) {
-	      return e.split(/\?(.*)?$/).slice(1).join("");
-	    }function p(e, t, n) {
-	      var i,
-	          s = e,
-	          r = function r(e) {
-	        return e.split(/\?(.*)?$/)[0];
-	      };return "undefined" == typeof n && (n = "#"), o() && !t ? s = r(e).split(n)[0] : (i = e.split(n), s = r(i.length > 1 ? i[1] : i[0])), s;
-	    }function v(e, t, n) {
-	      if (t && "object" === ("undefined" == typeof t ? "undefined" : g(t))) {
-	        if (t.before) return void t.before(function () {
-	          var o = !(arguments.length > 0 && void 0 !== arguments[0]) || arguments[0];o && (e(), t.after && t.after(n));
-	        }, n);if (t.after) return e(), void (t.after && t.after(n));
-	      }e();
-	    }function R(e, t, n) {
-	      if (o() && !t) return !1;if (!e.match(n)) return !1;var i = e.split(n);return i.length < 2 || "" === i[1];
-	    }Object.defineProperty(t, "__esModule", { value: !0 });var g = "function" == typeof Symbol && "symbol" == _typeof(Symbol.iterator) ? function (e) {
-	      return typeof e === "undefined" ? "undefined" : _typeof(e);
-	    } : function (e) {
-	      return e && "function" == typeof Symbol && e.constructor === Symbol && e !== Symbol.prototype ? "symbol" : typeof e === "undefined" ? "undefined" : _typeof(e);
-	    };i.prototype = { helpers: { match: d, root: c, clean: s, getOnlyURL: p }, navigate: function navigate(e, t) {
-	        var n;return e = e || "", this._usePushState ? (n = (t ? "" : this._getRoot() + "/") + e.replace(/^\/+/, "/"), n = n.replace(/([^:])(\/{2,})/g, "$1/"), history[this._historyAPIUpdateMethod]({}, "", n), this.resolve()) : "undefined" != typeof window && (e = e.replace(new RegExp("^" + this._hash), ""), window.location.href = window.location.href.replace(/#$/, "").replace(new RegExp(this._hash + ".*$"), "") + this._hash + e), this;
-	      }, on: function on() {
-	        for (var e = this, t = arguments.length, n = Array(t), o = 0; o < t; o++) {
-	          n[o] = arguments[o];
-	        }if ("function" == typeof n[0]) this._defaultHandler = { handler: n[0], hooks: n[1] };else if (n.length >= 2) {
-	          if ("/" === n[0]) {
-	            var i = n[1];"object" === g(n[1]) && (i = n[1].uses), this._defaultHandler = { handler: i, hooks: n[2] };
-	          } else this._add(n[0], n[1], n[2]);
-	        } else if ("object" === g(n[0])) {
-	          var s = Object.keys(n[0]).sort(h);s.forEach(function (t) {
-	            e.on(t, n[0][t]);
-	          });
-	        }return this;
-	      }, off: function off(e) {
-	        return null !== this._defaultHandler && e === this._defaultHandler.handler ? this._defaultHandler = null : null !== this._notFoundHandler && e === this._notFoundHandler.handler && (this._notFoundHandler = null), this._routes = this._routes.reduce(function (t, n) {
-	          return n.handler !== e && t.push(n), t;
-	        }, []), this;
-	      }, notFound: function notFound(e, t) {
-	        return this._notFoundHandler = { handler: e, hooks: t }, this;
-	      }, resolve: function resolve(e) {
-	        var t,
-	            o,
-	            i = this,
-	            s = (e || this._cLoc()).replace(this._getRoot(), "");this._useHash && (s = s.replace(new RegExp("^/" + this._hash), "/"));var r = _(e || this._cLoc()),
-	            a = p(s, this._useHash, this._hash);return !this._paused && (this._lastRouteResolved && a === this._lastRouteResolved.url && r === this._lastRouteResolved.query ? (this._lastRouteResolved.hooks && this._lastRouteResolved.hooks.already && this._lastRouteResolved.hooks.already(this._lastRouteResolved.params), !1) : (o = d(a, this._routes)) ? (this._callLeave(), this._lastRouteResolved = { url: a, query: r, hooks: o.route.hooks, params: o.params, name: o.route.name }, t = o.route.handler, v(function () {
-	          v(function () {
-	            o.route.route instanceof RegExp ? t.apply(void 0, n(o.match.slice(1, o.match.length))) : t(o.params, r);
-	          }, o.route.hooks, o.params, i._genericHooks);
-	        }, this._genericHooks, o.params), o) : this._defaultHandler && ("" === a || "/" === a || a === this._hash || R(a, this._useHash, this._hash)) ? (v(function () {
-	          v(function () {
-	            i._callLeave(), i._lastRouteResolved = { url: a, query: r, hooks: i._defaultHandler.hooks }, i._defaultHandler.handler(r);
-	          }, i._defaultHandler.hooks);
-	        }, this._genericHooks), !0) : (this._notFoundHandler && v(function () {
-	          v(function () {
-	            i._callLeave(), i._lastRouteResolved = { url: a, query: r, hooks: i._notFoundHandler.hooks }, i._notFoundHandler.handler(r);
-	          }, i._notFoundHandler.hooks);
-	        }, this._genericHooks), !1));
-	      }, destroy: function destroy() {
-	        this._routes = [], this._destroyed = !0, this._lastRouteResolved = null, this._genericHooks = null, clearTimeout(this._listeningInterval), "undefined" != typeof window && (window.removeEventListener("popstate", this._onLocationChange), window.removeEventListener("hashchange", this._onLocationChange));
-	      }, updatePageLinks: function updatePageLinks() {
-	        var e = this;"undefined" != typeof document && this._findLinks().forEach(function (t) {
-	          t.hasListenerAttached || (t.addEventListener("click", function (n) {
-	            var o = e.getLinkPath(t);e._destroyed || (n.preventDefault(), e.navigate(o.replace(/\/+$/, "").replace(/^\/+/, "/")));
-	          }), t.hasListenerAttached = !0);
-	        });
-	      }, generate: function generate(e) {
-	        var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : {},
-	            n = this._routes.reduce(function (n, o) {
-	          var i;if (o.name === e) {
-	            n = o.route;for (i in t) {
-	              n = n.toString().replace(":" + i, t[i]);
-	            }
-	          }return n;
-	        }, "");return this._useHash ? this._hash + n : n;
-	      }, link: function link(e) {
-	        return this._getRoot() + e;
-	      }, pause: function pause() {
-	        var e = !(arguments.length > 0 && void 0 !== arguments[0]) || arguments[0];this._paused = e, e ? this._historyAPIUpdateMethod = "replaceState" : this._historyAPIUpdateMethod = "pushState";
-	      }, resume: function resume() {
-	        this.pause(!1);
-	      }, historyAPIUpdateMethod: function historyAPIUpdateMethod(e) {
-	        return "undefined" == typeof e ? this._historyAPIUpdateMethod : (this._historyAPIUpdateMethod = e, e);
-	      }, disableIfAPINotAvailable: function disableIfAPINotAvailable() {
-	        o() || this.destroy();
-	      }, lastRouteResolved: function lastRouteResolved() {
-	        return this._lastRouteResolved;
-	      }, getLinkPath: function getLinkPath(e) {
-	        return e.getAttribute("href");
-	      }, hooks: function hooks(e) {
-	        this._genericHooks = e;
-	      }, _add: function _add(e) {
-	        var t = arguments.length > 1 && void 0 !== arguments[1] ? arguments[1] : null,
-	            n = arguments.length > 2 && void 0 !== arguments[2] ? arguments[2] : null;return "string" == typeof e && (e = encodeURI(e)), "object" === ("undefined" == typeof t ? "undefined" : g(t)) ? this._routes.push({ route: e, handler: t.uses, name: t.as, hooks: n || t.hooks }) : this._routes.push({ route: e, handler: t, hooks: n }), this._add;
-	      }, _getRoot: function _getRoot() {
-	        return null !== this.root ? this.root : (this.root = c(this._cLoc().split("?")[0], this._routes), this.root);
-	      }, _listen: function _listen() {
-	        var e = this;if (this._usePushState) window.addEventListener("popstate", this._onLocationChange);else if (f()) window.addEventListener("hashchange", this._onLocationChange);else {
-	          var t = this._cLoc(),
-	              n = void 0,
-	              _o = void 0;_o = function o() {
-	            n = e._cLoc(), t !== n && (t = n, e.resolve()), e._listeningInterval = setTimeout(_o, 200);
-	          }, _o();
-	        }
-	      }, _cLoc: function _cLoc() {
-	        return "undefined" != typeof window ? "undefined" != typeof window.__NAVIGO_WINDOW_LOCATION_MOCK__ ? window.__NAVIGO_WINDOW_LOCATION_MOCK__ : s(window.location.href) : "";
-	      }, _findLinks: function _findLinks() {
-	        return [].slice.call(document.querySelectorAll("[data-navigo]"));
-	      }, _onLocationChange: function _onLocationChange() {
-	        this.resolve();
-	      }, _callLeave: function _callLeave() {
-	        this._lastRouteResolved && this._lastRouteResolved.hooks && this._lastRouteResolved.hooks.leave && this._lastRouteResolved.hooks.leave(this._lastRouteResolved.params);
-	      } }, i.PARAMETER_REGEXP = /([:*])(\w+)/g, i.WILDCARD_REGEXP = /\*/g, i.REPLACE_VARIABLE_REGEXP = "([^/]+)", i.REPLACE_WILDCARD = "(?:.*)", i.FOLLOWED_BY_SLASH_REGEXP = "(?:/$|$)", i.MATCH_REGEXP_FLAGS = "", t["default"] = i, e.exports = t["default"];
-	  }]);
-	});
-	//# sourceMappingURL=navigo.min.js.map
-	/* WEBPACK VAR INJECTION */}.call(exports, __webpack_require__(16)(module)))
-
-/***/ }),
-/* 16 */
-/***/ (function(module, exports) {
-
-	"use strict";
-	
-	module.exports = function (module) {
-		if (!module.webpackPolyfill) {
-			module.deprecate = function () {};
-			module.paths = [];
-			// module.parent = undefined by default
-			module.children = [];
-			module.webpackPolyfill = 1;
-		}
-		return module;
-	};
-
-/***/ }),
 /* 17 */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -2390,7 +2410,7 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	var _apiService = __webpack_require__(20);
 	
@@ -2528,9 +2548,12 @@
 	  }, {
 	    key: 'cancelBtnHandler',
 	    value: function cancelBtnHandler(event) {
+	      var day = {
+	        date: this.eventInputData.startTime
+	      };
 	      event.preventDefault();
 	      this.clearHandlers();
-	      _router.router.navigate();
+	      _router.router.navigate('/date/' + (0, _helpers.parseObjToHash)(day));
 	    }
 	  }, {
 	    key: 'getAutocompleteHandler',
@@ -2967,7 +2990,7 @@
 	
 	      if (this.eventDateDay < this.initialAppDay) {
 	        this.clearRecommendations();
-	        throw new _helpers.UserException('Нельзя редактировать события ушедших дней');
+	        throw new _helpers.UserException('Нельзя создавать события в прошлом');
 	      } else {
 	        this.clearErrorContainer();
 	      }
@@ -6513,7 +6536,7 @@
 	
 	var _application2 = _interopRequireDefault(_application);
 	
-	var _router = __webpack_require__(14);
+	var _router = __webpack_require__(11);
 	
 	var _apiService = __webpack_require__(20);
 	
@@ -6691,9 +6714,12 @@
 	  }, {
 	    key: 'cancelBtnHandler',
 	    value: function cancelBtnHandler(event) {
+	      var day = {
+	        date: this.eventInputData.startTime
+	      };
 	      event.preventDefault();
 	      this.clearHandlers();
-	      _router.router.navigate();
+	      _router.router.navigate('/date/' + (0, _helpers.parseObjToHash)(day));
 	    }
 	  }, {
 	    key: 'getAutocompleteHandler',
