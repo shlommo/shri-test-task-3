@@ -205,7 +205,7 @@ const checkEventsForSwap = (events, users, dbRooms) => {
 
         if (floorsValueOne < floorsValueTwo) {
           isFeet = checkCapacity(dbRooms, eventTwo.room.id, eventTwo.users);
-          if (isFeet) {
+          if (isFeet && roomOneId !== eventTwo.room.id) {
             swap.push({
               event: eventOne.id,
               eventRoom: roomOneId,
@@ -214,7 +214,7 @@ const checkEventsForSwap = (events, users, dbRooms) => {
           }
         } else {
           isFeet = checkCapacity(dbRooms, eventOne.room.id, eventOne.users);
-          if (isFeet) {
+          if (isFeet && roomTwoId !== eventOne.room.id) {
             swap.push({
               event: eventTwo.id,
               eventRoom: roomTwoId,
