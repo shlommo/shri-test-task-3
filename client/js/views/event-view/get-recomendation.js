@@ -104,7 +104,7 @@ function getRecommendation(date, members, db) {
         }
 
         if (dbEvent.room.id === dbRoomId) { // если в этой комнате есть события
-          if (tStart - dbEventEnd > 0 || tEnd - dbEventStart < 0 ) {
+          if (tStart - dbEventEnd >= 0 || tEnd - dbEventStart < 0 ) {
             continue;
           }
 
